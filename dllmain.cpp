@@ -1,0 +1,27 @@
+#include "windows.h" // IWYU pragma: keep
+#include "Main.h"
+
+static Main* g_pScriptHook = NULL;
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		DisableThreadLibraryCalls(hModule);
+
+		g_pScriptHook = new Main();
+		if (g_pScriptHook)
+		{
+			g_pScriptHook->StartThread();
+			// g_Menu->StartMenu(g_pScriptHook);
+		}
+		break;
+	case DLL_PROCESS_DETACH:
+		g_pScriptHook->Unload();
+		delete g_pScriptHook;
+		break;
+	}
+
+	return TRUE;
+}

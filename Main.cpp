@@ -1,0 +1,298 @@
+#include "Main.h"
+#include "Logger.h"
+#include "windows.h"
+#include <cstdio>
+#include "MinHook/MinHook.h"
+#include <string>
+
+using namespace std;
+
+LPVOID luaL_loadbuffer_t_addr;
+LPVOID luaL_newstate_t_addr;
+LPVOID luaL_pcall_t_addr;
+void* context_lua_state;
+static CRITICAL_SECTION luaEngine_loadLock;
+DWORD WINAPI InputThread(Main* main);
+
+bool hasConsole = false;
+void Main::Entry(Main* main) // static
+{
+	InitializeCriticalSection(&luaEngine_loadLock);
+	MH_Initialize();
+	main->InstallHook();
+
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)InputThread, main, 0, 0);
+}
+
+// Thread que captura teclas
+DWORD WINAPI InputThread(Main* main)
+{
+	Logger::LogMessage("Input thread started! Press F1 to test Lua execution\n");
+
+	bool f1_pressed = false;
+	bool f2_pressed = false;
+	bool f3_pressed = false;
+
+	while (true)
+	{
+		Sleep(100); // 100ms delay
+
+		// F1 - Teste simples
+		if (GetAsyncKeyState(VK_F1) & 0x8000)
+		{
+			if (!f1_pressed && context_lua_state != NULL)
+			{
+				f1_pressed = true;
+				Logger::LogMessage("\n[F1] Searching for weather functions...\n");
+				const char* find_weather = R"(
+            print('=== Searching Weather Functions ===')
+
+            -- Busca fun��es relacionadas a clima
+            for name, func in pairs(_G) do
+                if type(func) == 'function' then
+                    local lowerName = string.lower(name)
+                    if string.find(lowerName, 'weather') or
+                       string.find(lowerName, 'climate') or
+                       string.find(lowerName, 'rain') or
+                       string.find(lowerName, 'storm') then
+                        print('Found: ' .. name)
+                    end
+                end
+            end
+
+            -- Testa se WeatherIDs existe
+            if WeatherIDs then
+                print('WeatherIDs table exists!')
+                local count = 0
+                for k, v in pairs(WeatherIDs) do
+                    count = count + 1
+                    if count <= 5 then
+                        print('  ' .. k .. ' = ' .. v)
+                    end
+                end
+                print('Total weather presets: ' .. count)
+            end
+
+            print('===================================')
+        )";
+				main->Execute(context_lua_state, find_weather);
+			}
+		}
+		else
+		{
+			f1_pressed = false;
+		}
+
+		// F2 - test
+		if (GetAsyncKeyState(VK_F2) & 0x8000) // when press f2
+		{
+			if (!f2_pressed && context_lua_state != NULL)
+			{
+				f2_pressed = true;
+				Logger::LogMessage("\n[F1] Changing weather to STORM...\n");
+
+				const char* storm_weather = "PushEnvironmentWeatherOverride(\"WeatherPreset.9223372121331463515\", 1)"; // but, the weather id???
+				main->Execute(context_lua_state, storm_weather);
+			}
+		}
+		else
+		{
+			f2_pressed = false;
+		}
+
+		// F3 - Test)
+		if (GetAsyncKeyState(VK_F3) & 0x8000)
+		{
+			if (!f3_pressed && context_lua_state != NULL)
+			{
+				f3_pressed = true;
+				Logger::LogMessage("\n[F3] Testing error handling...\n");
+
+				const char* test3 = "this will cause syntax error!";
+				main->Execute(context_lua_state, test3);
+			}
+		}
+		else
+		{
+			f3_pressed = false;
+		}
+
+		// END -
+		if (GetAsyncKeyState(VK_END) & 0x8000)
+		{
+			Logger::LogMessage("END pressed - Exiting input thread\n");
+			break;
+		}
+	}
+
+	return 0;
+}
+
+uintptr_t Main::GetGameBaseAddress()
+{
+	return reinterpret_cast<uintptr_t>(GetModuleHandleA(MODULE_NAME));
+}
+
+int Main::luaL_pcall_t_trampoline(void* L, int nargs, int nresults, int errfunc) {
+   	if (L != NULL && context_lua_state == NULL) {
+        Logger::LogMessage("Captured lua_state from pcall!\n");
+		context_lua_state = L;
+    }
+
+	lua_pcall_t luaL_pcall_t_call = reinterpret_cast<lua_pcall_t>(luaL_pcall_t_addr);
+	return luaL_pcall_t_call(L, nargs, nresults, errfunc);
+}
+
+void* Main::luaL_newstate_t_trampoline() {
+    luaL_newstate_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_newstate_t>(luaL_newstate_t_addr);
+    context_lua_state = luaL_loadbuffer_t_call();
+    Logger::LogMessage("Captured lua_state from newstate!\n");
+    return context_lua_state;
+}
+
+int Main::luaL_loadbuffer_t_trampoline(void* lua_state, const char* buff, size_t sz, const char* name) {
+	if (lua_state != NULL)
+		context_lua_state = lua_state;
+	else {
+	    Logger::LogMessage("=== ERROR: failed to set lua_state because it is NULL ===\n");
+	}
+
+	Logger::LogMessage("=== Lua Script Loaded ===\n");
+
+	// Printa o nome do arquivo/script
+	if (name != NULL) {
+		Logger::LogMessage("Script Name: %s\n", name);
+	}
+	else {
+		Logger::LogMessage("Script Name: [unnamed]\n");
+	}
+
+	// Printa o tamanho do buffer
+	Logger::LogMessage("Buffer Size: %zu bytes\n", sz);
+
+	// Printa o conte�do do script Lua
+	if (buff != NULL && sz > 0) {
+		Logger::LogMessage("Script Content:\n");
+		Logger::LogMessage("------------------------\n");
+
+		// Cria uma string tempor�ria para garantir null-termination
+		std::string script_content(buff, sz);
+		Logger::LogMessage("%s\n", script_content.c_str());
+
+		Logger::LogMessage("------------------------\n");
+	}
+
+	Logger::LogMessage("\n");
+	// call the original function to avoid breaking the game
+	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
+	return luaL_loadbuffer_t_call(lua_state, buff, sz, name);
+}
+
+int Main::Execute(void* L, const char* scriptData)
+{
+	lua_tostring_t lua_tostring_t_call = reinterpret_cast<lua_tostring_t>((GetGameBaseAddress() + lua_tolstring_t_off));
+	lua_pcall_t lua_pcall_t_call = reinterpret_cast<lua_pcall_t>((GetGameBaseAddress() + lua_pcall_t_off)); // lua
+
+	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
+	int loadResult = luaL_loadbuffer_t_call(L, scriptData, strlen(scriptData), "exec");
+
+	if (loadResult != LUA_OK)
+	{
+		const char* err = lua_tostring_t_call(L, -1);
+		Logger::LogMessage("Compilation error: %s\n", err);
+		return LUA_ERRSYNTAX;
+	}
+
+	// Leave critical section because call below might never return (loop)
+	LeaveCriticalSection(&luaEngine_loadLock);
+
+	int result = lua_pcall_t_call(L, 0, -1, 0);
+	EnterCriticalSection(&luaEngine_loadLock);
+	if (result != LUA_OK)
+	{
+		const char* err = lua_tostring_t_call(L, -1);
+		Logger::LogMessage("Execution error: %s\n", err);
+	}
+
+	return result;
+}
+
+void Main::InstallHook() {
+	uintptr_t baseAddress = GetGameBaseAddress();
+	PBYTE load_buffer_func = (PBYTE)(baseAddress + lual_loadbuffer_t_off);
+	PBYTE lua_newstate_func = (PBYTE)(baseAddress + lua_newstate_t_off);
+	PBYTE lua_pcall_func = (PBYTE)(baseAddress + lua_pcall_t_off);
+
+	Logger::LogMessage("Base Address: %p\n", baseAddress);
+	Logger::LogMessage("Call Address (lual_loadbuffer): %p\n", load_buffer_func);
+	Logger::LogMessage("Call Address (lua_newstate): %p\n", lua_newstate_func);
+	Logger::LogMessage("Call Address (lua_pcall): %p\n", lua_pcall_func);
+
+	if (MH_CreateHook(load_buffer_func, &luaL_loadbuffer_t_trampoline, &luaL_loadbuffer_t_addr) != MH_OK) {
+		Logger::LogMessage("Failed to create hook! (lual_loadbuffer)\n");
+		return;
+	}
+
+	if (MH_CreateHook(lua_newstate_func, &luaL_newstate_t_trampoline, &luaL_newstate_t_addr) != MH_OK) {
+		Logger::LogMessage("Failed to create hook! (lua_newstate)\n");
+		return;
+	}
+
+	if (MH_CreateHook(lua_pcall_func, &luaL_pcall_t_trampoline, &luaL_pcall_t_addr) != MH_OK) {
+		Logger::LogMessage("Failed to create hook! (lua_pcall)\n");
+		return;
+	}
+
+	Logger::LogMessage("Hooks created!\n");
+
+	if (MH_EnableHook(load_buffer_func) != MH_OK) {
+		Logger::LogMessage("Failed to enable hook! (lual_loadbuffer)\n");
+		return;
+	}
+
+	if (MH_EnableHook(lua_newstate_func) != MH_OK) {
+		Logger::LogMessage("Failed to enable hook! (lua_newstate)\n");
+		return;
+	}
+
+	if (MH_EnableHook(lua_pcall_func) != MH_OK) {
+		Logger::LogMessage("Failed to enable hook! (lua_pcall)\n");
+		return;
+	}
+
+	Logger::LogMessage("Hooks enabled!\n");
+	// print t_addr
+	Logger::LogMessage("Original Hook address (lual_loadbuffer): %p\n", luaL_loadbuffer_t_addr);
+	Logger::LogMessage("Original Hook address (lua_newstate): %p\n", luaL_newstate_t_addr);
+}
+
+void Main::StartThread()
+{
+	Logger::Initialize("Teste!");
+	Logger::LogMessage("\n");
+	Logger::LogMessage("Thanks to god god god\n");
+
+	hasConsole = AllocConsole();
+	if (hasConsole)
+	{
+		auto _ = freopen("CONOUT$", "wb", stdout);
+		Logger::LogMessage("Jamie Cheat\n");
+	}
+	else
+	{
+        std::string msg = "Failed to attach console!\n";
+	    Logger::LogMessage(msg.c_str());
+	}
+
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Main::Entry, this, 0, 0);
+}
+
+void Main::Unload()
+{
+	Logger::Shutdown();
+	if (hasConsole)
+	{
+		fclose(stdout);
+		hasConsole = !FreeConsole();
+	}
+}
