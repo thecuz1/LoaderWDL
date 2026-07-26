@@ -8,7 +8,6 @@
 using namespace std;
 
 LPVOID luaL_loadbuffer_t_addr;
-LPVOID luaL_newstate_t_addr;
 LPVOID luaL_pcall_t_addr;
 void* context_lua_state;
 static CRITICAL_SECTION luaEngine_loadLock;
@@ -17,6 +16,20 @@ DWORD WINAPI InputThread(Main* main);
 bool hasConsole = false;
 void Main::Entry(Main* main) // static
 {
+    HWND hGameWindow = NULL;
+    while (hGameWindow == NULL)
+    {
+        hGameWindow = FindWindowA(NULL, "Watch Dogs Legion");
+
+        if (hGameWindow == NULL)
+        {
+            Sleep(500);
+        } else {
+            break;
+        }
+    }
+    Sleep(2000);
+
 	InitializeCriticalSection(&luaEngine_loadLock);
 	MH_Initialize();
 	main->InstallHook();
@@ -143,13 +156,6 @@ int Main::luaL_pcall_t_trampoline(void* L, int nargs, int nresults, int errfunc)
 	return luaL_pcall_t_call(L, nargs, nresults, errfunc);
 }
 
-void* Main::luaL_newstate_t_trampoline() {
-    luaL_newstate_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_newstate_t>(luaL_newstate_t_addr);
-    context_lua_state = luaL_loadbuffer_t_call();
-    Logger::LogMessage("Captured lua_state from newstate!\n");
-    return context_lua_state;
-}
-
 int Main::luaL_loadbuffer_t_trampoline(void* lua_state, const char* buff, size_t sz, const char* name) {
 	if (lua_state != NULL)
 		context_lua_state = lua_state;
@@ -233,11 +239,6 @@ void Main::InstallHook() {
 		return;
 	}
 
-	if (MH_CreateHook(lua_newstate_func, &luaL_newstate_t_trampoline, &luaL_newstate_t_addr) != MH_OK) {
-		Logger::LogMessage("Failed to create hook! (lua_newstate)\n");
-		return;
-	}
-
 	if (MH_CreateHook(lua_pcall_func, &luaL_pcall_t_trampoline, &luaL_pcall_t_addr) != MH_OK) {
 		Logger::LogMessage("Failed to create hook! (lua_pcall)\n");
 		return;
@@ -247,11 +248,6 @@ void Main::InstallHook() {
 
 	if (MH_EnableHook(load_buffer_func) != MH_OK) {
 		Logger::LogMessage("Failed to enable hook! (lual_loadbuffer)\n");
-		return;
-	}
-
-	if (MH_EnableHook(lua_newstate_func) != MH_OK) {
-		Logger::LogMessage("Failed to enable hook! (lua_newstate)\n");
 		return;
 	}
 
@@ -270,18 +266,15 @@ void Main::StartThread()
 {
 	Logger::Initialize("Teste!");
 	Logger::LogMessage("\n");
-	Logger::LogMessage("Thanks to god god god\n");
 
 	hasConsole = AllocConsole();
 	if (hasConsole)
 	{
 		auto _ = freopen("CONOUT$", "wb", stdout);
-		Logger::LogMessage("Jamie Cheat\n");
 	}
 	else
 	{
-        std::string msg = "Failed to attach console!\n";
-	    Logger::LogMessage(msg.c_str());
+	    Logger::LogMessage("Failed to attach console!\n");
 	}
 
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Main::Entry, this, 0, 0);

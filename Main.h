@@ -30,7 +30,6 @@ typedef int(__cdecl* lua_gettop_t)(void* lua_state);
 typedef void(__cdecl* lua_settop_t)(void* lua_state, int index);
 
 typedef int(__cdecl* luaL_loadbuffer_t)(void* lua_state, const char* buff, size_t sz, const char* name);
-typedef void*(__cdecl* luaL_newstate_t)();
 typedef int(__cdecl* lua_pcall_t)(void* lua_state, int nargs, int nresults, int errfunc);
 typedef const char* (__cdecl* lua_tolstring_t)(void* lua_state, int index, size_t* len);
 typedef const char* (__cdecl* lua_tostring_t)(void* lua_state, int index);
@@ -43,9 +42,8 @@ public:
 	void Unload();
 
 private:
-	static int luaL_loadbuffer_t_trampoline(void* lua_state, const char* buff, size_t sz, const char* name); // hook function
-	static void* luaL_newstate_t_trampoline(); // hook function
-	static int luaL_pcall_t_trampoline(void* L, int nargs, int nresults, int errfunc); // hook function
+	static int luaL_loadbuffer_t_trampoline(void* lua_state, const char* buff, size_t sz, const char* name);
+	static int luaL_pcall_t_trampoline(void* L, int nargs, int nresults, int errfunc);
 	uintptr_t GetGameBaseAddress();
 	void InstallHook();
 	static void Entry(Main* main);

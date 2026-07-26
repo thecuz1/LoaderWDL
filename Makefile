@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX      = x86_64-w64-mingw32-g++
-CXXFLAGS += -Wall -DWIN32 -std=c++17 -fpermissive
+CXXFLAGS += -Wall -std=c++17 -fpermissive
 LDFLAGS  += -shared -static
 
 ifneq ("$(OFFSETS_156)", "")
