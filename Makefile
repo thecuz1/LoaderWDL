@@ -1,7 +1,7 @@
 # Compiler and flags
 CXX      = x86_64-w64-mingw32-g++
 CXXFLAGS += -Wall -std=c++17 -fpermissive
-LDFLAGS  += -shared -static
+LDFLAGS  += -shared -static -s -Wl,--exclude-all-symbols
 
 ifneq ("$(OFFSETS_156)", "")
     CXXFLAGS += -DOFFSETS_156

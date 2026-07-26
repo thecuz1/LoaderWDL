@@ -1,5 +1,6 @@
 #pragma once
 #include "windows.h" // IWYU pragma: keep
+#include <filesystem>
 
 #define MODULE_NAME "DuniaDemo_clang_64_dx12.dll"
 
@@ -39,6 +40,7 @@ class Main
 public:
 	void StartThread();
 	int Execute(void* L, const char* scriptData);
+	void ExecuteFile(void* L, const std::filesystem::path& filepath);
 	void Unload();
 
 private:

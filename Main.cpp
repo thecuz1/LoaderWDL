@@ -4,6 +4,7 @@
 #include <cstdio>
 #include "MinHook/MinHook.h"
 #include <string>
+#include <filesystem>
 
 using namespace std;
 
@@ -50,10 +51,19 @@ DWORD WINAPI InputThread(Main* main)
 	{
 		Sleep(100); // 100ms delay
 
-		// F1 - Teste simples
+		// END
+		if (GetAsyncKeyState(VK_END) & 0x8000)
+		{
+			Logger::LogMessage("END pressed - Exiting input thread\n");
+			break;
+		}
+
+		if (context_lua_state == NULL) continue;
+
+		// F1
 		if (GetAsyncKeyState(VK_F1) & 0x8000)
 		{
-			if (!f1_pressed && context_lua_state != NULL)
+			if (!f1_pressed)
 			{
 				f1_pressed = true;
 				Logger::LogMessage("\n[F1] Searching for weather functions...\n");
@@ -96,16 +106,14 @@ DWORD WINAPI InputThread(Main* main)
 			f1_pressed = false;
 		}
 
-		// F2 - test
+		// F2
 		if (GetAsyncKeyState(VK_F2) & 0x8000) // when press f2
 		{
-			if (!f2_pressed && context_lua_state != NULL)
+			if (!f2_pressed)
 			{
 				f2_pressed = true;
-				Logger::LogMessage("\n[F1] Changing weather to STORM...\n");
-
-				const char* storm_weather = "PushEnvironmentWeatherOverride(\"WeatherPreset.9223372121331463515\", 1)"; // but, the weather id???
-				main->Execute(context_lua_state, storm_weather);
+				Logger::LogMessage("Executing scripts/f2.lua...\n");
+				main->ExecuteFile(context_lua_state, "scripts/f2.lua");
 			}
 		}
 		else
@@ -113,10 +121,10 @@ DWORD WINAPI InputThread(Main* main)
 			f2_pressed = false;
 		}
 
-		// F3 - Test)
+		// F3
 		if (GetAsyncKeyState(VK_F3) & 0x8000)
 		{
-			if (!f3_pressed && context_lua_state != NULL)
+			if (!f3_pressed)
 			{
 				f3_pressed = true;
 				Logger::LogMessage("\n[F3] Testing error handling...\n");
@@ -128,13 +136,6 @@ DWORD WINAPI InputThread(Main* main)
 		else
 		{
 			f3_pressed = false;
-		}
-
-		// END -
-		if (GetAsyncKeyState(VK_END) & 0x8000)
-		{
-			Logger::LogMessage("END pressed - Exiting input thread\n");
-			break;
 		}
 	}
 
@@ -221,6 +222,41 @@ int Main::Execute(void* L, const char* scriptData)
 	}
 
 	return result;
+}
+
+void Main::ExecuteFile(void* L, const std::filesystem::path& filepath) {
+    struct FileDeleter {
+        void operator()(FILE* f) const {
+            if (f) std::fclose(f);
+        }
+    };
+
+    std::unique_ptr<FILE, FileDeleter> file(_wfopen(filepath.c_str(), L"rb"));
+    std::string narrowPath = filepath.string();
+
+    if (!file) {
+        Logger::LogMessage("Failed to open file: %s\n", narrowPath.c_str());
+        return;
+    }
+
+    std::string scriptData;
+    std::fseek(file.get(), 0, SEEK_END);
+    long size = std::ftell(file.get());
+    std::rewind(file.get());
+
+    if (size < 0) {
+        Logger::LogMessage("Failed to get file size: %s\n", narrowPath.c_str());
+        return;
+    }
+
+    scriptData.resize(size);
+    size_t bytesRead = std::fread(scriptData.data(), 1, size, file.get());
+
+    if (bytesRead == static_cast<size_t>(size)) {
+        Main::Execute(L, scriptData.c_str());
+    } else {
+        Logger::LogMessage("Failed to read file contents: %s\n", narrowPath.c_str());
+    }
 }
 
 void Main::InstallHook() {
