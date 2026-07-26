@@ -70,7 +70,7 @@ DWORD WINAPI InputThread(Main* main)
 				const char* find_weather = R"(
             print('=== Searching Weather Functions ===')
 
-            -- Busca fun��es relacionadas a clima
+            -- Search for weather-related functions
             for name, func in pairs(_G) do
                 if type(func) == 'function' then
                     local lowerName = string.lower(name)
@@ -83,7 +83,7 @@ DWORD WINAPI InputThread(Main* main)
                 end
             end
 
-            -- Testa se WeatherIDs existe
+            -- Test if WeatherIDs exist
             if WeatherIDs then
                 print('WeatherIDs table exists!')
                 local count = 0
@@ -112,8 +112,10 @@ DWORD WINAPI InputThread(Main* main)
 			if (!f2_pressed)
 			{
 				f2_pressed = true;
-				Logger::LogMessage("Executing scripts/f2.lua...\n");
-				main->ExecuteFile(context_lua_state, "scripts/f2.lua");
+                for (const auto & script : filesystem::directory_iterator("scripts")) {
+    				Logger::LogMessage("Executing %s\n", script.path().string().c_str());
+    				main->ExecuteFile(context_lua_state, script.path());
+                }
 			}
 		}
 		else
