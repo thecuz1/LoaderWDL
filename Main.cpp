@@ -113,6 +113,8 @@ DWORD WINAPI InputThread(Main* main)
 			{
 				f2_pressed = true;
                 for (const auto & script : filesystem::directory_iterator("scripts")) {
+                    if (!script.is_regular_file() || script.path().extension() != ".lua")
+                        continue;
     				Logger::LogMessage("Executing %s\n", script.path().string().c_str());
     				main->ExecuteFile(context_lua_state, script.path());
                 }
