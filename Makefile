@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX      = x86_64-w64-mingw32-g++
-CXXFLAGS += -Wall -std=c++17 -fpermissive
+CXXFLAGS += -Wall -std=c++17 -fpermissive -Ilua
 LDFLAGS  += -shared -static -s -Wl,--exclude-all-symbols
 
 ifneq ("$(OFFSETS_156)", "")
@@ -14,7 +14,8 @@ SRCS     = dllmain.cpp \
            MinHook/hook.c \
            MinHook/buffer.c \
            MinHook/trampoline.c \
-           MinHook/hde/hde64.c
+           MinHook/hde/hde64.c \
+           $(filter-out lua/lua.c lua/luac.c, $(wildcard lua/*.c))
 
 # Target
 BUILD_DIR = build
