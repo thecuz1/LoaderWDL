@@ -5,13 +5,18 @@
 #include "MinHook/MinHook.h"
 #include <string>
 #include <filesystem>
-#include "lua.h"
+#include <winnt.h>
+#include "menu.h"
+
+extern "C" {
+    #include "lua.h"
+}
 
 using namespace std;
 
 LPVOID luaL_loadbuffer_t_addr;
 LPVOID luaL_pcall_t_addr;
-void* context_lua_state;
+lua_State* context_lua_state;
 static CRITICAL_SECTION luaEngine_loadLock;
 DWORD WINAPI InputThread(Main* main);
 
@@ -36,7 +41,13 @@ void Main::Entry(Main* main) // static
 	MH_Initialize();
 	main->InstallHook();
 
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)InputThread, main, 0, 0);
+	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)InputThread, main, 0, 0);
+    if (thread) CloseHandle(thread);
+    else Logger::LogMessage("[Main] Failed to create InputThread thread: %d\n", GetLastError());
+
+	thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MenuThread, main, 0, 0);
+    if (thread) CloseHandle(thread);
+    else Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
 }
 
 // Thread que captura teclas
@@ -152,7 +163,7 @@ uintptr_t Main::GetGameBaseAddress()
 	return reinterpret_cast<uintptr_t>(GetModuleHandleA(MODULE_NAME));
 }
 
-int Main::luaL_pcall_t_trampoline(void* L, int nargs, int nresults, int errfunc) {
+int Main::luaL_pcall_t_trampoline(lua_State* L, int nargs, int nresults, int errfunc) {
    	if (L != NULL && context_lua_state == NULL) {
         Logger::LogMessage("Captured lua_state from pcall!\n");
 		context_lua_state = L;
@@ -162,7 +173,7 @@ int Main::luaL_pcall_t_trampoline(void* L, int nargs, int nresults, int errfunc)
 	return luaL_pcall_t_call(L, nargs, nresults, errfunc);
 }
 
-int Main::luaL_loadbuffer_t_trampoline(void* lua_state, const char* buff, size_t sz, const char* name) {
+int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, size_t sz, const char* name) {
 	if (lua_state != NULL)
 		context_lua_state = lua_state;
 	else {
@@ -200,7 +211,7 @@ int Main::luaL_loadbuffer_t_trampoline(void* lua_state, const char* buff, size_t
 	return luaL_loadbuffer_t_call(lua_state, buff, sz, name);
 }
 
-int Main::Execute(void* L, const char* scriptData)
+int Main::Execute(lua_State* L, const char* scriptData)
 {
 	lua_tolstring_t lua_tolstring_t_call = reinterpret_cast<lua_tolstring_t>((GetGameBaseAddress() + lua_tolstring_t_off));
 	lua_pcall_t lua_pcall_t_call = reinterpret_cast<lua_pcall_t>((GetGameBaseAddress() + lua_pcall_t_off));
@@ -210,7 +221,7 @@ int Main::Execute(void* L, const char* scriptData)
 
 	if (loadResult != LUA_OK)
 	{
-		const char* err;
+	    const char* err = nullptr;
 		if (lua_isstring(L, -1))
         {
             err = lua_tolstring_t_call(L, -1, NULL);
@@ -237,7 +248,7 @@ int Main::Execute(void* L, const char* scriptData)
 	return result;
 }
 
-void Main::ExecuteFile(void* L, const std::filesystem::path& filepath) {
+void Main::ExecuteFile(lua_State* L, const std::filesystem::path& filepath) {
     struct FileDeleter {
         void operator()(FILE* f) const {
             if (f) std::fclose(f);
@@ -281,12 +292,12 @@ void Main::InstallHook() {
 	Logger::LogMessage("Call Address (lual_loadbuffer): %p\n", load_buffer_func);
 	Logger::LogMessage("Call Address (lua_pcall): %p\n", lua_pcall_func);
 
-	if (MH_CreateHook(load_buffer_func, &luaL_loadbuffer_t_trampoline, &luaL_loadbuffer_t_addr) != MH_OK) {
+	if (MH_CreateHook(load_buffer_func, (LPVOID)&luaL_loadbuffer_t_trampoline, (LPVOID*)&luaL_loadbuffer_t_addr) != MH_OK) {
 		Logger::LogMessage("Failed to create hook! (lual_loadbuffer)\n");
 		return;
 	}
 
-	if (MH_CreateHook(lua_pcall_func, &luaL_pcall_t_trampoline, &luaL_pcall_t_addr) != MH_OK) {
+	if (MH_CreateHook(lua_pcall_func, (LPVOID)&luaL_pcall_t_trampoline, (LPVOID*)&luaL_pcall_t_addr) != MH_OK) {
 		Logger::LogMessage("Failed to create hook! (lua_pcall)\n");
 		return;
 	}
@@ -324,7 +335,9 @@ void Main::StartThread()
 	    Logger::LogMessage("Failed to attach console!\n");
 	}
 
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Main::Entry, this, 0, 0);
+	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Main::Entry, this, 0, 0);
+    if (thread) CloseHandle(thread);
+    else Logger::LogMessage("[Main] Failed to create main thread: %d\n", GetLastError());
 }
 
 void Main::Unload()
