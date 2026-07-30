@@ -2,6 +2,10 @@
 #include "windows.h" // IWYU pragma: keep
 #include <filesystem>
 
+extern "C" {
+    #include "lua.h"
+}
+
 #define MODULE_NAME "DuniaDemo_clang_64_dx12.dll"
 
 #define LUA_OK          0
@@ -39,13 +43,13 @@ class Main
 {
 public:
 	void StartThread();
-	int Execute(void* L, const char* scriptData);
-	void ExecuteFile(void* L, const std::filesystem::path& filepath);
+	int Execute(lua_State* L, const char* scriptData);
+	void ExecuteFile(lua_State* L, const std::filesystem::path& filepath);
 	void Unload();
 
 private:
-	static int luaL_loadbuffer_t_trampoline(void* lua_state, const char* buff, size_t sz, const char* name);
-	static int luaL_pcall_t_trampoline(void* L, int nargs, int nresults, int errfunc);
+	static int luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, size_t sz, const char* name);
+	static int luaL_pcall_t_trampoline(lua_State* L, int nargs, int nresults, int errfunc);
 	uintptr_t GetGameBaseAddress();
 	void InstallHook();
 	static void Entry(Main* main);
