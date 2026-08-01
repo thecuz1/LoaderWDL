@@ -194,8 +194,6 @@ void imguiInit() {
 				selection_mask = BIT(clickState.second);                // Click to single-select
 			}
 		}
-
-
 	}
 	ImGui::End();
 }
