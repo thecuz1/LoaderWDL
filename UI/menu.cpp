@@ -3,6 +3,9 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iterator>
+#include <string>
+#include <vector>
 #include <cstdint>
 
 #include "imgui.h"
@@ -65,37 +68,51 @@ DWORD MenuThread(Main* main) {
 
 #define BIT(x) (1 << x)
 
-uint32_t count = 0;
+struct ScriptNode {
+    std::string name;
+    bool isDir;
+    uint32_t bitIndex;
+    std::vector<ScriptNode> children;
+};
 
-std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path& path, uint32_t* count, int* selection_mask) {
+static std::vector<ScriptNode> g_scriptTree;
+static bool g_treeDirty = true;
+
+void BuildScriptTree(std::vector<ScriptNode>& nodes, const std::filesystem::path& path, uint32_t& idx) {
+    std::error_code ec;
+    for (const auto& entry : std::filesystem::directory_iterator(path, ec)) {
+        if (ec) break;
+        ScriptNode node;
+        node.name = entry.path().filename().string();
+        node.isDir = entry.is_directory(ec);
+        if (node.isDir) BuildScriptTree(node.children, entry.path(), idx);
+        node.bitIndex = idx++;
+        nodes.push_back(std::move(node));
+    }
+}
+
+std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* selection_mask) {
 	ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
 
-	static bool any_node_clicked = false;
-	static uint32_t node_clicked = 0;
+	bool any_clicked = false;
+	uint32_t clicked = 0;
 
-	for (const auto& entry : std::filesystem::directory_iterator(path)) {
+	for (const auto& node : nodes) {
 		ImGuiTreeNodeFlags node_flags = base_flags;
-		const bool is_selected = (*selection_mask & BIT(*count)) != 0;
+		const bool is_selected = (*selection_mask & BIT(node.bitIndex)) != 0;
 		if (is_selected) {
 			node_flags |= ImGuiTreeNodeFlags_Selected;
 		}
 
-		std::string name = entry.path().string();
-
-		auto lastSlash = name.find_last_of("/\\");
-		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-		name = name.substr(lastSlash, name.size() - lastSlash);
-
-		bool entryIsFile = !std::filesystem::is_directory(entry.path());
-		if (entryIsFile) {
+		if (!node.isDir) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			if (ImGui::Button(("Run##" + name).c_str())) {
-				std::ifstream scriptFile(name);
+			if (ImGui::Button(("Run##" + std::to_string(node.bitIndex) + node.name).c_str())) {
+				std::ifstream scriptFile(node.name);
 				if (!scriptFile.is_open()) {
-				    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", name.c_str());
+				    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", node.name.c_str());
 				} else {
-				    Logger::LogMessage("[UI/menu] Opening script file: %s\n", name.c_str());
+				    Logger::LogMessage("[UI/menu] Opening script file: %s\n", node.name.c_str());
 				}
 				Logger::LogMessage("[UI/menu] Running script...\n");
 				std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), (std::istreambuf_iterator<char>()));
@@ -104,40 +121,34 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 			}
 		}
 
-		bool node_open = ImGui::TreeNodeEx(name.c_str(), node_flags);
+		bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags);
 
 		if (ImGui::IsItemClicked()) {
-			node_clicked = *count;
-			any_node_clicked = true;
+			clicked = node.bitIndex;
+			any_clicked = true;
 		}
 
-		(*count)--;
-
-		if (!entryIsFile) {
+		if (node.isDir) {
 			if (node_open) {
+				auto clickState = RenderTree(node.children, selection_mask);
 
-				auto clickState = DirectoryTreeViewRecursive(entry.path(), count, selection_mask);
-
-				if (!any_node_clicked) {
-					any_node_clicked = clickState.first;
-					node_clicked = clickState.second;
+				if (!any_clicked) {
+					any_clicked = clickState.first;
+					clicked = clickState.second;
 				}
 
 				ImGui::TreePop();
-			} else {
-				for (const auto& e : std::filesystem::recursive_directory_iterator(entry.path())) {
-					(*count)--;
-				}
 			}
 		}
 	}
 
-	return { any_node_clicked, node_clicked };
+	return { any_clicked, clicked };
 }
 
 std::string directoryPath = "scripts";
 char script[8192] = "";
 bool f1_pressed = false;
+bool f2_pressed = false;
 
 void imguiInit() {
     // ImGui::ShowDemoWindow();
@@ -175,11 +186,20 @@ void imguiInit() {
     if (GetAsyncKeyState(VK_F1) & 0x8000) {
 		if (!f1_pressed) {
 			f1_pressed = true;
-			Logger::LogMessage("\n[F1] Opening menu...\n");
+			Logger::LogMessage("[F1] Opening menu...\n");
             ImGui::Begin("ScriptHook", &isOpen, flags);
 		}
     }
-    if (ImGui::CollapsingHeader("Scripts")) {
+    if (GetAsyncKeyState(VK_F2) & 0x8000) {
+		if (!f2_pressed) {
+			f2_pressed = true;
+			g_treeDirty = true;
+			Logger::LogMessage("[F2] Refreshing script list...\n");
+		}
+    } else {
+		f2_pressed = false;
+    }
+    if (ImGui::CollapsingHeader("Run View")) {
         if (ImGui::TreeNode("Terminal")) {
             ImGui::InputTextMultiline("<", script, sizeof(script));
             if (ImGui::Button("Run")) {
@@ -190,15 +210,18 @@ void imguiInit() {
             ImGui::TreePop();
         }
     }
-   	if (ImGui::CollapsingHeader("Scripts2"))	{
+   	if (ImGui::CollapsingHeader("Directory View"))	{
 
-  		for (const auto& entry : std::filesystem::recursive_directory_iterator(directoryPath)) {
- 			count++;
-  		}
+ 		if (g_treeDirty) {
+ 			uint32_t idx = 0;
+ 			g_scriptTree.clear();
+ 			BuildScriptTree(g_scriptTree, directoryPath, idx);
+ 			g_treeDirty = false;
+ 		}
 
   		static int selection_mask = 0;
 
-  		auto clickState = DirectoryTreeViewRecursive(directoryPath, &count, &selection_mask);
+ 		auto clickState = RenderTree(g_scriptTree, &selection_mask);
 
   		if (clickState.first) {
  			// Update selection state
@@ -214,7 +237,7 @@ void imguiInit() {
     if (GetAsyncKeyState(VK_F1) & 0x8000) {
        	if (!f1_pressed) {
       		f1_pressed = true;
-      		Logger::LogMessage("\n[F1] Closing menu...\n");
+      		Logger::LogMessage("[F1] Closing menu...\n");
       		ImGui::End();
        	}
     }
