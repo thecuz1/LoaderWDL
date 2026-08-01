@@ -65,8 +65,8 @@ DWORD MenuThread(Main* main) {
 std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path& path, uint32_t* count, int* selection_mask) {
 	ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
 
-	bool any_node_clicked = false;
-	uint32_t node_clicked = 0;
+	static bool any_node_clicked = false;
+	static uint32_t node_clicked = 0;
 
 	for (const auto& entry : std::filesystem::directory_iterator(path)) {
 		ImGuiTreeNodeFlags node_flags = base_flags;
@@ -85,15 +85,16 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 		if (entryIsFile) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			std::ifstream scriptFile(name);
-			if (!scriptFile.is_open()) {
-			    Logger::LogMessage("[File] error opening script file!");
-			}
-
-			std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), (std::istreambuf_iterator<char>()));
-			scriptFile.close();
 			if (ImGui::Button("Run")) {
-			    Logger::LogMessage("[Lua] running script...");
+				std::ifstream scriptFile(name);
+				if (!scriptFile.is_open()) {
+				    Logger::LogMessage("[UI/menu] Error opening script file!\n");
+				} else {
+				    Logger::LogMessage("[UI/menu] Opening script file: %s\n", name.c_str());
+				}
+				Logger::LogMessage("[UI/menu] Running script...\n");
+				std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), (std::istreambuf_iterator<char>()));
+				scriptFile.close();
 				mainInstance->Execute(context_lua_state, scriptContent.c_str());
 			}
 		}
@@ -134,7 +135,6 @@ char script[8192] = "";
 void imguiInit() {
     // ImGui::ShowDemoWindow();
     // return;
-    // mainInstance->Execute(context_lua_state, script);
     bool isOpen = true;
 
     ImGuiIO& io = ImGui::GetIO();
@@ -172,7 +172,8 @@ void imguiInit() {
         if (ImGui::TreeNode("Terminal")) {
             ImGui::InputTextMultiline("<", script, sizeof(script));
             if (ImGui::Button("Run")) {
-                Logger::LogMessage("[Lua] running script...}");
+                mainInstance->Execute(context_lua_state, script);
+                Logger::LogMessage("[Lua] running script...\n}");
 
             }
             ImGui::TreePop();
