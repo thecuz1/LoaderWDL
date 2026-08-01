@@ -147,26 +147,33 @@ std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* 
 
 std::string directoryPath = "scripts";
 char script[8192] = "";
-bool f1_pressed = false;
-bool f2_pressed = false;
 
 void imguiInit() {
-    // ImGui::ShowDemoWindow();
-    // return;
-    bool isOpen = true;
+    static bool menu_open = false;
 
-    ImGuiIO& io = ImGui::GetIO();
-    io.MouseDrawCursor = isOpen;
+    // F1: tap to toggle
+    if (GetAsyncKeyState(VK_F1) & 0x0001) {
+        menu_open = !menu_open;
+        Logger::LogMessage(menu_open ? "[F1] Opening menu...\n" : "[F1] Closing menu...\n");
+    }
 
-    if (!isOpen) {
+    if (!menu_open) {
         return;
     }
+
+    // F2: tap to refresh script list
+    if (GetAsyncKeyState(VK_F2) & 0x0001) {
+        g_treeDirty = true;
+        Logger::LogMessage("[F2] Refreshing script list...\n");
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.MouseDrawCursor = true;
 
     // Style setup (one-time)
     static bool styled = false;
     if (!styled) {
         ImGui::StyleColorsDark();
-        // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
         ImVec4* colors = ImGui::GetStyle().Colors;
         // Custom color palette
         colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.8f);
@@ -181,24 +188,11 @@ void imguiInit() {
 
     // Window flags
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+    bool isOpen = true;
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
     ImGui::SetNextWindowSize(ImVec2(450, 600), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(25, 25), ImGuiCond_FirstUseEver);
-    if (GetAsyncKeyState(VK_F1) & 0x8000) {
-		if (!f1_pressed) {
-			f1_pressed = true;
-			Logger::LogMessage("[F1] Opening menu...\n");
-            ImGui::Begin("ScriptHook", &isOpen, flags);
-		}
-    }
-    if (GetAsyncKeyState(VK_F2) & 0x8000) {
-		if (!f2_pressed) {
-			f2_pressed = true;
-			g_treeDirty = true;
-			Logger::LogMessage("[F2] Refreshing script list...\n");
-		}
-    } else {
-		f2_pressed = false;
-    }
+    ImGui::Begin("ScriptHook", &isOpen, flags);
     if (ImGui::CollapsingHeader("Run View")) {
         if (ImGui::TreeNode("Terminal")) {
             ImGui::InputTextMultiline("<", script, sizeof(script));
@@ -234,11 +228,6 @@ void imguiInit() {
  			}
   		}
    	}
-    if (GetAsyncKeyState(VK_F1) & 0x8000) {
-       	if (!f1_pressed) {
-      		f1_pressed = true;
-      		Logger::LogMessage("[F1] Closing menu...\n");
-      		ImGui::End();
-       	}
-    }
+    ImGui::End();
+    ImGui::PopStyleVar();
 }
