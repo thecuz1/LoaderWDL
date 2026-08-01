@@ -134,6 +134,8 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 
 std::string directoryPath = "scripts";
 char script[8192] = "";
+bool f1_pressed = false;
+
 void imguiInit() {
     // ImGui::ShowDemoWindow();
     // return;
@@ -167,9 +169,13 @@ void imguiInit() {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
     ImGui::SetNextWindowSize(ImVec2(450, 600), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(25, 25), ImGuiCond_FirstUseEver);
-
-    ImGui::Begin("ScriptHook", &isOpen, flags);
-
+    if (GetAsyncKeyState(VK_F1) & 0x8000) {
+		if (!f1_pressed) {
+			f1_pressed = true;
+			Logger::LogMessage("\n[F1] Opening menu...\n");
+            ImGui::Begin("ScriptHook", &isOpen, flags);
+		}
+    }
     if (ImGui::CollapsingHeader("Scripts")) {
         if (ImGui::TreeNode("Terminal")) {
             ImGui::InputTextMultiline("<", script, sizeof(script));
@@ -181,26 +187,32 @@ void imguiInit() {
             ImGui::TreePop();
         }
     }
-	if (ImGui::CollapsingHeader("Scripts2"))	{
+   	if (ImGui::CollapsingHeader("Scripts2"))	{
 
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(directoryPath)) {
-			count++;
-		}
+  		for (const auto& entry : std::filesystem::recursive_directory_iterator(directoryPath)) {
+ 			count++;
+  		}
 
-		static int selection_mask = 0;
+  		static int selection_mask = 0;
 
-		auto clickState = DirectoryTreeViewRecursive(directoryPath, &count, &selection_mask);
+  		auto clickState = DirectoryTreeViewRecursive(directoryPath, &count, &selection_mask);
 
-		if (clickState.first) {
-			// Update selection state
-			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
-			if (ImGui::GetIO().KeyCtrl) {
+  		if (clickState.first) {
+ 			// Update selection state
+ 			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
+ 			if (ImGui::GetIO().KeyCtrl) {
 				selection_mask ^= BIT(clickState.second);               // CTRL+click to toggle
-			//} else if (!(selection_mask & (1 << clickState.second)))  // Depending on selection behavior you want, may want to preserve selection when clicking on item that is part of the selection
-			} else {
+ 			//} else if (!(selection_mask & (1 << clickState.second)))  // Depending on selection behavior you want, may want to preserve selection when clicking on item that is part of the selection
+ 			} else {
 				selection_mask = BIT(clickState.second);                // Click to single-select
-			}
-		}
-	}
-	ImGui::End();
+ 			}
+  		}
+   	}
+    if (GetAsyncKeyState(VK_F1) & 0x8000) {
+       	if (!f1_pressed) {
+      		f1_pressed = true;
+      		Logger::LogMessage("\n[F1] Closing menu...\n");
+      		ImGui::End();
+       	}
+    }
 }
