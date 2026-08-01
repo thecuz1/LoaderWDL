@@ -5,6 +5,8 @@
 #include "hookD3D12.h"
 #include "imgui.h"
 
+Main* mainInstance;
+
 HRESULT hookAll() {
     // if (FAILED(HookWindow())) {
     //     return E_FAIL;
@@ -23,6 +25,7 @@ void unhookAll() {
 }
 
 void MenuThread(Main* main) {
+    mainInstance = main;
     if (GetModuleHandleA("d3d12.dll") && GetModuleHandleA("dxgi.dll")) {
         Logger::LogMessage("[UI/menu] DirectX 12 detected\n");
     } else if (GetModuleHandleA("d3d11.dll")) {
@@ -54,6 +57,7 @@ void MenuThread(Main* main) {
 
 char script[8192] = "";
 void imguiInit() {
+    mainInstance->Execute(context_lua_state, script);
 
     ///ImGui::ShowDemoWindow();
     return;

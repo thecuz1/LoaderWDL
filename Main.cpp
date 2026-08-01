@@ -16,7 +16,7 @@ using namespace std;
 
 LPVOID luaL_loadbuffer_t_addr;
 LPVOID luaL_pcall_t_addr;
-lua_State* context_lua_state;
+// lua_State* context_lua_state;
 static CRITICAL_SECTION luaEngine_loadLock;
 DWORD WINAPI InputThread(Main* main);
 

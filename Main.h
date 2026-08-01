@@ -56,4 +56,4 @@ private:
 	static void Entry(Main* main);
 };
 
-const lua_State* context_lua_state;
+extern lua_State* context_lua_state;
