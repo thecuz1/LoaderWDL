@@ -44,7 +44,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, [[maybe_unused]
 	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hModule);
 
-		// ensure_real();
+		ensure_real();
 
 		g_pScriptHook = new Main();
 		if (g_pScriptHook)
@@ -60,4 +60,47 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, [[maybe_unused]
 	}
 
 	return TRUE;
+}
+
+HRESULT __stdcall DirectInput8Create(HINSTANCE hinst, DWORD dwVersion,
+                                     REFIID riid, LPVOID *ppvOut)
+{
+    ensure_real();
+    if (pDirectInput8Create == NULL)
+        return 0x80004005;
+    return ((HRESULT (__stdcall *)(HINSTANCE, DWORD, REFIID, LPVOID *))
+            pDirectInput8Create)(hinst, dwVersion, riid, ppvOut);
+}
+
+HRESULT __stdcall DllCanUnloadNow(void)
+{
+    ensure_real();
+    if (pDllCanUnloadNow == NULL)
+        return 1;
+    return ((HRESULT (__stdcall *)(void))pDllCanUnloadNow)();
+}
+
+HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
+{
+    ensure_real();
+    if (pDllGetClassObject == NULL)
+        return 0x80040111; /* CLASS_E_CLASSNOTAVAILABLE */
+    return ((HRESULT (__stdcall *)(REFCLSID, REFIID, LPVOID *))
+            pDllGetClassObject)(rclsid, riid, ppv);
+}
+
+HRESULT __stdcall DllRegisterServer(void)
+{
+    ensure_real();
+    if (pDllRegisterServer == NULL)
+        return 0x80004005;
+    return ((HRESULT (__stdcall *)(void))pDllRegisterServer)();
+}
+
+HRESULT __stdcall DllUnregisterServer(void)
+{
+    ensure_real();
+    if (pDllUnregisterServer == NULL)
+        return 0x80004005;
+    return ((HRESULT (__stdcall *)(void))pDllUnregisterServer)();
 }
