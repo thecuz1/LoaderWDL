@@ -3,20 +3,18 @@
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
 #include <d3d12.h>
-#include <dxgi1_5.h>
+#include <dxgi1_4.h>
 #include <wrl/client.h>
 #include "MinHook/MinHook.h"
 #include "menu.h"
 #include "hookD3D12.h"
 #include "winProc.h"
 #include <mutex>
-
-#include <cassert>
+#include <vector>
 
 using Microsoft::WRL::ComPtr;
 
 constexpr size_t kPresentIndex  = 8;             // Present
-constexpr size_t kPresent1Index = 22;            // Present1
 constexpr size_t kResizeBuffersIndex = 13;       // ResizeBuffers
 constexpr size_t kExecuteCommandListsIndex = 10; // ExecuteCommandLists
 
@@ -32,7 +30,7 @@ struct FrameContext {
     ComPtr<ID3D12Resource> renderTarget;
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle;
 };
-static FrameContext* gFrameContexts = nullptr;
+static std::vector<FrameContext> gFrameContexts;
 
 static std::mutex gD3D12Mutex;
 static ComPtr<ID3D12Device> gDevice;
@@ -40,9 +38,6 @@ static ComPtr<ID3D12CommandQueue> gCommandQueue;
 static ComPtr<ID3D12DescriptorHeap> gHeapRTV = nullptr;
 static ComPtr<ID3D12DescriptorHeap> gHeapSRV = nullptr;
 static ComPtr<ID3D12GraphicsCommandList> gCommandList;
-static ComPtr<ID3D12Fence> gOverlayFence = nullptr;
-static HANDLE                  gFenceEvent = nullptr;
-static UINT64                  gOverlayFenceValue = 0;
 static uint64_t                gBufferCount = 0;
 
 static bool                   gInitialized = false;
@@ -136,8 +131,7 @@ static HRESULT createDummyObjects() {
     return S_OK;
 }
 
-static void CleanupDummyObjects()
-{
+static void CleanupDummyObjects() {
     if (hDummyWindow)
     {
         DestroyWindow(hDummyWindow);
@@ -152,28 +146,14 @@ static void CleanupDummyObjects()
 }
 
 HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags) {
-    if (!oPresentD3D12) {
-        return E_FAIL;
-    }
-    static BOOL first = true;
-    if (first) {
-        Logger::LogMessage("[UI/d3d12] Captured first present call\n");
-        first = !first;
-    }
     if (!activelyHooked) {
         return oPresentD3D12(pSwapChain, SyncInterval, Flags);
     }
 
     if (!gCommandQueue) {
         Logger::LogMessage("[UI/d3d12] CommandQueue not yet captured, skipping frame\n");
-        if (!gDevice) {
-            std::lock_guard<std::mutex> lock(gD3D12Mutex);
-            pSwapChain->GetDevice(__uuidof(ID3D12Device), &gDevice);
-        }
         return oPresentD3D12(pSwapChain, SyncInterval, Flags);
     }
-
-
 
     if (!gInitialized) {
         Logger::LogMessage("[UI/d3d12] Initializing ImGui on first Present.\n");
@@ -181,7 +161,7 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         std::lock_guard<std::mutex> lock(gD3D12Mutex);
         if (gInitialized) return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 
-        if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D12Device), &gDevice))) {
+        if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D12Device), (void**)&gDevice))) {
             Logger::LogMessage("[UI/d3d12] GetDevice: hr=0x%08X\n", E_FAIL);
             return oPresentD3D12(pSwapChain, SyncInterval, Flags);
         }
@@ -195,6 +175,7 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         // Create descriptor heaps
         D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
         heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+        heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
         heapDesc.NumDescriptors = gBufferCount;
         if (FAILED(gDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&gHeapRTV)))) {
             Logger::LogMessage("[UI/d3d12] CreateDescriptorHeap RTV: hr=0x%08X\n", E_FAIL);
@@ -208,13 +189,8 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
             return oPresentD3D12(pSwapChain, SyncInterval, Flags);
         }
 
-        // Allocate frame contexts
-        gFrameContexts = new FrameContext[gBufferCount];
-        for (UINT i = 0; i < gBufferCount; ++i) {
-            gFrameContexts[i].allocator.Reset();
-            gFrameContexts[i].renderTarget.Reset();
-            gFrameContexts[i].rtvHandle = {};
-        }
+        gFrameContexts.clear();
+        gFrameContexts.resize(gBufferCount);
 
         // Create command allocator for each frame
         for (UINT i = 0; i < gBufferCount; ++i) {
@@ -226,18 +202,17 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
             }
         }
 
-        // Create RTVs for each back buffer
-        UINT rtvSize = gDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        auto rtvHandle = gHeapRTV->GetCPUDescriptorHandleForHeapStart();
+        const UINT rtvSize = gDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = gHeapRTV->GetCPUDescriptorHandleForHeapStart();
         for (UINT i = 0; i < gBufferCount; ++i) {
+            gFrameContexts[i].rtvHandle = rtvHandle;
             pSwapChain->GetBuffer(i, IID_PPV_ARGS(&gFrameContexts[i].renderTarget));
             gDevice->CreateRenderTargetView(gFrameContexts[i].renderTarget.Get(), nullptr, rtvHandle);
-            gFrameContexts[i].renderTarget = gFrameContexts[i].renderTarget.Get();
-            gFrameContexts[i].rtvHandle = rtvHandle;
             rtvHandle.ptr += rtvSize;
         }
 
         // ImGui setup
+        // IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -262,23 +237,8 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         Logger::LogMessage("[UI/d3d12] ImGui initialized.\n");
         HookWindow2(desc.OutputWindow);
 
-        if (!gOverlayFence) {
-            if (FAILED(gDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&gOverlayFence)))) {
-                Logger::LogMessage("[UI/d3d12] CreateFence: hr=0x%08X\n", E_FAIL);
-                return oPresentD3D12(pSwapChain, SyncInterval, Flags);
-            }
-        }
-
-        if (!gFenceEvent) {
-            gFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-            if (!gFenceEvent) {
-                Logger::LogMessage("[UI/d3d12] Failed to create fence event: %lu\n", GetLastError());
-            }
-        }
-
         gInitialized = true;
     }
-
 
     if (!gShutdown) {
         ImGui_ImplDX12_NewFrame();
@@ -290,35 +250,6 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         UINT frameIdx = pSwapChain->GetCurrentBackBufferIndex();
         FrameContext& ctx = gFrameContexts[frameIdx];
 
-        // Wait for the GPU to finish with the previous frame
-        bool canRender = true;
-        if (!gOverlayFence || !gFenceEvent) {
-            // Missing synchronization objects, skip waiting
-        } else if (gOverlayFence->GetCompletedValue() < gOverlayFenceValue) {
-            HRESULT hr = gOverlayFence->SetEventOnCompletion(gOverlayFenceValue, gFenceEvent);
-            if (SUCCEEDED(hr)) {
-                const DWORD waitTimeoutMs = 2000; // Extended timeout
-                DWORD waitRes = WaitForSingleObject(gFenceEvent, waitTimeoutMs);
-                if (waitRes == WAIT_TIMEOUT) {
-                    Logger::LogMessage("[UI/d3d12] WaitForSingleObject timeout\n");
-                    gOverlayFenceValue = gOverlayFence->GetCompletedValue();
-                    canRender = false;
-                } else if (waitRes != WAIT_OBJECT_0) {
-                    Logger::LogMessage("[UI/d3d12] WaitForSingleObject failed: %lu\n", GetLastError());
-                    canRender = false;
-                }
-            } else {
-                Logger::LogMessage("[d3d12hook] SetEventOnCompletion: hr=0x%08X\n", hr);
-                canRender = false;
-            }
-        }
-
-        if (!canRender) {
-            Logger::LogMessage("[UI/d3d12] Skipping ImGui render for this frame\n");
-            ImGui::EndFrame();
-            return oPresentD3D12(pSwapChain, SyncInterval, Flags);
-        }
-
         // Reset allocator and command list using frame-specific allocator
         HRESULT hr = ctx.allocator->Reset();
         if (FAILED(hr)) {
@@ -327,9 +258,6 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         }
 
         if (!gCommandList) {
-            assert(gDevice != nullptr && "gDevice is null!");
-            assert(ctx.allocator.Get() != nullptr && "ctx.allocator.Get() is null!");
-
             hr = gDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
                 ctx.allocator.Get(), nullptr, IID_PPV_ARGS(&gCommandList));
             if (FAILED(hr)) {
@@ -348,13 +276,14 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         D3D12_RESOURCE_BARRIER barrier = {};
         barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
         barrier.Transition.pResource = ctx.renderTarget.Get();
+        barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
         barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
         gCommandList->ResourceBarrier(1, &barrier);
 
         gCommandList->OMSetRenderTargets(1, &ctx.rtvHandle, FALSE, nullptr);
-        ID3D12DescriptorHeap* heaps[] = { gHeapSRV.Get() };
-        gCommandList->SetDescriptorHeaps(1, heaps);
+        ID3D12DescriptorHeap* rawHeap = gHeapSRV.Get();
+        gCommandList->SetDescriptorHeaps(1, &rawHeap);
 
         ImGui::Render();
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), gCommandList.Get());
@@ -371,111 +300,39 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         }
         else {
             ID3D12CommandList* cmdList = gCommandList.Get();
-            oExecuteCommandListsD3D12(gCommandQueue.Get(), 1, &cmdList);
-            // oExecuteCommandListsD3D12(gCommandQueue.Get(), 1, reinterpret_cast<ID3D12CommandList* const*>(gCommandList.Get()));
-
-            if (gOverlayFence) {
-                // Call Signal directly on the command queue to synchronize the internal overlay.
-                HRESULT hr = gCommandQueue->Signal(gOverlayFence.Get(), ++gOverlayFenceValue);
-                if (FAILED(hr)) {
-                    Logger::LogMessage("[d3d12hook] Signal: hr=0x%08X\n", hr);
-                    if (gDevice) {
-                        HRESULT reason = gDevice->GetDeviceRemovedReason();
-                        Logger::LogMessage("[UI/d3d12] DeviceRemovedReason=0x%08X\n", reason);
-                        if (reason != S_OK) {
-                            Logger::LogMessage("[UI/d3d12] Device lost. Releasing resources.\n");
-                            UnhookD3D12();
-                        }
-                    }
-                }
-            }
+            gCommandQueue->ExecuteCommandLists(1, &cmdList);
         }
     }
 
     return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 }
 
-HRESULT APIENTRY hookPresent1D3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags, const DXGI_PRESENT_PARAMETERS* pParams) {
-    if (!oPresent1D3D12) {
-        return E_FAIL;
-    }
-    static BOOL first = true;
-    if (first) {
-        Logger::LogMessage("[UI/d3d12] Captured first present1 call\n");
-        first = !first;
-    }
-
-    return oPresent1D3D12(pSwapChain, SyncInterval, Flags, pParams);
-}
-
 void APIENTRY hookExecuteCommandListsD3D12(ID3D12CommandQueue* _this, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists) {
-    static BOOL first = true;
-    if (first) {
-        Logger::LogMessage("[UI/d3d12] Captured first ExecuteCommandLists call\n");
-        first = !first;
-    }
-
-    if (!gCommandQueue) {
-        ComPtr<ID3D12Device> queueDevice = nullptr;
-        if (SUCCEEDED(_this->GetDevice(__uuidof(ID3D12Device), &queueDevice))) {
-            if (!gDevice) {
-                std::lock_guard<std::mutex> lock(gD3D12Mutex);
-                gDevice = queueDevice;
-            }
-
-            if (queueDevice.Get() == gDevice.Get()) {
-                D3D12_COMMAND_QUEUE_DESC desc = _this->GetDesc();
-                Logger::LogMessage("[UI/d3d12] CommandQueue type=%u\n", desc.Type);
-                if (desc.Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
-                    std::lock_guard<std::mutex> lock(gD3D12Mutex);
-                    gCommandQueue = _this;
-                    Logger::LogMessage("[UI/d3d12] Captured CommandQueue=%p\n", _this);
-                }
-                else {
-                    Logger::LogMessage("[UI/d3d12] Skipping capture: non-direct queue\n");
-                }
-            }
-            else {
-                Logger::LogMessage("[UI/d3d12] Skipping capture: CommandQueue uses different device (%p != %p)\n", &queueDevice, &gDevice);
-            }
-        }
-    }
+    if (!gCommandQueue && _this->GetDesc().Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
+		gCommandQueue = _this;
+	}
 
     oExecuteCommandListsD3D12(_this, NumCommandLists, ppCommandLists);
 }
+
+void resetState() {
+    if (gInitialized) {
+        gInitialized = false;
+        ImGui_ImplWin32_Shutdown();
+        ImGui_ImplDX12_Shutdown();
+    }
+    gCommandQueue = nullptr;
+    gFrameContexts.clear();
+    gBufferCount = 0;
+    gCommandList = nullptr;
+    gHeapRTV = nullptr;
+    gHeapSRV = nullptr;
+}
+
 HRESULT APIENTRY hookResizeBuffersD3D12(IDXGISwapChain3* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
     Logger::LogMessage("[UI/d3d12] ResizeBuffers called: %ux%u Buffers=%u\n", Width, Height, BufferCount);
 
-    if (gInitialized)
-    {
-        std::lock_guard<std::mutex> lock(gD3D12Mutex);
-        if (!gInitialized) return oResizeBuffersD3D12(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
-        Logger::LogMessage("[UI/d3d12] Releasing resources for resize\n");
-
-        ImGui_ImplDX12_Shutdown();
-        ImGui_ImplWin32_Shutdown();
-        ImGui::DestroyContext();
-        UnhookWindow();
-
-        gCommandList.Reset();
-        gHeapRTV.Reset();
-        gHeapSRV.Reset();
-        gOverlayFence.Reset();
-        if (gFenceEvent) { CloseHandle(gFenceEvent); gFenceEvent = nullptr; }
-
-        for (UINT i = 0; i < gBufferCount; ++i)
-        {
-            gFrameContexts[i].renderTarget.Reset();
-            gFrameContexts[i].allocator.Reset();
-        }
-
-        delete[] gFrameContexts;
-        gFrameContexts = nullptr;
-        gBufferCount = 0;
-
-        gInitialized = false;
-    }
-
+    resetState();
     return oResizeBuffersD3D12(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
 }
 
@@ -496,7 +353,6 @@ HRESULT initD3D12Hooks() {
     auto cqVTable = *reinterpret_cast<void***>(pCommandQueue.Get());
 
     pPresentTarget = reinterpret_cast<LPVOID>(scVTable[kPresentIndex]);
-    pPresent1Target = reinterpret_cast<LPVOID>(scVTable[kPresent1Index]);
     pResizeBuffersTarget = reinterpret_cast<LPVOID>(scVTable[kResizeBuffersIndex]);
     pExecuteCommandListsTarget = reinterpret_cast<LPVOID>(cqVTable[kExecuteCommandListsIndex]);
 
@@ -511,7 +367,10 @@ HRESULT initD3D12Hooks() {
         if (mh != MH_OK) { \
             Logger::LogMessage("[UI/d3d12] MH_CreateHook %s failed: %s\n", #name, MH_StatusToString(mh)); \
             return E_FAIL; \
-        } \
+        }
+    LIST_OF_D3D12HOOKS
+    #undef HOOK
+    #define HOOK(name, ...) \
         mh = MH_EnableHook(p##name##Target); \
         if (mh != MH_OK) { \
             Logger::LogMessage("[UI/d3d12] MH_EnableHook %s failed: %s\n", #name, MH_StatusToString(mh)); \
@@ -524,34 +383,8 @@ HRESULT initD3D12Hooks() {
     return S_OK;
 }
 
-void UnhookD3D12()
-{
+void UnhookD3D12() {
     Logger::LogMessage("[UI/d3d12] Releasing resources and hooks\n");
-    std::lock_guard<std::mutex> lock(gD3D12Mutex);
-    gShutdown = true;
-
-    if (gInitialized && ImGui::GetCurrentContext())
-    {
-        ImGui_ImplDX12_Shutdown();
-        ImGui_ImplWin32_Shutdown();
-        ImGui::DestroyContext();
-        gInitialized = false;
-    }
-    UnhookWindow();
-
-    gCommandQueue.Reset();
-    gDevice.Reset();
-    gHeapRTV.Reset();
-    gHeapSRV.Reset();
-    gCommandList.Reset();
-
-    for (UINT i = 0; i < gBufferCount; ++i) {
-        if (gFrameContexts[i].renderTarget) gFrameContexts[i].renderTarget.Reset();
-    }
-    gOverlayFence.Reset();
-    if (gFenceEvent) { CloseHandle(gFenceEvent); gFenceEvent = nullptr; }
-
-    delete[] gFrameContexts;
 
     #define HOOK(name, ...) \
     if (p##name##Target) { \
@@ -561,4 +394,16 @@ void UnhookD3D12()
     }
     LIST_OF_D3D12HOOKS
     #undef HOOK
+
+    Sleep(100);
+
+    gShutdown = true;
+    UnhookWindow();
+
+    resetState();
+    if (ImGui::GetCurrentContext()) {
+        ImGui::DestroyContext();
+    }
+    Sleep(1000);
+    return;
 }

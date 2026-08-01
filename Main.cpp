@@ -328,7 +328,8 @@ void Main::StartThread()
 	hasConsole = AllocConsole();
 	if (hasConsole)
 	{
-		auto _ = freopen("CONOUT$", "wb", stdout);
+	    FILE* dummy;
+        freopen_s(&dummy, "CONOUT$", "wb", stdout);
 	}
 	else
 	{

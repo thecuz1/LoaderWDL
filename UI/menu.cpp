@@ -2,7 +2,6 @@
 #include <windows.h>
 #include "Logger.h"
 #include "Main.h"
-#include "winProc.h"
 #include "hookD3D12.h"
 #include "imgui.h"
 
@@ -20,7 +19,7 @@ HRESULT hookAll() {
 void unhookAll() {
     activelyHooked = false;
     UnhookD3D12();
-    UnhookWindow();
+    // UnhookWindow();
 }
 
 void MenuThread(Main* main) {
@@ -54,8 +53,7 @@ void MenuThread(Main* main) {
 }
 
 void imguiInit() {
-    ImGui::Text("Hello World");
-    // ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
     return;
     bool isOpen = true;
 
