@@ -170,7 +170,7 @@ void imguiInit() {
 
     if (ImGui::CollapsingHeader("Scripts")) {
         if (ImGui::TreeNode("Terminal")) {
-            ImGui::InputTextMultiline("Code:", script, sizeof(script));
+            ImGui::InputTextMultiline("<", script, sizeof(script));
             if (ImGui::Button("Run")) {
                 Logger::LogMessage("[Lua] running script...}");
 
