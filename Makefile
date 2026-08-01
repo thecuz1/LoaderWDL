@@ -15,36 +15,41 @@ ifneq ("$(OFFSETS_156)", "")
 endif
 
 # Source files
-SRCS     = dllmain.cpp \
-           Main.cpp \
-           $(wildcard UI/*.cpp) \
-           Logger.cpp \
+SRCS      = dllmain.cpp \
+            Main.cpp \
+            $(wildcard UI/*.cpp) \
+            Logger.cpp \
 
-LIB_SRCS = MinHook/hook.c \
-           MinHook/buffer.c \
-           MinHook/trampoline.c \
-           MinHook/hde/hde64.c \
-           $(filter-out lua/lua.c lua/luac.c, $(wildcard lua/*.c)) \
-           $(wildcard imgui/*.cpp) \
-           $(wildcard imgui/backends/*.cpp)
+SHIM_SRCS = shim/dinput8.cpp \
+			shim/dinput8.def
+
+LIB_SRCS  = MinHook/hook.c \
+            MinHook/buffer.c \
+            MinHook/trampoline.c \
+            MinHook/hde/hde64.c \
+            $(filter-out lua/lua.c lua/luac.c, $(wildcard lua/*.c)) \
+            $(wildcard imgui/*.cpp) \
+            $(wildcard imgui/backends/*.cpp)
 
 # Target
 BUILD_DIR  = build
 TARGET     = $(BUILD_DIR)/scripthook.dll
+SHIM       = $(BUILD_DIR)/dinput8.dll
 LIB_TARGET = $(BUILD_DIR)/libdependencies.a
 
 # Map source files to object files inside the build directory
-OBJS     = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(SRCS))) \
-           $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(SRCS)))
+OBJS      = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(SRCS))) \
+            $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(SRCS))) \
 
-LIB_OBJS = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(LIB_SRCS))) \
-           $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(LIB_SRCS)))
+SHIM_OBJS = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(SHIM_SRCS))) \
+            $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(SHIM_SRCS)))
+
+LIB_OBJS  = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(LIB_SRCS))) \
+            $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(LIB_SRCS)))
 
 # Custom flags for libraries
-LIB_CXXFLAGS = -std=c++17 -Os -ffunction-sections -fdata-sections
-LIB_CCFLAGS  = -std=c17 -Os -ffunction-sections -fdata-sections
-$(LIB_OBJS): CXXFLAGS := $(LIB_CXXFLAGS)
-$(LIB_OBJS): CCFLAGS  := $(LIB_CCFLAGS)
+$(LIB_OBJS):  CXXFLAGS := -std=c++17 -Os -ffunction-sections -fdata-sections
+$(LIB_OBJS):  CCFLAGS  := -std=c17 -Os -ffunction-sections -fdata-sections
 
 # Default rule
 all: $(TARGET)
@@ -52,8 +57,11 @@ all: $(TARGET)
 -include Makefile-local.mk
 
 # Linking
-$(TARGET): $(LIB_TARGET) $(OBJS)
+$(TARGET): $(LIB_TARGET) $(OBJS) $(SHIM)
 	$(CXX) $(OBJS) $(LIB_TARGET) $(LDFLAGS) $(LDLIBS) -o $@
+
+$(SHIM): $(SHIM_OBJS)
+	$(CXX) $(SHIM_OBJS) $(LDFLAGS) -o $@
 
 # .cpp source files
 $(BUILD_DIR)/%.o: %.cpp

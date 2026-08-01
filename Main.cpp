@@ -215,15 +215,8 @@ void Main::StartThread()
 	Logger::LogMessage("\n");
 
 	hasConsole = AllocConsole();
-	if (hasConsole)
-	{
-	    FILE* dummy;
-        freopen_s(&dummy, "CONOUT$", "wb", stdout);
-	}
-	else
-	{
-	    Logger::LogMessage("Failed to attach console!\n");
-	}
+    FILE* dummy;
+    freopen_s(&dummy, "CONOUT$", "wb", stdout);
 
 	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Main::Entry, this, 0, 0);
     if (thread) CloseHandle(thread);

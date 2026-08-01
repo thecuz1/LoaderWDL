@@ -69,8 +69,8 @@ static void redirect_game_crt()
     typedef void* (__cdecl *AcrtIobFunc)(int);
     typedef FILE* (__cdecl *FreopenFn)(const char *, const char *, FILE *);
 
-    AcrtIobFunc iob = reinterpret_cast<AcrtIobFunc>(GetProcAddress(ucrt, "__acrt_iob_func"));
-    FreopenFn fre   = reinterpret_cast<FreopenFn>(GetProcAddress(ucrt, "freopen"));
+    AcrtIobFunc iob = reinterpret_cast<AcrtIobFunc>(reinterpret_cast<void*>(GetProcAddress(ucrt, "__acrt_iob_func")));
+    FreopenFn fre   = reinterpret_cast<FreopenFn>(reinterpret_cast<void*>(GetProcAddress(ucrt, "freopen")));
     if (iob == nullptr || fre == nullptr)
         return;
 
@@ -97,11 +97,11 @@ static void ensure_real()
     if (g_realDinput8 == nullptr)
         return;
 
-    pDirectInput8Create  = reinterpret_cast<DirectInput8CreateFn>(GetProcAddress(g_realDinput8, "DirectInput8Create"));
-    pDllCanUnloadNow     = reinterpret_cast<DllCanUnloadNowFn>(GetProcAddress(g_realDinput8, "DllCanUnloadNow"));
-    pDllGetClassObject   = reinterpret_cast<DllGetClassObjectFn>(GetProcAddress(g_realDinput8, "DllGetClassObject"));
-    pDllRegisterServer   = reinterpret_cast<DllRegisterFn>(GetProcAddress(g_realDinput8, "DllRegisterServer"));
-    pDllUnregisterServer = reinterpret_cast<DllRegisterFn>(GetProcAddress(g_realDinput8, "DllUnregisterServer"));
+    pDirectInput8Create  = reinterpret_cast<DirectInput8CreateFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DirectInput8Create")));
+    pDllCanUnloadNow     = reinterpret_cast<DllCanUnloadNowFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllCanUnloadNow")));
+    pDllGetClassObject   = reinterpret_cast<DllGetClassObjectFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllGetClassObject")));
+    pDllRegisterServer   = reinterpret_cast<DllRegisterFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllRegisterServer")));
+    pDllUnregisterServer = reinterpret_cast<DllRegisterFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllUnregisterServer")));
 }
 
 // Try to load a payload DLL from the shim's own directory.
