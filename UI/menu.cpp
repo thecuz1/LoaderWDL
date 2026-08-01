@@ -90,7 +90,7 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 			if (ImGui::Button("Run## %s"), name.c_str()) {
 				std::ifstream scriptFile(name);
 				if (!scriptFile.is_open()) {
-				    Logger::LogMessage("[UI/menu] Error opening script file!\n");
+				    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", name.c_str());
 				} else {
 				    Logger::LogMessage("[UI/menu] Opening script file: %s\n", name.c_str());
 				}
