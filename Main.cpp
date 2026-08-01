@@ -56,7 +56,7 @@ uintptr_t Main::GetGameBaseAddress() {
 
 int Main::luaL_pcall_t_trampoline(lua_State* L, int nargs, int nresults, int errfunc) {
    	if (L != NULL && context_lua_state == NULL) {
-        Logger::LogMessage("Captured lua_state from pcall!\n");
+        Logger::LogMessage("[Main] Captured lua_state from pcall!\n");
 		context_lua_state = L;
     }
 
@@ -68,16 +68,16 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 	if (lua_state != NULL) {
 		context_lua_state = lua_state;
 	} else {
-	    Logger::LogMessage("=== ERROR: failed to set lua_state because it is NULL ===\n");
+	    Logger::LogMessage("[Error] Failed to set lua_state because it is NULL!\n");
 	}
 
-	Logger::LogMessage("=== Lua Script Loaded ===\n");
+	Logger::LogMessage("[Lua] Script loaded.\n");
 
 	// Print file/script name
 	if (name != NULL) {
-		Logger::LogMessage("Script Name: %s\n", name);
+		Logger::LogMessage("Script name: %s\n", name);
 	} else {
-		Logger::LogMessage("Script Name: [unnamed]\n");
+		Logger::LogMessage("Script name: [unnamed]\n");
 	}
 
 	// Print buffer size
@@ -105,9 +105,23 @@ int Main::Execute(lua_State* L, const char* scriptData) {
 	lua_tolstring_t lua_tolstring_t_call = reinterpret_cast<lua_tolstring_t>((GetGameBaseAddress() + lua_tolstring_t_off));
 	lua_pcall_t lua_pcall_t_call = reinterpret_cast<lua_pcall_t>((GetGameBaseAddress() + lua_pcall_t_off));
 
-	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
-	int loadResult = luaL_loadbuffer_t_call(L, scriptData, strlen(scriptData), "exec");
+	// Wrap the game's Lua `print` once per state so script output shows up
+	// with a [Console] prefix (the shim can't tag it - it's just stdout).
+	static const char* kPrintPrefix =
+		"if type(_G.print) == \"function\" and not _G.__console_print_patched then\n"
+		"  local _op = _G.print;\n"
+		"  _G.print = function(...)\n"
+		"    local t = {};\n"
+		"    for i = 1, select(\"#\", ...) do t[i] = tostring(select(i, ...)); end;\n"
+		"    _op(\"[Console] \" .. table.concat(t, \"\\t\"));\n"
+		"  end;\n"
+		"  _G.__console_print_patched = true;\n"
+		"end;\n";
 
+	std::string script = std::string(kPrintPrefix) + scriptData;
+
+	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
+	int loadResult = luaL_loadbuffer_t_call(L, script.c_str(), script.size(), "exec");
 
 	if (loadResult != LUA_OK) {
 	    const char* err = nullptr;
