@@ -1,8 +1,8 @@
+#include <cstdint>
 #include <minwindef.h>
 #include <windows.h>
 #include <filesystem>
 #include <fstream>
-
 #include "imgui.h"
 #include "menu.h"
 #include "Logger.h"
@@ -62,6 +62,8 @@ DWORD MenuThread(Main* main) {
 
 #define BIT(x) (1 << x)
 
+uint32_t count = 0;
+
 std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path& path, uint32_t* count, int* selection_mask) {
 	ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
 
@@ -85,7 +87,7 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 		if (entryIsFile) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			if (ImGui::Button("Run")) {
+			if (ImGui::Button("Run## %s"), name.c_str()) {
 				std::ifstream scriptFile(name);
 				if (!scriptFile.is_open()) {
 				    Logger::LogMessage("[UI/menu] Error opening script file!\n");
@@ -181,7 +183,6 @@ void imguiInit() {
     }
 	if (ImGui::CollapsingHeader("Scripts2"))	{
 
-		uint32_t count = 0;
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(directoryPath)) {
 			count++;
 		}

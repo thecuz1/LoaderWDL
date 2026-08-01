@@ -30,7 +30,7 @@ LIB_SRCS = MinHook/hook.c \
 
 # Target
 BUILD_DIR  = build
-TARGET     = $(BUILD_DIR)/dinput8.dll
+TARGET     = $(BUILD_DIR)/scripthook.dll
 LIB_TARGET = $(BUILD_DIR)/libdependencies.a
 
 # Map source files to object files inside the build directory
