@@ -65,9 +65,9 @@ int Main::luaL_pcall_t_trampoline(lua_State* L, int nargs, int nresults, int err
 }
 
 int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, size_t sz, const char* name) {
-	if (lua_state != NULL)
+	if (lua_state != NULL) {
 		context_lua_state = lua_state;
-	else {
+	} else {
 	    Logger::LogMessage("=== ERROR: failed to set lua_state because it is NULL ===\n");
 	}
 
@@ -76,8 +76,7 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 	// Print file/script name
 	if (name != NULL) {
 		Logger::LogMessage("Script Name: %s\n", name);
-	}
-	else {
+	} else {
 		Logger::LogMessage("Script Name: [unnamed]\n");
 	}
 
@@ -102,33 +101,17 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
 	return luaL_loadbuffer_t_call(lua_state, buff, sz, name);
 }
-int Main::Execute(lua_State* L, const char* scriptData)
-{
+int Main::Execute(lua_State* L, const char* scriptData) {
 	lua_tolstring_t lua_tolstring_t_call = reinterpret_cast<lua_tolstring_t>((GetGameBaseAddress() + lua_tolstring_t_off));
 	lua_pcall_t lua_pcall_t_call = reinterpret_cast<lua_pcall_t>((GetGameBaseAddress() + lua_pcall_t_off));
 
-	// Wrap the game's Lua `print` once per state so script output shows up
-	// with a [Console] prefix (the shim can't tag it - it's just stdout).
-	static const char* kPrintPrefix =
-		"if type(_G.print) == \"function\" and not _G.__console_print_patched then\n"
-		"  local _op = _G.print;\n"
-		"  _G.print = function(...)\n"
-		"    local t = {};\n"
-		"    for i = 1, select(\"#\", ...) do t[i] = tostring(select(i, ...)); end;\n"
-		"    _op(\"[Console] \" .. table.concat(t, \"\\t\"));\n"
-		"  end;\n"
-		"  _G.__console_print_patched = true;\n"
-		"end;\n";
-
-	std::string script = std::string(kPrintPrefix) + scriptData;
-
 	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
-	int loadResult = luaL_loadbuffer_t_call(L, script.c_str(), script.size(), "exec");
+	int loadResult = luaL_loadbuffer_t_call(L, scriptData, strlen(scriptData), "exec");
+
 
 	if (loadResult != LUA_OK) {
 	    const char* err = nullptr;
-		if (lua_isstring(L, -1))
-        {
+		if (lua_isstring(L, -1)) {
             err = lua_tolstring_t_call(L, -1, NULL);
         }
 		Logger::LogMessage("Compilation error: %s\n", err ? err : "nil");
