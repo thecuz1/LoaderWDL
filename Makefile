@@ -28,7 +28,7 @@ SRCS     = dllmain.cpp \
 
 # Target
 BUILD_DIR = build
-TARGET    = $(BUILD_DIR)/scripthook.dll
+TARGET    = $(BUILD_DIR)/dinput8.dll
 
 # Map source files to object files inside the build directory
 OBJS = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(SRCS))) \

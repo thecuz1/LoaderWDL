@@ -16,7 +16,6 @@ using namespace std;
 
 LPVOID luaL_loadbuffer_t_addr;
 LPVOID luaL_pcall_t_addr;
-// lua_State* context_lua_state;
 static CRITICAL_SECTION luaEngine_loadLock;
 DWORD WINAPI InputThread(Main* main);
 
@@ -49,86 +48,6 @@ void Main::Entry(Main* main) // static
     if (thread) CloseHandle(thread);
     else Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
 }
-
-// Thread que captura teclas
-/*DWORD WINAPI InputThread(Main* main)
-{
-	Logger::LogMessage("Input thread started! Press F1 to test Lua execution\n"); // /test in terminal
-
-	bool f1_pressed = false;
-	bool f2_pressed = false;
-	bool f3_pressed = false;
-
-	while (true)
-	{
-		Sleep(100); // 100ms delay
-
-		// END
-		if (GetAsyncKeyState(VK_END) & 0x8000)
-		{
-			Logger::LogMessage("END pressed - Exiting input thread\n"); // /stop in terminal
-			break;
-		}
-
-		if (context_lua_state == NULL) continue;
-
-		// F1
-		if (GetAsyncKeyState(VK_F1) & 0x8000)
-		{
-			if (!f1_pressed)
-			{
-				f1_pressed = true;
-				Logger::LogMessage("\n[F1] Searching for weather functions...\n"); // replaced by multiline text
-				const char* find_weather = R"(
-            print('
-        )";
-				main->Execute(context_lua_state, find_weather);
-			}
-		}
-		else
-		{
-			f1_pressed = false;
-		}
-
-		// F2
-		if (GetAsyncKeyState(VK_F2) & 0x8000) // when press f2
-		{
-			if (!f2_pressed)
-			{
-				f2_pressed = true;
-                for (const auto & script : filesystem::directory_iterator("scripts")) {
-                    if (!script.is_regular_file() || script.path().extension() != ".lua")
-                        continue;
-    				Logger::LogMessage("Executing %s\n", script.path().string().c_str());
-    				main->ExecuteFile(context_lua_state, script.path());
-                }
-			}
-		}
-		else
-		{
-			f2_pressed = false;
-		}
-
-		// F3
-		if (GetAsyncKeyState(VK_F3) & 0x8000)
-		{
-			if (!f3_pressed)
-			{
-				f3_pressed = true;
-				Logger::LogMessage("\n[F3] Testing error handling...\n");
-
-				const char* test3 = "this will cause syntax error!";
-				main->Execute(context_lua_state, test3);
-			}
-		}
-		else
-		{
-			f3_pressed = false;
-		}
-	}
-
-	return 0;
-}*/
 
 uintptr_t Main::GetGameBaseAddress()
 {
