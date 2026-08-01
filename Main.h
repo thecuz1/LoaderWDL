@@ -1,6 +1,7 @@
 #pragma once
 #include "windows.h" // IWYU pragma: keep
 #include <filesystem>
+#include <minwindef.h>
 
 extern "C" {
     #include "lua.h"
@@ -53,7 +54,7 @@ private:
 	static int luaL_pcall_t_trampoline(lua_State* L, int nargs, int nresults, int errfunc);
 	uintptr_t GetGameBaseAddress();
 	void InstallHook();
-	static void Entry(Main* main);
+	static DWORD Entry(Main* main);
 };
 
 extern lua_State* context_lua_state;

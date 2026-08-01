@@ -1,3 +1,4 @@
+#include <minwindef.h>
 #include <windows.h>
 #include <filesystem>
 #include <fstream>
@@ -27,16 +28,16 @@ void unhookAll() {
     // UnhookWindow();
 }
 
-void MenuThread(Main* main) {
+DWORD MenuThread(Main* main) {
     mainInstance = main;
     if (GetModuleHandleA("d3d12.dll") && GetModuleHandleA("dxgi.dll")) {
         Logger::LogMessage("[UI/menu] DirectX 12 detected\n");
     } else if (GetModuleHandleA("d3d11.dll")) {
         Logger::LogMessage("[UI/menu] Mod menu doesn't support DirectX 11, shutting down\n");
-        return;
+        return 0;
     } else {
         Logger::LogMessage("[UI/menu] Unknown graphics library, mod menu shutting down\n");
-        return;
+        return 0;
     }
 
     Logger::LogMessage("[UI/menu] Thread started\n");
@@ -46,16 +47,17 @@ void MenuThread(Main* main) {
 
     const BOOL failed = hookAll();
     if (failed) {
-        return;
+        return 0;
     }
 
     while (true) {
         Sleep(500);
         if (!activelyHooked) {
             Logger::LogMessage("[UI/menu] We are no longer hooked, cleaning up\n");
-            return;
+            break;
         }
     }
+    return 0;
 }
 
 #define BIT(x) (1 << x)
@@ -130,7 +132,9 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 std::string directoryPath = "scripts";
 char script[8192] = "";
 void imguiInit() {
-    mainInstance->Execute(context_lua_state, script);
+    // ImGui::ShowDemoWindow();
+    // return;
+    // mainInstance->Execute(context_lua_state, script);
     bool isOpen = true;
 
     ImGuiIO& io = ImGui::GetIO();
@@ -144,7 +148,7 @@ void imguiInit() {
     static bool styled = false;
     if (!styled) {
         ImGui::StyleColorsDark();
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
+        // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
         ImVec4* colors = ImGui::GetStyle().Colors;
         // Custom color palette
         colors[ImGuiCol_WindowBg] = ImVec4(0, 0, 0, 0.8f);
@@ -174,7 +178,7 @@ void imguiInit() {
             ImGui::TreePop();
         }
     }
-	if (ImGui::CollapsingHeader("Scripts"))	{
+	if (ImGui::CollapsingHeader("Scripts2"))	{
 
 		uint32_t count = 0;
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(directoryPath)) {

@@ -44,7 +44,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, [[maybe_unused]
 	case DLL_PROCESS_ATTACH:
 		DisableThreadLibraryCalls(hModule);
 
-		ensure_real();
+		// ensure_real();
 
 		g_pScriptHook = new Main();
 		if (g_pScriptHook)

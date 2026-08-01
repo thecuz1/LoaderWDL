@@ -3,6 +3,7 @@
 #include "windows.h"
 #include <cstdio>
 #include "MinHook/MinHook.h"
+#include <minwindef.h>
 #include <string>
 #include <filesystem>
 #include <winnt.h>
@@ -20,7 +21,7 @@ lua_State* context_lua_state;
 static CRITICAL_SECTION luaEngine_loadLock;
 
 bool hasConsole = false;
-void Main::Entry(Main* main) // static
+DWORD Main::Entry(Main* main) // static
 {
     HWND hGameWindow = NULL;
     while (hGameWindow == NULL)
@@ -43,6 +44,7 @@ void Main::Entry(Main* main) // static
 	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MenuThread, main, 0, 0);
     if (thread) CloseHandle(thread);
     else Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
+    return 0;
 }
 
 uintptr_t Main::GetGameBaseAddress()

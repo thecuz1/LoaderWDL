@@ -1,7 +1,8 @@
 #pragma once
 #include "Main.h"
+#include <minwindef.h>
 
-void MenuThread(Main* main);
+DWORD MenuThread(Main* main);
 void unhookAll();
 void imguiInit();
 

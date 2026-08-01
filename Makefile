@@ -1,8 +1,9 @@
 # Compiler and flags
+AR        = x86_64-w64-mingw32-ar
 CXX       = x86_64-w64-mingw32-g++
 CC        = x86_64-w64-mingw32-gcc
-CXXFLAGS += -Wall -std=c++17 -ffunction-sections -fdata-sections
-CCFLAGS  += -Wall -std=c17 -ffunction-sections -fdata-sections
+CXXFLAGS += -Wall -Wextra -std=c++17 -ffunction-sections -fdata-sections
+CCFLAGS  += -Wall -Wextra -std=c17 -ffunction-sections -fdata-sections
 
 INCLUDES += -I. -Ilua -Iimgui -Iimgui/backends -IUI
 
@@ -18,7 +19,8 @@ SRCS     = dllmain.cpp \
            Main.cpp \
            $(wildcard UI/*.cpp) \
            Logger.cpp \
-           MinHook/hook.c \
+
+LIB_SRCS = MinHook/hook.c \
            MinHook/buffer.c \
            MinHook/trampoline.c \
            MinHook/hde/hde64.c \
@@ -27,12 +29,22 @@ SRCS     = dllmain.cpp \
            $(wildcard imgui/backends/*.cpp)
 
 # Target
-BUILD_DIR = build
-TARGET    = $(BUILD_DIR)/dinput8.dll
+BUILD_DIR  = build
+TARGET     = $(BUILD_DIR)/dinput8.dll
+LIB_TARGET = $(BUILD_DIR)/libdependencies.a
 
 # Map source files to object files inside the build directory
-OBJS = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(SRCS))) \
-       $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(SRCS)))
+OBJS     = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(SRCS))) \
+           $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(SRCS)))
+
+LIB_OBJS = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(LIB_SRCS))) \
+           $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(LIB_SRCS)))
+
+# Custom flags for libraries
+LIB_CXXFLAGS = -std=c++17 -Os -ffunction-sections -fdata-sections
+LIB_CCFLAGS  = -std=c17 -Os -ffunction-sections -fdata-sections
+$(LIB_OBJS): CXXFLAGS := $(LIB_CXXFLAGS)
+$(LIB_OBJS): CCFLAGS  := $(LIB_CCFLAGS)
 
 # Default rule
 all: $(TARGET)
@@ -40,8 +52,8 @@ all: $(TARGET)
 -include Makefile-local.mk
 
 # Linking
-$(TARGET): $(OBJS)
-	$(CXX) $(OBJS) $(LDFLAGS) $(LDLIBS) -o $@
+$(TARGET): $(LIB_TARGET) $(OBJS)
+	$(CXX) $(OBJS) $(LIB_TARGET) $(LDFLAGS) $(LDLIBS) -o $@
 
 # .cpp source files
 $(BUILD_DIR)/%.o: %.cpp
@@ -52,6 +64,11 @@ $(BUILD_DIR)/%.o: %.cpp
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $(INCLUDES) -c $< -o $@
+
+# Build libraries into a static archive (.a) this reduces size for target
+$(LIB_TARGET): $(LIB_OBJS)
+	@mkdir -p $(dir $@)
+	$(AR) rcs $@ $^
 
 clean:
 	rm -rf $(BUILD_DIR)
