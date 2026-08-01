@@ -6,6 +6,7 @@ extern "C" {
     #include "lua.h"
 }
 
+
 #define MODULE_NAME "DuniaDemo_clang_64_dx12.dll"
 
 #define LUA_OK          0
@@ -54,3 +55,5 @@ private:
 	void InstallHook();
 	static void Entry(Main* main);
 };
+
+const lua_State* context_lua_state;

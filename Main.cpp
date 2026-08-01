@@ -53,7 +53,7 @@ void Main::Entry(Main* main) // static
 // Thread que captura teclas
 DWORD WINAPI InputThread(Main* main)
 {
-	Logger::LogMessage("Input thread started! Press F1 to test Lua execution\n");
+	Logger::LogMessage("Input thread started! Press F1 to test Lua execution\n"); // /test in terminal
 
 	bool f1_pressed = false;
 	bool f2_pressed = false;
@@ -66,7 +66,7 @@ DWORD WINAPI InputThread(Main* main)
 		// END
 		if (GetAsyncKeyState(VK_END) & 0x8000)
 		{
-			Logger::LogMessage("END pressed - Exiting input thread\n");
+			Logger::LogMessage("END pressed - Exiting input thread\n"); // /stop in terminal
 			break;
 		}
 
@@ -78,7 +78,7 @@ DWORD WINAPI InputThread(Main* main)
 			if (!f1_pressed)
 			{
 				f1_pressed = true;
-				Logger::LogMessage("\n[F1] Searching for weather functions...\n");
+				Logger::LogMessage("\n[F1] Searching for weather functions...\n"); // replaced by multiline text
 				const char* find_weather = R"(
             print('=== Searching Weather Functions ===')
 

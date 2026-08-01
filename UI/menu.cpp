@@ -52,8 +52,10 @@ void MenuThread(Main* main) {
     }
 }
 
+char script[8192] = "";
 void imguiInit() {
-    ImGui::ShowDemoWindow();
+
+    ///ImGui::ShowDemoWindow();
     return;
     bool isOpen = true;
 
@@ -87,11 +89,12 @@ void imguiInit() {
 
     ImGui::Begin("ImGui Menu", &isOpen, flags);
 
-    if (ImGui::CollapsingHeader("MENU")) {
-        if (ImGui::TreeNode("SUB MENU")) {
-            ImGui::Text("Text Test");
-            if (ImGui::Button("Button Test")) {
-                Logger::LogMessage("[UI/menu] Button Test clicked.\n");
+    if (ImGui::CollapsingHeader("ScriptHook")) {
+        if (ImGui::TreeNode("Terminal")) {
+            ImGui::InputTextMultiline("Code:", script, sizeof(script));
+            if (ImGui::Button("Run")) {
+                Logger::LogMessage("[Lua] running script: \"%s\"");
+
             }
             // if (ImGui::Checkbox("No Title Bar", &noTitleBar)) {
             //     Logger::LogMessage("[UI/menu] Checkbox No Title Bar toggled. flags=0x%X\n", flags);
