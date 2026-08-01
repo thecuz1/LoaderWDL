@@ -16,8 +16,8 @@ using namespace std;
 
 LPVOID luaL_loadbuffer_t_addr;
 LPVOID luaL_pcall_t_addr;
+lua_State* context_lua_state;
 static CRITICAL_SECTION luaEngine_loadLock;
-DWORD WINAPI InputThread(Main* main);
 
 bool hasConsole = false;
 void Main::Entry(Main* main) // static
@@ -40,11 +40,7 @@ void Main::Entry(Main* main) // static
 	MH_Initialize();
 	main->InstallHook();
 
-	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)InputThread, main, 0, 0);
-    if (thread) CloseHandle(thread);
-    else Logger::LogMessage("[Main] Failed to create InputThread thread: %d\n", GetLastError());
-
-	thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MenuThread, main, 0, 0);
+	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MenuThread, main, 0, 0);
     if (thread) CloseHandle(thread);
     else Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
 }

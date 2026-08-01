@@ -1,11 +1,12 @@
+#include <windows.h>
+#include <filesystem>
+#include <fstream>
+
+#include "imgui.h"
 #include "menu.h"
 #include "Logger.h"
 #include "Main.h"
 #include "hookD3D12.h"
-#include "imgui.h"
-#include <windows.h>
-#include <filesystem>
-#include <fstream>
 
 Main* mainInstance;
 
@@ -95,7 +96,7 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 			}
 		}
 
-		bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)(*count), node_flags, name.c_str());
+		bool node_open = ImGui::TreeNodeEx(name.c_str(), node_flags);
 
 		if (ImGui::IsItemClicked()) {
 			node_clicked = *count;

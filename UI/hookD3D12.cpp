@@ -1,16 +1,16 @@
 #include <windows.h>
-#include "Logger.h"
-#include "imgui_impl_dx12.h"
-#include "imgui_impl_win32.h"
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <vector>
 #include <wrl/client.h>
+
+#include "imgui_impl_dx12.h"
+#include "imgui_impl_win32.h"
 #include "MinHook/MinHook.h"
+#include "Logger.h"
 #include "menu.h"
 #include "hookD3D12.h"
 #include "winProc.h"
-#include <mutex>
-#include <vector>
 
 using Microsoft::WRL::ComPtr;
 
@@ -27,28 +27,26 @@ static ComPtr<ID3D12CommandQueue>    pCommandQueue = nullptr;
 
 struct FrameContext {
     ComPtr<ID3D12CommandAllocator> allocator;
-    ComPtr<ID3D12Resource> renderTarget;
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle;
+    ComPtr<ID3D12Resource>         renderTarget;
+    D3D12_CPU_DESCRIPTOR_HANDLE    rtvHandle;
 };
 static std::vector<FrameContext> gFrameContexts;
 
-static std::mutex gD3D12Mutex;
-static ComPtr<ID3D12Device> gDevice;
-static ComPtr<ID3D12CommandQueue> gCommandQueue;
-static ComPtr<ID3D12DescriptorHeap> gHeapRTV = nullptr;
-static ComPtr<ID3D12DescriptorHeap> gHeapSRV = nullptr;
-static ComPtr<ID3D12GraphicsCommandList> gCommandList;
-static uint64_t                gBufferCount = 0;
-
-static bool                   gInitialized = false;
-static bool                   gShutdown = false;
+static ComPtr<ID3D12CommandQueue>        gCommandQueue = nullptr;
+static ComPtr<ID3D12DescriptorHeap>      gHeapRTV      = nullptr;
+static ComPtr<ID3D12DescriptorHeap>      gHeapSRV      = nullptr;
+static ComPtr<ID3D12GraphicsCommandList> gCommandList  = nullptr;
+static UINT                              gBufferCount  = 0;
 
 #define HOOK(name, ret, ...) \
 typedef ret (APIENTRY* name##D3D12)(__VA_ARGS__); /* Function hook type */ \
 LPVOID      p##name##Target = nullptr;            /* Target function */ \
-name##D3D12  o##name##D3D12 = nullptr;            /* Original function */
+static name##D3D12  o##name##D3D12 = nullptr;     /* Original function */
 LIST_OF_D3D12HOOKS
 #undef HOOK
+
+static bool gInitialized = false;
+static bool gShutdown    = false;
 
 static HRESULT createDummyObjects() {
     WNDCLASSEXW wc = {
@@ -157,9 +155,7 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
 
     if (!gInitialized) {
         Logger::LogMessage("[UI/d3d12] Initializing ImGui on first Present.\n");
-
-        std::lock_guard<std::mutex> lock(gD3D12Mutex);
-        if (gInitialized) return oPresentD3D12(pSwapChain, SyncInterval, Flags);
+        ID3D12Device* gDevice;
 
         if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D12Device), (void**)&gDevice))) {
             Logger::LogMessage("[UI/d3d12] GetDevice: hr=0x%08X\n", E_FAIL);
@@ -211,6 +207,10 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
             rtvHandle.ptr += rtvSize;
         }
 
+        if (gDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, gFrameContexts[0].allocator.Get(), nullptr, IID_PPV_ARGS(&gCommandList)) != S_OK || gCommandList->Close() != S_OK) {
+            return oPresentD3D12(pSwapChain, SyncInterval, Flags);
+        }
+
         // ImGui setup
         // IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -219,9 +219,8 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init(desc.OutputWindow);
 
-
         ImGui_ImplDX12_InitInfo init_info = {};
-        init_info.Device = gDevice.Get();
+        init_info.Device = gDevice;
         init_info.CommandQueue = gCommandQueue.Get();
         init_info.NumFramesInFlight = gBufferCount;
         init_info.RTVFormat = desc.BufferDesc.Format;
@@ -238,6 +237,7 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         HookWindow2(desc.OutputWindow);
 
         gInitialized = true;
+        gDevice->Release();
     }
 
     if (!gShutdown) {
@@ -257,15 +257,6 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
             return oPresentD3D12(pSwapChain, SyncInterval, Flags);
         }
 
-        if (!gCommandList) {
-            hr = gDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-                ctx.allocator.Get(), nullptr, IID_PPV_ARGS(&gCommandList));
-            if (FAILED(hr)) {
-                Logger::LogMessage("[d3d12hook] CreateCommandList: hr=0x%08X\n", hr);
-                return oPresentD3D12(pSwapChain, SyncInterval, Flags);
-            }
-            gCommandList->Close();
-        }
         hr = gCommandList->Reset(ctx.allocator.Get(), nullptr);
         if (FAILED(hr)) {
             Logger::LogMessage("[d3d12hook] CommandList->Reset: hr=0x%08X\n", hr);
@@ -307,12 +298,12 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
     return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 }
 
-void APIENTRY hookExecuteCommandListsD3D12(ID3D12CommandQueue* _this, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists) {
-    if (!gCommandQueue && _this->GetDesc().Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
-		gCommandQueue = _this;
+void APIENTRY hookExecuteCommandListsD3D12(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists) {
+    if (!gCommandQueue && queue->GetDesc().Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
+		gCommandQueue = queue;
 	}
 
-    oExecuteCommandListsD3D12(_this, NumCommandLists, ppCommandLists);
+    oExecuteCommandListsD3D12(queue, NumCommandLists, ppCommandLists);
 }
 
 void resetState() {
