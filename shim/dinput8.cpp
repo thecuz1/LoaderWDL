@@ -55,6 +55,30 @@ static void log_msg(const char *fmt, ...)
     fflush(stdout);
 }
 
+// The game (DuniaDemo_clang_64_dx12.dll) is built against the Universal CRT,
+// so its Lua `print` writes to UCRT stdout. Our MinGW/msvcrt freopen above
+// does not touch that, which is why script print() output goes missing even
+// though the LoaderWDL logs show up. Redirect UCRT's std streams to the
+// console too — this is what the original MSVC shim did via __acrt_iob_func.
+static void redirect_game_crt()
+{
+    HMODULE ucrt = LoadLibraryA("ucrtbase.dll");
+    if (ucrt == nullptr)
+        return;
+
+    typedef void* (__cdecl *AcrtIobFunc)(int);
+    typedef FILE* (__cdecl *FreopenFn)(const char *, const char *, FILE *);
+
+    AcrtIobFunc iob = reinterpret_cast<AcrtIobFunc>(GetProcAddress(ucrt, "__acrt_iob_func"));
+    FreopenFn fre   = reinterpret_cast<FreopenFn>(GetProcAddress(ucrt, "freopen"));
+    if (iob == nullptr || fre == nullptr)
+        return;
+
+    fre("CONOUT$", "w", static_cast<FILE *>(iob(1))); // stdout
+    fre("CONOUT$", "w", static_cast<FILE *>(iob(2))); // stderr
+    fre("CONIN$",  "r", static_cast<FILE *>(iob(0))); // stdin
+}
+
 // Load the real dinput8 from the system directory and resolve its exports.
 static void ensure_real()
 {
@@ -164,6 +188,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         log_msg("========== EXE LAUNCH / dinput8 attached ==========");
         log_msg("[dinput8] Boot logger + console ready");
 
+        redirect_game_crt();
         ensure_real();
 
         CreateThread(nullptr, 0, payload_thread, hinstDLL, 0, nullptr);
