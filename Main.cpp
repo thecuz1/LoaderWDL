@@ -51,7 +51,7 @@ void Main::Entry(Main* main) // static
 }
 
 // Thread que captura teclas
-DWORD WINAPI InputThread(Main* main)
+/*DWORD WINAPI InputThread(Main* main)
 {
 	Logger::LogMessage("Input thread started! Press F1 to test Lua execution\n"); // /test in terminal
 
@@ -80,35 +80,7 @@ DWORD WINAPI InputThread(Main* main)
 				f1_pressed = true;
 				Logger::LogMessage("\n[F1] Searching for weather functions...\n"); // replaced by multiline text
 				const char* find_weather = R"(
-            print('=== Searching Weather Functions ===')
-
-            -- Search for weather-related functions
-            for name, func in pairs(_G) do
-                if type(func) == 'function' then
-                    local lowerName = string.lower(name)
-                    if string.find(lowerName, 'weather') or
-                       string.find(lowerName, 'climate') or
-                       string.find(lowerName, 'rain') or
-                       string.find(lowerName, 'storm') then
-                        print('Found: ' .. name)
-                    end
-                end
-            end
-
-            -- Test if WeatherIDs exist
-            if WeatherIDs then
-                print('WeatherIDs table exists!')
-                local count = 0
-                for k, v in pairs(WeatherIDs) do
-                    count = count + 1
-                    if count <= 5 then
-                        print('  ' .. k .. ' = ' .. v)
-                    end
-                end
-                print('Total weather presets: ' .. count)
-            end
-
-            print('===================================')
+            print('
         )";
 				main->Execute(context_lua_state, find_weather);
 			}
@@ -156,7 +128,7 @@ DWORD WINAPI InputThread(Main* main)
 	}
 
 	return 0;
-}
+}*/
 
 uintptr_t Main::GetGameBaseAddress()
 {
