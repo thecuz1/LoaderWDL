@@ -47,9 +47,10 @@ SHIM_OBJS = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(SHIM_SRCS))) \
 LIB_OBJS  = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(LIB_SRCS))) \
             $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(LIB_SRCS)))
 
-# Custom flags for libraries
+# Special flags
 $(LIB_OBJS):  CXXFLAGS := -std=c++17 -Os -ffunction-sections -fdata-sections
 $(LIB_OBJS):  CCFLAGS  := -std=c17 -Os -ffunction-sections -fdata-sections
+$(SHIM):      LDFLAGS  := -shared -s -Wl,--gc-sections
 
 # Default rule
 all: $(TARGET)

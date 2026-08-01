@@ -225,7 +225,7 @@ void Main::InstallHook() {
 }
 
 void Main::StartThread() {
-	Logger::Initialize("Teste!");
+	Logger::Initialize("scripthook.log");
 	Logger::LogMessage("\n");
 
 	hasConsole = AllocConsole();
