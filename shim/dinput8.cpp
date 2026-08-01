@@ -2,7 +2,7 @@
 //
 // * loads the real system dinput8 from System32, forwards the 5 exports
 // * allocates a dev console + writes a timestamped boot log
-// * spawns a thread that loads the first of {scripthook.dll,
+// * spawns a thread that loads scripthook.dll
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

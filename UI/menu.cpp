@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <filesystem>
 #include <fstream>
+#include <list>
 #include "imgui.h"
 #include "menu.h"
 #include "Logger.h"
@@ -87,7 +88,7 @@ std::pair<bool, uint32_t> DirectoryTreeViewRecursive(const std::filesystem::path
 		if (entryIsFile) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			if (ImGui::Button("Run##%s"), name.c_str()) {
+			if (ImGui::Button(("Run##" + name).c_str())) {
 				std::ifstream scriptFile(name);
 				if (!scriptFile.is_open()) {
 				    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", name.c_str());
