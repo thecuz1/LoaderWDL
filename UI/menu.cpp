@@ -1,10 +1,12 @@
-#include <cstdint>
-#include <minwindef.h>
 #include <windows.h>
+#include <minwindef.h>
+
 #include <filesystem>
 #include <fstream>
-#include <list>
+#include <cstdint>
+
 #include "imgui.h"
+
 #include "menu.h"
 #include "Logger.h"
 #include "Main.h"

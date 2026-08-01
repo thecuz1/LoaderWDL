@@ -1,4 +1,5 @@
 #pragma once
+
 #include <windows.h>
 
 HRESULT initD3D12Hooks();

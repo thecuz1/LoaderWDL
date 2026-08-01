@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Main.h"
+
 #include <minwindef.h>
 
 DWORD MenuThread(Main* main);

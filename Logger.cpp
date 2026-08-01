@@ -1,20 +1,19 @@
-#include "windows.h"
 #include "Logger.h"
+
+#include <windows.h>
+
 #include <cstdio>
 
 static CRITICAL_SECTION lock;
 static FILE* logfile; // one moment ok
 
-void Logger::Initialize(const char* fileName)
-{
+void Logger::Initialize(const char* fileName) {
 	InitializeCriticalSection(&lock);
 	logfile = fopen(fileName, "at");
 }
 
-void Logger::LogMessage(const char* message, ...)
-{
-	if (!logfile)
-	{
+void Logger::LogMessage(const char* message, ...) {
+	if (!logfile) {
 		MessageBoxA(0, "Logger::LogMessage: File pointer not initialized", "Error", 0);
 		return;
 	}
@@ -40,10 +39,8 @@ void Logger::LogMessage(const char* message, ...)
 	LeaveCriticalSection(&lock);
 }
 
-void Logger::Shutdown()
-{
-	if (logfile)
-	{
+void Logger::Shutdown() {
+	if (logfile) {
 		EnterCriticalSection(&lock);
 		fflush(logfile);
 		fclose(logfile);

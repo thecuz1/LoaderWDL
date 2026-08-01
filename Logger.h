@@ -1,7 +1,6 @@
 #pragma once
 
-class Logger
-{
+class Logger {
 public:
 	static void Initialize(const char* fileName);
 	static void LogMessage(const char* message, ...);

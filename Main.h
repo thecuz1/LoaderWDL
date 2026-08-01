@@ -1,7 +1,9 @@
 #pragma once
-#include "windows.h" // IWYU pragma: keep
-#include <filesystem>
+
+#include <windows.h> // IWYU pragma: keep
 #include <minwindef.h>
+
+#include <filesystem>
 
 extern "C" {
     #include "lua.h"
@@ -41,8 +43,7 @@ typedef int(__cdecl* lua_pcall_t)(void* lua_state, int nargs, int nresults, int 
 typedef const char* (__cdecl* lua_tolstring_t)(void* lua_state, int index, size_t* len);
 typedef const char* (__cdecl* lua_tostring_t)(void* lua_state, int index);
 
-class Main
-{
+class Main {
 public:
 	void StartThread();
 	int Execute(lua_State* L, const char* scriptData);

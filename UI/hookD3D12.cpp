@@ -130,8 +130,7 @@ static HRESULT createDummyObjects() {
 }
 
 static void CleanupDummyObjects() {
-    if (hDummyWindow)
-    {
+    if (hDummyWindow) {
         DestroyWindow(hDummyWindow);
         hDummyWindow = nullptr;
     }

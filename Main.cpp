@@ -1,13 +1,16 @@
+#include "MinHook/MinHook.h"
+
 #include "Main.h"
 #include "Logger.h"
-#include "windows.h"
-#include <cstdio>
-#include "MinHook/MinHook.h"
+#include "menu.h"
+
+#include <windows.h>
+#include <winnt.h>
 #include <minwindef.h>
+
 #include <string>
 #include <filesystem>
-#include <winnt.h>
-#include "menu.h"
+#include <cstdio>
 
 extern "C" {
     #include "lua.h"
@@ -21,15 +24,12 @@ lua_State* context_lua_state;
 static CRITICAL_SECTION luaEngine_loadLock;
 
 bool hasConsole = false;
-DWORD Main::Entry(Main* main) // static
-{
+DWORD Main::Entry(Main* main) { // static
     HWND hGameWindow = NULL;
-    while (hGameWindow == NULL)
-    {
+    while (hGameWindow == NULL) {
         hGameWindow = FindWindowA(NULL, "Watch Dogs Legion");
 
-        if (hGameWindow == NULL)
-        {
+        if (hGameWindow == NULL) {
             Sleep(500);
         } else {
             break;
@@ -42,13 +42,15 @@ DWORD Main::Entry(Main* main) // static
 	main->InstallHook();
 
 	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MenuThread, main, 0, 0);
-    if (thread) CloseHandle(thread);
-    else Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
+    if (thread) {
+        CloseHandle(thread);
+    } else {
+        Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
+    }
     return 0;
 }
 
-uintptr_t Main::GetGameBaseAddress()
-{
+uintptr_t Main::GetGameBaseAddress() {
 	return reinterpret_cast<uintptr_t>(GetModuleHandleA(MODULE_NAME));
 }
 
@@ -71,7 +73,7 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 
 	Logger::LogMessage("=== Lua Script Loaded ===\n");
 
-	// Printa o nome do arquivo/script
+	// Print file/script name
 	if (name != NULL) {
 		Logger::LogMessage("Script Name: %s\n", name);
 	}
@@ -79,15 +81,16 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 		Logger::LogMessage("Script Name: [unnamed]\n");
 	}
 
-	// Printa o tamanho do buffer
+	// Print buffer size
 	Logger::LogMessage("Buffer Size: %zu bytes\n", sz);
 
-	// Printa o conte�do do script Lua
+	// Print lua script contents
 	if (buff != NULL && sz > 0) {
 		Logger::LogMessage("Script Content:\n");
 		Logger::LogMessage("------------------------\n");
 
-		// Cria uma string tempor�ria para garantir null-termination
+		// luaL_loadbuffer's buffer isn't null-terminated (length passed separately),
+		// so copy it into a std::string to safely use with %s
 		std::string script_content(buff, sz);
 		Logger::LogMessage("%s\n", script_content.c_str());
 
@@ -99,17 +102,30 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
 	return luaL_loadbuffer_t_call(lua_state, buff, sz, name);
 }
-
 int Main::Execute(lua_State* L, const char* scriptData)
 {
 	lua_tolstring_t lua_tolstring_t_call = reinterpret_cast<lua_tolstring_t>((GetGameBaseAddress() + lua_tolstring_t_off));
 	lua_pcall_t lua_pcall_t_call = reinterpret_cast<lua_pcall_t>((GetGameBaseAddress() + lua_pcall_t_off));
 
-	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
-	int loadResult = luaL_loadbuffer_t_call(L, scriptData, strlen(scriptData), "exec");
+	// Wrap the game's Lua `print` once per state so script output shows up
+	// with a [Console] prefix (the shim can't tag it - it's just stdout).
+	static const char* kPrintPrefix =
+		"if type(_G.print) == \"function\" and not _G.__console_print_patched then\n"
+		"  local _op = _G.print;\n"
+		"  _G.print = function(...)\n"
+		"    local t = {};\n"
+		"    for i = 1, select(\"#\", ...) do t[i] = tostring(select(i, ...)); end;\n"
+		"    _op(\"[Console] \" .. table.concat(t, \"\\t\"));\n"
+		"  end;\n"
+		"  _G.__console_print_patched = true;\n"
+		"end;\n";
 
-	if (loadResult != LUA_OK)
-	{
+	std::string script = std::string(kPrintPrefix) + scriptData;
+
+	luaL_loadbuffer_t luaL_loadbuffer_t_call = reinterpret_cast<luaL_loadbuffer_t>(luaL_loadbuffer_t_addr);
+	int loadResult = luaL_loadbuffer_t_call(L, script.c_str(), script.size(), "exec");
+
+	if (loadResult != LUA_OK) {
 	    const char* err = nullptr;
 		if (lua_isstring(L, -1))
         {
@@ -125,8 +141,7 @@ int Main::Execute(lua_State* L, const char* scriptData)
 
 	int result = lua_pcall_t_call(L, 0, 0, 0);
 	EnterCriticalSection(&luaEngine_loadLock);
-	if (result != LUA_OK)
-	{
+	if (result != LUA_OK) {
 		const char* err = lua_tolstring_t_call(L, -1, NULL);
 		Logger::LogMessage("Execution error: %s\n", err);
 		lua_pop(L, 1);
@@ -209,8 +224,7 @@ void Main::InstallHook() {
 	Logger::LogMessage("Original Hook address (lua_pcall): %p\n", luaL_pcall_t_addr);
 }
 
-void Main::StartThread()
-{
+void Main::StartThread() {
 	Logger::Initialize("Teste!");
 	Logger::LogMessage("\n");
 
@@ -223,11 +237,9 @@ void Main::StartThread()
     else Logger::LogMessage("[Main] Failed to create main thread: %d\n", GetLastError());
 }
 
-void Main::Unload()
-{
+void Main::Unload() {
 	Logger::Shutdown();
-	if (hasConsole)
-	{
+	if (hasConsole) {
 		fclose(stdout);
 		hasConsole = !FreeConsole();
 	}

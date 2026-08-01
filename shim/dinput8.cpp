@@ -1,10 +1,5 @@
-// dinput8 proxy shim (C++ build)
-//
-// * loads the real system dinput8 from System32, forwards the 5 exports
-// * allocates a dev console + writes a timestamped boot log
-// * spawns a thread that loads scripthook.dll
-
 #define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 
 #include <cstdarg>
@@ -30,8 +25,7 @@ static const char *g_payloads[] = {
     "scripthook.dll",
 };
 
-static void log_msg(const char *fmt, ...)
-{
+static void log_msg(const char *fmt, ...) {
     SYSTEMTIME st;
     char buf[1024];
     int len;
@@ -55,13 +49,8 @@ static void log_msg(const char *fmt, ...)
     fflush(stdout);
 }
 
-// The game (DuniaDemo_clang_64_dx12.dll) is built against the Universal CRT,
-// so its Lua `print` writes to UCRT stdout. Our MinGW/msvcrt freopen above
-// does not touch that, which is why script print() output goes missing even
-// though the LoaderWDL logs show up. Redirect UCRT's std streams to the
-// console too — this is what the original MSVC shim did via __acrt_iob_func.
-static void redirect_game_crt()
-{
+// WDL is built against the Universal CRT so its Lua `print` writes to UCRT stdout. Redirect UCRT's std streams to the console
+static void redirect_game_crt() {
     HMODULE ucrt = LoadLibraryA("ucrtbase.dll");
     if (ucrt == nullptr)
         return;
@@ -80,8 +69,7 @@ static void redirect_game_crt()
 }
 
 // Load the real dinput8 from the system directory and resolve its exports.
-static void ensure_real()
-{
+static void ensure_real() {
     WCHAR sysdir[MAX_PATH], full[MAX_PATH];
 
     if (g_realDinput8 != nullptr)
@@ -105,8 +93,7 @@ static void ensure_real()
 }
 
 // Try to load a payload DLL from the shim's own directory.
-static DWORD WINAPI payload_thread(LPVOID param)
-{
+static DWORD WINAPI payload_thread(LPVOID param) {
     HMODULE hmod = static_cast<HMODULE>(param);
     CHAR path[MAX_PATH], full[MAX_PATH];
     DWORD len, i;
@@ -150,8 +137,7 @@ static DWORD WINAPI payload_thread(LPVOID param)
     return 2;
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     (void)lpvReserved;
 
     if (fdwReason == DLL_PROCESS_ATTACH) {
@@ -212,41 +198,35 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
     return TRUE;
 }
 
-extern "C" HRESULT __stdcall DirectInput8Create(HINSTANCE hinst, DWORD dwVersion,
-                                                REFIID riid, LPVOID *ppvOut)
-{
+extern "C" HRESULT __stdcall DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID *ppvOut) {
     ensure_real();
     if (pDirectInput8Create == nullptr)
         return 0x80004005;
     return pDirectInput8Create(hinst, dwVersion, riid, ppvOut);
 }
 
-extern "C" HRESULT __stdcall DllCanUnloadNow(void)
-{
+extern "C" HRESULT __stdcall DllCanUnloadNow(void) {
     ensure_real();
     if (pDllCanUnloadNow == nullptr)
         return 1;
     return pDllCanUnloadNow();
 }
 
-extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
-{
+extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv) {
     ensure_real();
     if (pDllGetClassObject == nullptr)
         return 0x80040111; /* CLASS_E_CLASSNOTAVAILABLE */
     return pDllGetClassObject(rclsid, riid, ppv);
 }
 
-extern "C" HRESULT __stdcall DllRegisterServer(void)
-{
+extern "C" HRESULT __stdcall DllRegisterServer(void) {
     ensure_real();
     if (pDllRegisterServer == nullptr)
         return 0x80004005;
     return pDllRegisterServer();
 }
 
-extern "C" HRESULT __stdcall DllUnregisterServer(void)
-{
+extern "C" HRESULT __stdcall DllUnregisterServer(void) {
     ensure_real();
     if (pDllUnregisterServer == nullptr)
         return 0x80004005;
