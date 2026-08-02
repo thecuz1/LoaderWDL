@@ -108,16 +108,20 @@ std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* 
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 			if (ImGui::Button(("Run##" + std::to_string(node.bitIndex) + node.name).c_str())) {
-				std::ifstream scriptFile(node.name);
-				if (!scriptFile.is_open()) {
-				    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", node.name.c_str());
+				if (!context_lua_state) {
+				    Logger::LogMessage("[UI/menu] Cannot run %s: context_lua_state not set (go in-game first)\n", node.name.c_str());
 				} else {
-				    Logger::LogMessage("[UI/menu] Opening script file: %s\n", node.name.c_str());
+					std::ifstream scriptFile(node.name);
+					if (!scriptFile.is_open()) {
+					    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", node.name.c_str());
+					} else {
+					    Logger::LogMessage("[UI/menu] Opening script file: %s\n", node.name.c_str());
+						std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), (std::istreambuf_iterator<char>()));
+						scriptFile.close();
+						Logger::LogMessage("[UI/menu] Running script...\n");
+						mainInstance->Execute(context_lua_state, scriptContent.c_str());
+					}
 				}
-				Logger::LogMessage("[UI/menu] Running script...\n");
-				std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), (std::istreambuf_iterator<char>()));
-				scriptFile.close();
-				mainInstance->Execute(context_lua_state, scriptContent.c_str());
 			}
 		}
 

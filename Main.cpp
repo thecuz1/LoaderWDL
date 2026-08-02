@@ -21,7 +21,6 @@ using namespace std;
 LPVOID luaL_loadbuffer_t_addr;
 LPVOID luaL_pcall_t_addr;
 lua_State* context_lua_state;
-static CRITICAL_SECTION luaEngine_loadLock;
 
 bool hasConsole = false;
 DWORD Main::Entry(Main* main) { // static
@@ -37,7 +36,6 @@ DWORD Main::Entry(Main* main) { // static
     }
     Sleep(2000);
 
-	InitializeCriticalSection(&luaEngine_loadLock);
 	MH_Initialize();
 	main->InstallHook();
 
@@ -102,6 +100,11 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 	return luaL_loadbuffer_t_call(lua_state, buff, sz, name);
 }
 int Main::Execute(lua_State* L, const char* scriptData) {
+	if (L == nullptr) {
+		Logger::LogMessage("[Main] Execute called with NULL lua_state (game Lua not loaded yet - go in-game)\n");
+		return LUA_ERRSYNTAX;
+	}
+
 	lua_tolstring_t lua_tolstring_t_call = reinterpret_cast<lua_tolstring_t>((GetGameBaseAddress() + lua_tolstring_t_off));
 	lua_pcall_t lua_pcall_t_call = reinterpret_cast<lua_pcall_t>((GetGameBaseAddress() + lua_pcall_t_off));
 
@@ -133,11 +136,7 @@ int Main::Execute(lua_State* L, const char* scriptData) {
 		return LUA_ERRSYNTAX;
 	}
 
-	// Leave critical section because call below might never return (loop)
-	LeaveCriticalSection(&luaEngine_loadLock);
-
 	int result = lua_pcall_t_call(L, 0, 0, 0);
-	EnterCriticalSection(&luaEngine_loadLock);
 	if (result != LUA_OK) {
 		const char* err = lua_tolstring_t_call(L, -1, NULL);
 		Logger::LogMessage("Execution error: %s\n", err);
