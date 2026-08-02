@@ -235,14 +235,16 @@ extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPV
 
 extern "C" HRESULT __stdcall DllRegisterServer(void) {
     ensure_real();
-    if (pDllRegisterServer == nullptr)
+    if (pDllRegisterServer == nullptr) {
         return 0x80004005;
+    }
     return pDllRegisterServer();
 }
 
 extern "C" HRESULT __stdcall DllUnregisterServer(void) {
     ensure_real();
-    if (pDllUnregisterServer == nullptr)
+    if (pDllUnregisterServer == nullptr) {
         return 0x80004005;
+    }
     return pDllUnregisterServer();
 }
