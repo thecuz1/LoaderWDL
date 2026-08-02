@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 
 typedef HRESULT (__stdcall *DirectInput8CreateFn)(HINSTANCE, DWORD, REFIID, LPVOID *);
 typedef HRESULT (__stdcall *DllCanUnloadNowFn)(void);
@@ -22,7 +23,7 @@ static DllRegisterFn         pDllRegisterServer;
 static DllRegisterFn         pDllUnregisterServer;
 
 static const char *g_payloads[] = {
-    "scripthook.dll",
+    "scripthook.dll"
 };
 
 static void log_msg(const char *fmt, ...) {
@@ -32,10 +33,10 @@ static void log_msg(const char *fmt, ...) {
     va_list ap;
 
     GetLocalTime(&st);
-    len = snprintf(buf, sizeof(buf), "[%02d:%02d:%02d.%03d] ",
-                   st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
-    if (len < 0 || len >= static_cast<int>(sizeof(buf)))
+    len = snprintf(buf, sizeof(buf), "[%02d:%02d:%02d.%03d] ", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+    if (len < 0 || len >= static_cast<int>(sizeof(buf))) {
         return;
+    }
 
     va_start(ap, fmt);
     vsnprintf(buf + len, sizeof(buf) - len, fmt, ap);
@@ -52,16 +53,18 @@ static void log_msg(const char *fmt, ...) {
 // WDL is built against the Universal CRT so its Lua `print` writes to UCRT stdout. Redirect UCRT's std streams to the console
 static void redirect_game_crt() {
     HMODULE ucrt = LoadLibraryA("ucrtbase.dll");
-    if (ucrt == nullptr)
+    if (ucrt == nullptr) {
         return;
+    }
 
     typedef void* (__cdecl *AcrtIobFunc)(int);
     typedef FILE* (__cdecl *FreopenFn)(const char *, const char *, FILE *);
 
     AcrtIobFunc iob = reinterpret_cast<AcrtIobFunc>(reinterpret_cast<void*>(GetProcAddress(ucrt, "__acrt_iob_func")));
     FreopenFn fre   = reinterpret_cast<FreopenFn>(reinterpret_cast<void*>(GetProcAddress(ucrt, "freopen")));
-    if (iob == nullptr || fre == nullptr)
+    if (iob == nullptr || fre == nullptr) {
         return;
+    }
 
     fre("CONOUT$", "w", static_cast<FILE *>(iob(1))); // stdout
     fre("CONOUT$", "w", static_cast<FILE *>(iob(2))); // stderr
@@ -72,18 +75,20 @@ static void redirect_game_crt() {
 static void ensure_real() {
     WCHAR sysdir[MAX_PATH], full[MAX_PATH];
 
-    if (g_realDinput8 != nullptr)
+    if (g_realDinput8 != nullptr) {
         return;
-
-    if (GetSystemDirectoryW(sysdir, MAX_PATH) == 0)
+    }
+    if (GetSystemDirectoryW(sysdir, MAX_PATH) == 0) {
         return;
+    }
 
     _snwprintf(full, MAX_PATH, L"%s\\dinput8.dll", sysdir);
     full[MAX_PATH - 1] = L'\0';
 
     g_realDinput8 = LoadLibraryW(full);
-    if (g_realDinput8 == nullptr)
+    if (g_realDinput8 == nullptr) {
         return;
+    }
 
     pDirectInput8Create  = reinterpret_cast<DirectInput8CreateFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DirectInput8Create")));
     pDllCanUnloadNow     = reinterpret_cast<DllCanUnloadNowFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllCanUnloadNow")));
@@ -106,34 +111,37 @@ static DWORD WINAPI payload_thread(LPVOID param) {
         if (path[i - 1] == '\\' || path[i - 1] == '/')
             break;
     }
-    if (i > 0)
+    if (i > 0) {
         path[i] = '\0';
+    }
 
     for (i = 0; i < ARRAYSIZE(g_payloads); i++) {
         _snprintf(full, sizeof(full), "%s%s", path, g_payloads[i]);
         full[sizeof(full) - 1] = '\0';
 
-        log_msg("[dinput8] Loading payload: %s", full);
-        g_payload = LoadLibraryA(full);
+        log_msg("[dinput8] Loading payload: %s\n", full);
+        std::filesystem::path scripthook = std::filesystem::relative("scripthook.dll");
+        g_payload = LoadLibraryW(scripthook.c_str());
         if (g_payload != nullptr) {
-            log_msg("[dinput8] Payload loaded @ %p", g_payload);
+            log_msg("[dinput8] Payload loaded @ %p\n", g_payload);
             return 0;
         }
 
         DWORD err = GetLastError();
         const char *hint = "";
         switch (err) {
-        case 5:   hint = "5 = access denied"; break;
-        case 126: hint = "126 = module or dependency missing (file absent or VC++ runtime?)"; break;
-        case 225: hint = "225 = blocked by Windows Defender / AV (add bin folder exclusion, restore quarantined DLL)"; break;
+            case 5:   hint = "5 = access denied"; break;
+            case 126: hint = "126 = module or dependency missing (file absent or VC++ runtime?)"; break;
+            case 225: hint = "225 = blocked by Windows Defender / AV (add bin folder exclusion, restore quarantined DLL)"; break;
         }
-        if (hint[0] != '\0')
-            log_msg("[dinput8] Load failed (GetLastError=%lu) %s", err, hint);
-        else
-            log_msg("[dinput8] Load failed (GetLastError=%lu)", err);
+        if (hint[0] != '\0') {
+            log_msg("[dinput8] Load failed (GetLastError=%lu) %s\n", err, hint);
+        } else {
+            log_msg("[dinput8] Load failed (GetLastError=%lu)\n", err);
+        }
     }
 
-    log_msg("[dinput8] ERROR: no payload DLL found beside dinput8.dll");
+    log_msg("[dinput8] ERROR: no payload DLL found beside dinput8.dll\n");
     return 2;
 }
 
@@ -158,8 +166,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
         memset(path, 0, sizeof(path));
         if (GetModuleFileNameA(hinstDLL, path, MAX_PATH) != 0) {
             slash = strrchr(path, '\\');
-            if (slash == nullptr)
+            if (slash == nullptr) {
                 slash = strrchr(path, '/');
+            }
             if (slash != nullptr) {
                 slash[1] = '\0';
                 strncat(path, "boot.log",
@@ -171,8 +180,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
             fopen_s(&g_log, path, "at");
         }
 
-        log_msg("========== EXE LAUNCH / dinput8 attached ==========");
-        log_msg("[dinput8] Boot logger + console ready");
+        log_msg("========== EXE LAUNCH / dinput8 attached ==========\n");
+        log_msg("[dinput8] Boot logger + console ready\n");
 
         redirect_game_crt();
         ensure_real();

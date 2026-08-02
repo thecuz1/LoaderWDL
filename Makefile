@@ -2,8 +2,8 @@
 AR        = x86_64-w64-mingw32-ar
 CXX       = x86_64-w64-mingw32-g++
 CC        = x86_64-w64-mingw32-gcc
-CXXFLAGS += -Wall -Wextra -std=c++17 -ffunction-sections -fdata-sections
-CCFLAGS  += -Wall -Wextra -std=c17 -ffunction-sections -fdata-sections
+CXXFLAGS += -Wall -Wextra -std=c++20 -ffunction-sections -fdata-sections
+CCFLAGS  += -Wall -Wextra -std=c20 -ffunction-sections -fdata-sections
 
 INCLUDES += -I. -Ilua -Iimgui -Iimgui/backends -IUI
 
