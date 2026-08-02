@@ -217,7 +217,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 #define PROXY(name, ret, proto, call, ...) \
-extern "C" HRESULT __stdcall name proto { \
+extern "C" __declspec(dllexport) HRESULT __stdcall name proto { \
     ensure_real(); \
     if (p##name == nullptr){ \
         return ret; \

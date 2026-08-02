@@ -20,8 +20,7 @@ SRCS      = dllmain.cpp \
             $(wildcard UI/*.cpp) \
             Logger.cpp \
 
-SHIM_SRCS = shim/dinput8.cpp \
-			shim/dinput8.def
+SHIM_SRCS = shim/dinput8.cpp
 
 LIB_SRCS  = MinHook/hook.c \
             MinHook/buffer.c \
@@ -50,15 +49,14 @@ LIB_OBJS  = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(LIB_SRCS))) \
 # Special flags
 $(LIB_OBJS):  CXXFLAGS := -std=c++23 -Os -ffunction-sections -fdata-sections
 $(LIB_OBJS):  CCFLAGS  := -std=c23 -Os -ffunction-sections -fdata-sections
-$(SHIM):      LDFLAGS  := -shared -static -s -Wl,--gc-sections
 
 # Default rule
-all: $(TARGET)
+all: $(TARGET) $(SHIM)
 
 -include Makefile-local.mk
 
 # Linking
-$(TARGET): $(LIB_TARGET) $(OBJS) $(SHIM)
+$(TARGET): $(LIB_TARGET) $(OBJS)
 	$(CXX) $(OBJS) $(LIB_TARGET) $(LDFLAGS) $(LDLIBS) -o $@
 
 $(SHIM): $(SHIM_OBJS)
