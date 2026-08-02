@@ -12,10 +12,10 @@ repos:
     hooks:
     - id: indents-to-tabs
       args: ["--spaces=4"]
-      types_or: ["c++", "c"]
+      types_or: [c++, c]
     - id: indents-to-tabs
       args: ["--spaces=2"]
-      types_or: ["lua"]
+      types_or: [lua]
     - id: indents-to-spaces
       args: ["--spaces=2"]
-      types_or: ["yaml"]
+      types_or: [yaml]
