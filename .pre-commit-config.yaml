@@ -4,6 +4,6 @@ repos:
     hooks:
       - id: mixed-line-ending
         args: [--fix=lf]
-        types: [c++]
+        types_or: [c++, lua]
       - id: fix-byte-order-marker
-        types: [c++]
+        types_or: [c++, lua]
