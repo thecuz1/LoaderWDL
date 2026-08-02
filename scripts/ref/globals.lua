@@ -1,0 +1,1543 @@
+--- GLOBAL TABLE DUMP (Lua 5.1) ---
+[function] SetItem
+[function] SetHackableOverrideHackingText
+[function] RemoveImmunity
+[function] SetNetworkVariableBool
+[function] RemoveRecruitNPCListener
+[function] SetCanHideInVehicle
+[function] AgentDrawWeapon
+[function] ArePlayersInSameTeam
+[function] IsLoadingScreenDisplayed
+[function] ConnectToToyCar
+[function] SetProjectedCloudsIntensity
+[function] GetPawnInstigator
+[function] SetNoInteractionTextForProximityTriggerId
+[function] CameraHideDisconnectedAnimation
+[function] SetCrouchAllowedOverride
+[function] StartRandomHackingFromPlayer
+[function] ActivateCinematicMode
+[function] ModifyBulletsInClip
+[function] SetProfilerInfoFilter
+[function] PushTokenString
+[function] SetTaggerComponentStatus
+[function] SendAICommand_Goto
+[function] GoToPosUnspawn
+[function] RegisterPlayableOperativesCountRequest
+[function] ActivateRobotSpawner
+[function] StopCameraControlledNavigation
+[function] RegisterRewardList_V2
+[function] IsMoveableEntityBlocked
+[function] ClearItem
+[function] RemoveAllStanceControlHelper
+[function] ReinforcementStopReinforcing_v4
+[function] SetPlayerVariableInteger
+[function] DisableTakedownOnPawn
+[function] UnlockAndBuyCarOnDemand
+[function] RemoveFluidPointOfInterest
+[function] collectgarbage
+[function] SetSecurityCamFriendly
+[function] FelonyClearSWATParams
+[function] SetGateBlocked
+[function] ForceEnterCover
+[function] StopVehicleBhv
+[function] SetARReconstructionOpacity
+[function] SetLocalPlayerPhoneMaterialOverrideByIdx
+[function] SetHackOccludable
+[function] SpawnFieldAI
+[function] TerminateMissionSequenceWithDbObj
+[function] SetCurrentSpawnPoint2
+[function] DisplayPointOfNoReturnMessage
+[function] CDominoDelayManager_GetInstance
+[function] StartBareKnuckleArena
+[function] SetSecurityCamInitialTarget
+[table] CProximityManager
+  [function] RemoveProximityEntry
+  [function] AddLuaProximityEntry
+[function] RegisterOnHideObjectiveCompletedScriptCallback_v2
+[function] EnableReinforcementCalls
+[function] GetVehicleReliabilityFactor
+[function] EntityHasTag
+[function] PlayerRespawnBehaviorController_v2
+[function] SendAICommand_PickAndShootNPC
+[function] IsWorldSpawningEnabled
+[function] gcinfo
+[function] DoCarCrash
+[function] GetInvalidPlayerId
+[function] HasNetworkVariable
+[function] GetDBVariableFloat
+[function] PlayDominoDialogControlFacial_v2
+[function] StartVRPuzzle
+[function] HasPersistentInt_OpScope
+[function] GetRuleSmithFloat
+[function] ResetKeyIntel
+[table] CScriptCallbackSystem
+  [function] RemoveMissionCallback
+  [function] RegisterMasterVariableCallback
+  [function] RegisterOnSpawnCallback
+  [function] UnregisterMessageListener
+  [function] RegisterNoEntityCallback
+  [function] BroadcastMessage
+  [function] RegisterCLOCallback
+  [function] RegisterMessageListener
+  [function] RemoveGroupBehaviorCallback
+  [function] RemoveNetworkVariableCallback
+  [function] RemoveCLOCallback
+  [function] RegisterTagCallback
+  [function] RemoveNoEntityCallback
+  [function] RegisterPlayerVariableCallback
+  [function] RegisterMissionNoEntityCallback
+  [function] RegisterMissionEventCallback
+  [function] RemoveTagCallback
+  [function] RegisterPlayerEventCallback
+  [function] RemoveCallbacks
+  [function] RemovePlayerEventCallback
+  [function] RemoveMasterVariableCallback
+  [function] RegisterNetworkVariableCallback
+  [function] RemoveCallback
+  [function] RegisterOnRemoveCallback
+  [function] RemovePlayerVariableCallback
+  [function] RegisterNonRepeatableConversationPlayedCallback
+  [function] RegisterEventCallback
+  [function] RegisterGroupBehaviorCallback
+[function] PushIntoFirstPerson
+[function] MK2BossSetCallReinforcementsRequested
+[function] ConnectMicrophoneToCamera
+[function] ScriptUIIncrementCompletion
+[function] RemoveLocationListener
+[function] SetMissionAreaRadius
+[function] ShowProfilingPath
+[function] ReinforcementAddScriptedAgent
+[function] MakeRCEntityCallBackAvailable
+[function] StopCameraShake
+[function] DisableCheckpointsControllers
+[function] SetDownloadGameplayPaused
+[function] SetClimbInteractionAllowedOverride
+[function] AddPhotoDetectionTargetEntity
+[function] SetSquadSupportWanderState
+[function] WakeUpDroneCLO
+[function] ShowGameClock
+[function] GetLocalPlayerId
+[function] RemoveAmmoCountBelowThresholdCallback
+[function] SetItemInAWheelSlot
+[function] HasProgressionTag
+[function] SetAchievementStat
+[function] IndicatorSetColor
+[function] SetSlomoFactor
+[function] HasCensusTag
+[function] SetMasterVariableInteger
+[function] StartHMAFleeOnAIAgent
+[function] next
+[function] FelonyForceSearchStart
+[function] CreateSearchAreaController
+[function] SetMinimapContextOverride
+[function] ShowEquippedItemUIElement
+[function] UnlockAudioFile
+[function] FieldAICmdGoTo
+[function] DisposeInitialPredefinedActors
+[function] ShowHealthBar
+[function] CompleteVRPuzzle
+[function] AbortSetCoverFunction
+[function] GetPlayerIdFromPlayerIndex
+[function] GetGlobalString
+[function] TeleportToSpawnPoint
+[function] UnregisterVehicleForDamageBarUpdate
+[function] select
+[function] ActivateDominoAnimatedCamera
+[function] AssignPatrolToAgent_v3
+[userdata] System
+[function] AllowWeaponPickup
+[function] RemovePlayerTag
+[function] StartTimeLapse
+[function] ReinforcementStartReinforcing
+[function] ResetAllCollectibleData
+[function] CProximityManager_GetInstance
+[function] EnableScriptedHackHandler
+[function] tostring
+[function] IsLookAtTriggerInsideFOV
+[function] SetProfilerDisabled
+[function] PlayCrowdAnimation
+[function] CBuddyAIManager_GetInstance
+[function] StopProgressBar
+[function] SquadTryToCreateCombat
+[function] GetVehicleValue
+[function] SelectAbility
+[function] StartProximityMeter_v1
+[function] StartMissionMusic
+[function] SmartphoneAppSetInstalled
+[function] MakeRCEntityDisconnectAvailable
+[function] SetCurrentSpawnPoint
+[function] IsDetectionAlertStarted
+[function] GetMasterVariableEntityId
+[function] SetMasterVariableEntityId
+[table] CSector
+[function] DeactivateDroneCLO
+[function] RequestPlayTrigger
+[function] loadstring
+[function] HideTutorialMenuHint
+[function] CLivingCityManager_GetInstance
+[function] RegisterObjectiveCompletedScriptCallback_v2
+[function] SetAIAgentState_v2
+[function] RemoveLoadingScreen
+[function] StartRadioBroadcast
+[function] SendAICommand_FollowTarget
+[function] PlayerRespawnBehaviorController
+[function] EnablePlayerBarks
+[function] GetProjectileItemId
+[table] table
+  [function] setn
+  [function] insert
+  [function] getn
+  [function] foreachi
+  [function] maxn
+  [function] foreach
+  [function] concat
+  [function] sort
+  [function] remove
+[function] IncrementAchievementStat
+[function] HasPlayerTag
+[function] ShowRaidLogMessage
+[function] TeleportToSpawnPoint_v2
+[function] SetEntityOffset
+[function] IndicatorSetName
+[function] SquadTryToCreateUntargetedSearch
+[function] SetIsDominoAboutToStartSearchingForPortal
+[function] CollectibleGetRemainingAmount
+[function] GetEntityIdFromPlayerIndex
+[function] PathID
+[function] SendAICommand_SetLKP
+[function] AddRecruitNPCListener_v3
+[function] UnspawnRestricted
+[function] SetIsSecurityCamExitBlockedForPlayer
+[function] loadfile
+[function] SetBlockAllShortcuts
+[table] Boxes
+  [table] $#12425540729730993724
+  [table] $#12601442446967351088
+  [table] $#12492354944908691870
+  [table] $#13587607335433288366
+  [table] $#11920298444469558227
+  [table] $#13373471956015405330
+  [table] $#12668561872033521766
+  [table] $#12875056227079994453
+  [table] $#12820967502072279329
+  [table] $#13387533394551721714
+  [table] $#11903852119638105234
+  [table] $#12661365196756156535
+  [table] $#11688501303088530754
+  [table] $#12468525942712112476
+  [table] $#12901585626212579984
+  [table] $#12909453285893757745
+  [table] $#12838221520295615652
+  [table] $#12767985863398295097
+  [table] $#11827658394850135725
+  [table] $#13088217840219537028
+  [table] $#11774311920632554910
+  [table] $#13767514982202876108
+  [table] $#11837308880690823484
+  [table] $#12027381437111121488
+  [table] $#11945319605589501471
+  [table] $#12639335088566432681
+  [table] $#13010696795444806591
+  [table] $#13368780475557464521
+  [table] $#13145353614693073554
+  [table] $#12032768204075208455
+  [table] $#12200083980145434612
+  [table] $#12205219563579562452
+  [table] $#11846962925606128052
+  [table] $#12496490172245748589
+  [table] $#12070598768694393511
+  [table] $#11990583568457865907
+[function] SmartphoneIsAppInstalled
+[function] RegisterObjectiveUpdatedScriptCallback
+[function] RegisterOnShowObjectiveCompletedScriptCallback_v2
+[function] SendPhysZoneCleanupEvent
+[function] ShowGadgetUIElement
+[function] UnlinkEntities
+[function] SetAIAgentInfiniteHunt
+[function] PutToSleepDroneCLO
+[function] CameraShakeAndGamePadRumble
+[function] EnableTakedownOnPawn
+[function] PlayBinkVideoFileWithSubtitleV5
+[function] CheckIsPlayerInTeam
+[function] SetVehicleLockState
+[table] _G
+[function] RequestClosePhotoCamera
+[function] SmartphoneActivateOverride
+[function] RemoveSquad
+[function] StopBink
+[function] RetrieveHackableCiviliansAround
+[function] ExecuteConsoleCommand
+[table] CBuddyAIManager
+  [function] AddMonitorOnBuddy
+  [function] RequestIdle
+  [function] RemoveMonitorFromBuddy
+  [function] RequestFollow
+  [function] GoToMonitoredCLO
+  [function] UpdateBuddyAISettings
+  [function] RequestPatrol
+[function] CollectibleGetCurrentAmount
+[function] DisableDebugAnnotationEntity
+[function] UnregisterObjectiveCompletedScriptCallback_v2
+[function] HasMediaSystemChannelLoopedOnce
+[function] AddOrRemoveRacePath
+[table] Game
+  [function] RTRegen
+  [function] SetMaxFrameRate
+  [function] DeActivateLog
+  [function] RTGenesis
+  [function] RTDefoliant
+  [function] ActivateLog
+  [function] AnimStartRecording
+  [function] GetLocalPlayerId
+  [function] RTSetWindForce
+  [function] Exec
+  [function] RunBatch
+  [userdata] __nativedata
+[function] GetDirectlyLinkedEntities
+[function] VehicleRestrictedZone
+[function] ForceVehicleStop
+[function] IsDetectionAlertStopped
+[function] GetLocalPlayerCurrency
+[function] unpack
+[function] CGameplayConversationManager_GetInstance
+[function] ShowFullscreenTutorial
+[function] EnabledLockOnAssistanceTarget
+[function] GetPlayerVariableFloat
+[function] AssignMainSquadLKPGroupName
+[function] SetMissionAreaObjectiveEnteringArea
+[function] SendCustomActionRequest
+[function] ForceHackOff
+[function] StopMissionWithDbObj
+[function] StopFollow
+[function] ResetToProgressionState
+[function] AbortAICmdStandAndShoot
+[function] AISystemsController
+[function] FailMission_v2
+[function] SetPlayerVariableFloat
+[function] ForceVehicleAlaram
+[function] UnassignVehicleSeat
+[function] ForcePawnsVehicleStopFunction
+[function] EquipItem
+[function] SetRespawnStrategyNearDeathSpot
+[function] GetProgressionTagId
+[function] rawget
+[function] GetDBVariableLocalizationID
+[function] ParallelScriptLock
+[function] StartVehicleMovingTimer
+[function] SetSecurityCamForceDisableFelony
+[function] StartAfterRain
+[function] FelonyMuteAllSounds
+[function] SetCameraMonitorPlayerBlurIntensity
+[function] RequestFreeFormText
+[function] TriggerRespawnLocalPlayer
+[function] GetGameTime
+[function] FelonyEndChase
+[function] IsEntityInVehicle
+[function] CallBackToyCar
+[function] SendCinemaZoneCleanupEvent
+[function] EquipWolfskinItemOnEntity
+[function] ChangeCameraControlledNavigationSettings
+[function] UnregisterReinforcementCaller
+[table] debug
+  [function] getupvalue
+  [function] debug
+  [function] sethook
+  [function] getmetatable
+  [function] gethook
+  [function] setmetatable
+  [function] setlocal
+  [function] traceback
+  [function] setfenv
+  [function] getinfo
+  [function] setupvalue
+  [function] getlocal
+  [function] getregistry
+  [function] getfenv
+[function] RegisterPersonOfInterest
+[function] DeactivateCLOForever
+[function] MediaSystemStartBroadcast
+[function] HideChat
+[function] AddOrRemoveAdditionalPath
+[function] SetRespawnStrategyNearEntity
+[function] GetGlobalNumber
+[function] GetNetworkVariableEntityId
+[function] AssignZoneToAgent
+[function] Profiler_SendStatus
+[function] UnBind
+[function] ExecuteRewardList_V3
+[function] GetToyCarStatus
+[function] AddPhotoDetectionTarget
+[function] SetBlockShortcuts
+[function] SetConversationInteractionAllowed
+[function] AddToNormalDrunkEffect
+[function] SquadTryToCreateTargetedSearch_v2
+[function] IsInstallPackageGlobalInstalled
+[function] SetNetworkVariableEntityId
+[function] SendAICmdSetCombatTarget
+[function] ReinforcementStopReinforcing_v3
+[function] ReinforcementStopAllReinforcements
+[function] ShowFakeContactCard
+[function] AssignPatrolToAgent_v2
+[function] SetNetworkVariableFloat
+[function] SetEnablePickup
+[function] GetNetworkVariableFloat
+[function] DisconnectFromFlyingDrone
+[table] Globals
+[function] AddPhotoDetectionTargetEntityList
+[function] PGTGetSpawnedAiEntities
+[function] UnregisterOnHideObjectiveCompletedScriptCallback_v2
+[function] ForceArrest
+[function] GetDownloadGameplayRemainingTime
+[function] UnlockPlayerActionMap
+[function] GetNumberOfTeams
+[function] StartSpeedCheckChallenge
+[function] ClearCinemaZoneNotRemovableEntityList
+[function] ResumeBink
+[function] UseSelectedIngredient
+[function] ShowEntity
+[function] GetLocationState_v2
+[function] SetForceAiming
+[function] SetFlyingDroneAvailable
+[function] FelonyOverrideBehaviourParams
+[function] RegisterReinforcementCaller
+[function] SetMasterVariableBool
+[function] FelonySystemEnable
+[function] CancelAICommand
+[function] EndAllCustomMediaBroadcasts
+[function] SmartphoneClearOverride
+[function] GetMasterVariableBool
+[function] DeactivateCanExitCameraForCinematic
+[function] FelonyClearBasicParams
+[function] SetDebugAnnotationEntityText
+[function] AddHackCategoryAvailabilityOverride
+[function] SetSecurityCamHostile
+[function] Bind
+[function] GetWeather
+[function] FelonyEndChaseOrSearch
+[function] RemoveInvincibility
+[function] getfenv
+[function] SynchSoundAndBinkV2
+[function] CSequenceManager_GetInstance
+[function] ConnectToFlyingDrone
+[function] ActivateDominoCameraContext
+[function] LoadLMALayer
+[function] FelonyOverrideSWATParams
+[function] GetDistance2D
+[function] SucceedMission
+[function] StartVehicleBhv
+[function] FelonyTakeOverScriptedAgentControl
+[function] GetAIState
+[function] ResetCameraPosition
+[function] StartIOP
+[function] UnspawnReleasedProjectiles
+[function] StartProgressBar
+[function] CompareHackingCategories
+[function] CreateHUDDominoDelay
+[function] CreateHUDDominoDelay_v2
+[function] CreateDeliveryGameplay_v8
+[function] FelonyOverrideRoadBlockParams
+[function] SetPhoneCallState
+[function] ScriptUIMissionFail_v2
+[function] SetBlockShortcutsUntilTeamAppOpened
+[function] ReinforcementSetReinforcementTarget
+[function] SetRecruitmentTalkersInhibition
+[function] EnableWeaponDrop
+[function] require
+[function] ShowWarningMessage
+[function] ShowWarningMessageV2
+[table] CAIAgentRandomActionManager
+  [function] AddLuaStateLevelCheckEntry
+  [function] RemovedLuaStateLevelCheckEntry
+[function] SetCurrentUIMissionsAppVillainViewData
+[function] rawequal
+[function] GetNetworkSurfingState
+[userdata] scriptCallbackSystem
+[function] newproxy
+[function] IsDrawingWeapon
+[function] RemoveTarget
+[function] GetDiamondPackageTargetId
+[function] DisableAIlogicUseHackableGameplay
+[function] ResetProfilerInfoId
+[function] ExecuteReward_V2
+[function] GetItemCount
+[function] SetDominoCameraReference
+[function] ForceSetCoverFunction
+[function] StartSquad
+[function] OpenMenuPage2
+[function] GetMostPlayedOperative
+[function] setfenv
+[function] AddPlayerToTeam
+[function] SetRespawnStrategyNearDeathSpot2
+[function] SmartphoneAppSetHidden
+[function] ActivateInvincibility
+[function] SetCustomOasisIdForProximityTriggerId
+[function] DisplayUICelebrationModule
+[function] BindIconEntities
+[function] SetInvincibility
+[function] pairs
+[function] AgentDrawWeaponType
+[function] VehicleLightAndSiren
+[function] CreateDominoDelay
+[function] GetVehicleSpeedStatTime
+[function] IsAccessCodeAcquired
+[function] AddCLOEntitiesRestriction
+[function] SetCombatAllowedOverride
+[function] SetHackableNoText
+[function] SetPersistentInt_OpScope
+[function] EndHumanProjectileThrowStateMonitoring
+[function] SquadForceVanish
+[function] ApplyLoadedBufferOnChannels
+[function] CreateSquad
+[table] coroutine
+  [function] resume
+  [function] yield
+  [function] status
+  [function] wrap
+  [function] create
+  [function] running
+[function] FelonyAddVehicleExclusionZone
+[function] HideCameraClippedEntity
+[function] ForceUserOutOfCamera
+[function] RealignCameraBehind
+[function] CreateDroneBankServerPackageController_v1
+[function] BindGameplayBeatWithEntity
+[function] EnableMissionSoftQuit
+[table] string
+  [function] sub
+  [function] upper
+  [function] len
+  [function] gfind
+  [function] rep
+  [function] find
+  [function] match
+  [function] char
+  [function] dump
+  [function] gmatch
+  [function] reverse
+  [function] byte
+  [function] format
+  [function] gsub
+  [function] lower
+[function] SetInVehicleCamera
+[function] StartPhoneCallId
+[function] SetCoverToCoverAllowedOverride
+[function] FreePlayerCamera
+[function] RemoveNPCZone
+[function] TriggerQuitCLOOnMonitoredCLO
+[function] CanRevive
+[function] StartOverrideRandomizedWeather
+[function] UnregisterCharacterAbilityMonitorEvent
+[function] UnBindIconEntities
+[table] CDominoSoundManager
+  [function] PlaySound_v2
+  [function] SetEnableAmbiance
+  [function] PlayDialogWithSubtitle
+  [function] PlayDialogWithSubtitle_v2
+  [function] PlayDialogWithSubtitle_v3
+  [function] PlaySound
+[function] GetToyCarId
+[function] GetDBVariableBool
+[function] IsInteractionUserRcVehicle
+[function] SetPlayerVariableEntityId
+[function] FelonyClearChopperParams
+[function] FelonyCheckFelonyState
+[function] StartOnFootFleeBehavior
+[function] SpawnEntityFromArchetype
+[function] GetVehicleHealthPercentage
+[function] FailMission
+[function] IsPlayerPawnLocal
+[function] GetMusicID
+[function] CreateDroneSpawnContinuouslyGameplay_v1
+[function] SetProfilerInfoId
+[function] GetItemCountAtWheelPos
+[function] PopPlayerActionMap
+[table] CGameplayConversationManager
+  [function] StopConvoFromLUA
+  [function] ResumeConvoFromLUA
+  [function] PlayConvoFromLUA
+  [function] StopInteraction
+  [function] StartInteractionFromLUA
+  [function] PauseConvoFromLUA
+  [function] PlayConvoOnEntityListFromLUA
+[function] StartPlasmaPhoneCommunication_EvenInBareknuckle
+[function] SetEntityPosition
+[function] IsDetectionAlertFull
+[function] ForceLeverageOnNextActorWithTag
+[function] HideProfilingPath
+[function] HideFakeContactCard
+[function] ReleaseDominoAnimatedCamera
+[function] CreateInteractGameplay_v4
+[function] GetNoCaseStringID
+[function] RegisterReward
+[function] ForceCompleteInteraction
+[function] UnregisterIOPnpc
+[function] GetCurrentSeat
+[function] StartARLoadingScreen
+[function] ClearEnvironmentWeatherOverride
+[function] CollectibleDisplayCurrentStatus
+[function] PlayerIsDoingAction
+[function] GetPlayerVariableInteger
+[function] IsPlasmaPhoneCommunication
+[function] StartAutonomousVehicleFleeBehavior
+[function] IsEntityBeingProfiled
+[function] SetMissionAreaObjectiveExitingArea
+[function] RemoveMissionWaypoint
+[table] CEnvironmentManager
+  [function] ResetVisibleGIGroup
+  [function] SetVisibleGIGroupBit
+[function] PushEnvironmentWeatherOverride
+[function] StartPlasmaPhoneCommunicationV2
+[function] UpdateConvoy
+[function] EquipAccessUniform
+[function] AddSquadAgent
+[function] SetIconClampMode
+[function] PopEnvironmentWeatherOverride
+[function] SetPlayerActionMap
+[function] AddProp
+[function] RefreshWorld
+[function] ReinforcementStopReinforcing_v5
+[function] StartPhoneCallChat
+[table] CDialogManager
+  [function] SetMinimumPlayablePriority
+[function] CreateDownloadGameplayWithDB_v1
+[function] StopSquad
+[function] DisableSpecialBroadcastSubtitles
+[function] SwitchLocalPlayerInventoryList
+[function] RequestBoroughUprisingMapSequenceV3
+[function] HasPlayerVariable
+[function] StopOutlineGameplay
+[function] RegisterMobTarget
+[function] SetRestrained
+[function] AgentHasItemInMainHand
+[function] IsMissionPlayed
+[function] SetProfilerOn
+[function] GetEntityBonePosition
+[function] ReinforcementRepeatWave
+[function] SetHandsInPocketsAllowed
+[table] LuaLibCore
+  [function] ThrowError
+  [function] IsPlugged
+  [function] AssertNotNil
+  [function] ShowErrorMessage
+  [function] VerifyDataInputEntity
+  [function] IsCloUsable
+  [function] VerifyDataInputEntityList
+  [function] GetProjectName
+  [function] IsEntityUsable
+  [function] GetCurrentBoxName
+  [function] DataError
+[function] error
+[function] HideEntity
+[function] GetLastHitLocation
+[function] StopBinkVideo
+[function] RegisterIOPnpc
+[function] CDominoTimerManager_GetInstance
+[function] GetTimeOfDayHour
+[function] CDominoWaterLevelManager_GetInstance
+[function] SetFollowMarkerText
+[function] GetLocalPlayerEntityId
+[function] SetAIAgentState_v4
+[userdata] instance
+[function] RegisterVehicleForDamageBarUpdate
+[function] tonumber
+[function] StartHMAFleeOnSquad
+[function] IsEntityLinked
+[function] CollectibleGetTotalAmount
+[function] AddPredefinedOperative
+[function] SetEnableLight
+[function] SmartphoneIsOpened
+[function] StopMADScene
+[function] FelonyMuteEntities
+[table] CDominoConsoleCommandManager
+  [function] RegisterConsoleCommand
+  [function] UnregisterConsoleCommand
+[function] TeleportPlayerOutsideHMA
+[function] FelonyOverrideSearchParams
+[function] StartFleeBehavior
+[function] ReserveAndUseSeat
+[function] SetHacksPermissions
+[function] DisableHackableIncredient
+[function] PlayMusicComponentSong
+[function] RemoveBlackScreen
+[function] SwitchToOperativeInPlaceFromDomino
+[function] ReinforcementTriggerScriptedFlee
+[function] GetPlayerTeam
+[function] EnableCameraDoF
+[function] ResetCoverAllowedOverride
+[function] ForceLKPOnAIEntity
+[function] GetCurrentGameModeName
+[function] ShowHUDTutorial
+[function] AddNPCZone
+[function] GetPlayerIdFromPawnId
+[function] GetNameFromDbObjectString
+[function] TeleportEntity
+[function] GetCurrentPlasmaSceneDuration
+[function] ResetClimbInteractionAllowedOverride
+[function] SquadTryToCreateUntargetedSearch_v2
+[function] PutPlayerInVehicle
+[table] CDominoDelayManager
+  [function] GetDelay
+  [function] RemoveDelay
+  [function] SetDelay
+  [function] CreateDelay
+  [function] SendCommand
+[function] ReinforcementAdoptScriptedAgents
+[table] math
+  [function] log
+  [function] max
+  [function] acos
+  [number] huge
+  [function] ldexp
+  [number] pi
+  [function] cos
+  [function] tanh
+  [function] pow
+  [function] deg
+  [function] tan
+  [function] cosh
+  [function] sinh
+  [function] random
+  [function] randomseed
+  [function] frexp
+  [function] ceil
+  [function] floor
+  [function] rad
+  [function] abs
+  [function] sqrt
+  [function] modf
+  [function] asin
+  [function] min
+  [function] mod
+  [function] fmod
+  [function] log10
+  [function] atan2
+  [function] exp
+  [function] sin
+  [function] atan
+[function] StopFluidEffector
+[function] GetPawnHealthPercentage
+[function] SendAICmdSetCombat
+[function] WaitForQualitiesLoaded
+[function] VerifyVehicleSlowEnoughToExit
+[function] SetPhysicsEnabled
+[function] InterpolateLookAtEntity
+[function] AbortPGTMissionArea
+[function] Pickup
+[function] SaveAudioFiles
+[function] WaitForProgressionLayerToLoadUnregister
+[function] EnableTakedownOnCivilian
+[function] StopEntityHighlight
+[function] AssignPatrolToAgent
+[function] WakeUpDroneEntity
+[function] PushTokenOasisId
+[function] GetTriggerComponentContacts
+[function] SetDoorLockState
+[function] CallBackFlyingDrone
+[function] LoadCustomMediaBroadcastConfig
+[function] AutoTrackLeverageOp
+[function] module
+[function] GetReticleHitLocation
+[function] AbortMission
+[function] EnvironmentManagerSetWeather
+[function] SetSecurityCamCanEnter
+[function] RemovePhotoDetectionTarget
+[function] SetMapMarkerPopUpDataWithMissionId
+[function] StunAIEntity
+[function] StartHelicopterBhv
+[function] RecruitmentIntelActivate
+[function] EnableDialogs
+[function] AssignMainSquadStrategy
+[function] IsActiveInputPC
+[function] TurnAllVehicleLightAndSirenOff
+[function] LoadStandaloneLayer
+[function] RegisterRewardList
+[function] StartCameraControlledNavigation
+[function] TestDbObjectEngineFunction
+[function] SetPlayerVariablePlayerId
+[table] CDominoManager
+  [function] TraceConnection
+  [function] SendCommandEventToEntity
+  [function] RemoveDominoEntity
+  [function] QueueCommandEventToEntity
+  [function] IsScriptAutorunEnabled
+  [function] SendCommandEventToEntity2
+  [function] UnregisterEntityListForGameplayReadyCallback
+  [function] TraceError
+  [function] QueueCommandEventToEntity2
+  [function] SpawnDominoEntity
+  [function] UnregisterDominoInputListenerSignal
+  [function] RegisterEntityListForGameplayReadyCallback
+  [function] SendRegisteredEventToEntity
+  [function] RegisterDominoInputListenerSignal
+  [function] RemoveCommandEventToEntity
+[function] SetPatrolSpeed_v2
+[function] GetAICommand_InvalidID
+[function] ChangePlayerGkModelFromHumanConfigAndVoiceActor
+[function] GetFlyingDroneId
+[function] TriggerInitialSpawn
+[function] GetPlayerVariablePlayerId
+[function] IgnoreShortcutBlocked
+[function] HideHUDTip
+[function] SquadTryToCreateTargetedSearch
+[function] HackingRequestSendIsHackableEvent
+[function] ApplyCinemaZoneCleanup
+[function] CreateConnectionLine
+[function] SetAchievement
+[function] UnloadMissionLayer3
+[function] SendDamageToEntity
+[function] IsWounded
+[function] GetTeamPlayerCount
+[function] SetHubLocked
+[function] SetOperatorManagerAutoMarkMode
+[function] AddTarget
+[function] EnableAIAgentZone
+[function] IndicatorSetIsVisible
+[function] GetConnectedRcId
+[function] SetSpotlightBehavior
+[function] GetMasterVariablePlayerId
+[function] ShowMarker
+[function] StartPGTMissionArea
+[function] SetEmoteWheelEnabled
+[function] StartCameraShake
+[function] BeginEnvironmentEvent
+[function] GetObjectiveIncrement
+[function] assert
+[function] SetPlayerMaxLocomotionSpeedTypeOverride
+[function] TriggerInitialCtosDatabaseSpawn
+[function] LockPlayerActionMap
+[function] SetPriorityTarget
+[function] SetMasterVariablePlayerId
+[function] SetBloodSplatterOverlayEnabled
+[function] GetPlayerVariableBool
+[function] RemoveHackCategoryAvailabilityOverride
+[function] StopVehicleSpeedStats
+[function] StartEntityNetHackHighlight
+[function] OperatorManagerAutoMarkApp
+[function] GetLayerNameFromProgressionLayerItem
+[function] IsSearchingForPortal
+[function] GetOperativeIDList_v2
+[function] MediaSystemSetPaused
+[function] ExplodeVehicle
+[function] IsSquadStopped
+[function] AddHackingAvailabilityOverride
+[function] ReinforcementStopReinforcing
+[function] StopPlasmaPhoneCommunication
+[function] RegisterReward_V2
+[function] SetHackable
+[function] StopAfterRain
+[function] IsDetectionUnawareStarted
+[function] GetCurrentOperative
+[function] SetKeyIntelId
+[function] ReinforcementCheckState
+[function] UnregisterCLOEntityToGameplayBeat
+[function] CreateOutlineGameplay
+[function] SquadSetBhvParams
+[function] UnAssignNPCOverrideConfig
+[function] DisableMissionSoftQuit
+[function] ShowCredits
+[function] EnableMotionBlur
+[function] AddExclucedEntityToRandomHackingFromPlayer
+[function] SetDebugAnnotationEntityShapeColor
+[function] RemoveRestrictedZone
+[function] StopPostFxOnPlayer
+[function] SetPersistentWithMissionLayerOnDeath
+[function] SwitchLocalPlayerInventoryToEmpty
+[function] GetMissionEntityName
+[function] SendAICmdBHVstateV2
+[function] SetFluidPointOfInterest
+[function] StopScriptNarrativeDelay
+[function] VRSetAsAlarm
+[function] SetToyCarAvailable
+[function] DummyFunction
+[function] SendAICmdBHVstate
+[function] GetReticleHitEntity
+[function] GetVehicleSpeed
+[function] StopRandomHackingFromPlayer
+[function] ActivatePlayOnBinkChannel
+[function] FixPlayerCamera
+[function] ReinforcementStartReinforcing_v4
+[function] UnregisterPlayerAttention
+[function] PlayBinkVideoFileWithSubtitleV3
+[function] ShowTutorialMenuHint
+[function] ArePlayersInOpponentTeam
+[function] GetCivilianThreatState
+[function] ScriptUISubObjectiveUpdate
+[function] SetAIAgentState
+[function] TriggerCLOBhvOnMonitoredCLO
+[function] ShowMissionModuleIdLocalPlayer_v3
+[function] HideHUDTutorial
+[function] StartSoundMixingFromLua
+[function] InventoryWheel_DisableDefaultActionMap
+[function] SendAICmdStandAndShoot
+[table] PersistentGlobals
+[function] SendSimpleEntityEvent
+[function] LaunchOpSwapMenu
+[number] _
+[function] ReinforcementStopReinforcing_v2
+[function] SetConversationInteractionSettings
+[string] name
+[function] ResetDrunk
+[table] LuaLibStateless
+  [function] Clone
+[function] AssignGlobalDynamicActor
+[function] FelonyRemoveVehicleExclusionZone
+[table] CLivingCityManager
+  [function] AddLuaCLOGroupMonitor
+  [function] RemoveLuaCLOGroupMonitor
+[string] _VERSION
+[function] IsNarrativePlayingInTheQueue
+[function] CDominoConsoleCommandManager_GetInstance
+[function] SecurityCameraForceEnter
+[function] StopSearchAreaController
+[function] AddOpPersonToCLO
+[function] ForceUnspawnPGTMissionArea
+[function] GetFlyingDroneStatus
+[function] GetIsVehicleParked
+[function] setmetatable
+[function] SetIconOffsetForProximityTrigger
+[function] HideEquippedItemUIElement
+[function] SetPlayerVariableBool
+[function] ResetCombatAllowedOverride
+[function] SetWolfskinMaterialColorParameter
+[function] RemoveEntity
+[function] GetDBVariableSoundID
+[function] UnloadMediaSystemService
+[function] IsSquadStarted
+[function] getmetatable
+[function] AddStanceControlHelper
+[function] GetPersistentInt_OpScope
+[function] ShutdownVehicleEngine
+[function] rawset
+[table] Mission
+  [function] Event__SaveGame
+  [function] Event__Game_PlayBinkVideo
+  [function] Event__Debug_DrawText
+  [function] Event__SetTransitionToLowContrast
+  [function] Event__Game_PauseSequence
+  [function] Event__SetWaterLevel
+  [function] Event__SwitchCinematicCamera
+  [function] Event__Debug_LogToConsole
+  [function] Event__Game_SendSimpleEvent
+  [function] Event__SetTimeOfDay
+  [function] Event__Debug_Warning
+  [function] Event__SwitchToFirstPersonCamera
+  [function] Event__Game_ResumeSequence
+  [function] Event__Game_PlaySequence
+  [function] Event__MissionSetState
+  [function] Event__Game_StopSequence
+[function] ResetVRPuzzle
+[function] FelonySetHeat
+[table] CDominoWaterLevelManager
+  [function] SetWaterLevel
+[function] TriggerChatLine
+[function] CTerrain_GetInstance
+[function] UnRegisterOpPersonToCLO
+[function] FelonyOverrideChopperParams
+[function] CEnvironmentManager_GetInstance
+[function] SetVehicleChaseCheats
+[function] OverrideMeleeConfig
+[function] ForceHackOn
+[function] MissionCheckpoint
+[function] ForceLKPForScriptedFelony
+[function] CloseDoor
+[function] LineOfSightMonitorEnable
+[function] ModifyDamageReceivedByEntity
+[function] DeactivateNetworkSurfing
+[function] GetNumberOfPlayers
+[function] GetGroupBehaviorGroupId
+[function] CDominoManager_GetInstance
+[function] SendGenericGroupBehaviorEvent
+[function] ReinforcementStartReinforcing_v5
+[function] StartGroupBehavior
+[function] ResetScriptedHackHandler
+[function] SendGenericGroupBehaviorEventLegacy
+[function] IsGateBlocked
+[function] DisableWeaponDrop
+[function] GoToUnspawn
+[function] FelonyStartScan
+[function] IsTargetEntityTagged
+[function] GetObjectiveId
+[function] StartFleeShooting
+[function] StopFleeBehavior
+[function] StartFleeBehavior_v1
+[function] PushTokenInteger
+[function] StopOnFootFleeBehavior
+[function] SetIOPPropStateIndex
+[function] TriggerIOPKickOut
+[function] SendIOPEvent
+[function] RemoveCinematicSceneEntity
+[function] ForceEndIOP
+[function] StopIOP
+[function] xpcall
+[function] AIGetSpawnedVehiclesTotal
+[function] ResetProfilerInfoFilter
+[function] RequestBoroughUprisingMapSequenceV4
+[function] SetBlockLinksToInGameMenu
+[function] VideoPlayerStop
+[function] VideoPlayerStart
+[function] SetTraitTracked
+[function] SetCanDroneBeShutdown
+[function] GetEntitiesInList
+[function] ToggleRangeCheck
+[function] DoConsoleCommand
+[function] AddScriptNarrativeDelay
+[function] SetIsPickableByRCDrone
+[function] BlockFastTravel
+[function] DetachFromDrone
+[function] AttachToDrone
+[function] FelonyStartCustomScan
+[function] PauseBink
+[function] GetGlobalDynamicActor
+[function] IsCloseFromSeatEntryPoint
+[function] DeactivateDroneEntity
+[function] RemoveCensusActorListener
+[function] AddCensusActorListener
+[function] UnloadLMALayer
+[table] CSequenceManager
+  [function] DominoSkipSequence
+  [function] ClearDominoEntityPool
+  [function] DominoStartSequence
+  [function] StartMetaSequence
+  [function] DominoModifySequenceEntry
+  [function] DominoResumeSequence
+  [function] GetSequenceDominoName
+  [function] DominoGetEntityAtAnchor
+  [function] AddDominoEntity
+  [function] DominoGetSequenceSyncPointName
+  [function] DominoStartSequenceFromBeginningWithMetaId
+  [function] DominoLoopSequence
+  [function] DominoPauseSequence
+  [function] DominoStopSequence
+  [function] DominoStartSequenceWithMetaId
+  [function] DominoStartAtSyncPointWithMetaId
+  [function] DominoStartSequenceFromBeginning
+  [function] DominoStartAtSyncPoint
+  [function] StopMetaSequence
+[function] RemoveGameplayBeatLoadingScreen
+[function] GetDroneRegressSpeed
+[function] GetCurrentHealth
+[function] WaitForProgressionLayerToLoad
+[function] GetRuleSmithBool
+[function] OverrideOperativeScheduleToCityLocation
+[function] ActivateGameplayContext
+[function] TriggerRuleSmithRule
+[function] FelonyGetSquadName
+[function] GetRuleSmithInt
+[function] CancelOperativeScheduleOverride
+[function] AddMissionWaypoint
+[function] SetToyCarCannotDeploy
+[function] ShowCameraClippedEntity
+[function] LocalPlayerConflictRequest
+[function] ReinforcementStartReinforcing_v6
+[function] ReinforcementStartReinforcing_v3
+[function] RequestTrainInPosition
+[function] DisconnectFromToyCar
+[function] ScriptUIMainObjectiveUpdate
+[function] SetOperativeAvailable
+[function] GetOperativeBySlotNumber
+[function] ScriptUIMissionSuccess_v2
+[function] GetSeatEntryPos
+[function] SquadClearBhvParams
+[function] print
+[function] IsSecurityCameraHostile
+[function] RemoveDataDriveItem
+[function] ForceUserOutOfRC
+[function] AreEntitiesLinkedTogether
+[function] HasPersistentInt
+[function] GetMonitoredCLOUser
+[function] GetPlatformIndex
+[function] SetVisibility
+[boolean] __console_print_patched
+[function] SetPersistentInt
+[function] GetNPCByOpResourceName
+[function] LoadLastCheckpoint
+[function] AddPlayerTag
+[function] SetCanBeDetected
+[function] FelonyClearRoadBlockParams
+[function] ClearGPS3DTarget
+[function] GetCheckpoint
+[function] SteamPipeExplode
+[function] SetCheckpoint
+[function] GetOperativeIDList
+[function] ForceTrackingOnThisOp
+[function] IsOpTracked
+[function] GetSecurityCameraUser
+[function] StartFloatingVehicleBhv
+[function] AgentDrawWeaponShootingType
+[function] StopAutonomousVehicleFleeBehavior
+[function] ForceHackIngredient
+[function] ChangeGraphicKitModel
+[function] SquadGetState
+[function] Op_GetDGSceneEntities
+[function] SetLocalPlayerClothing
+[function] SetMissionAreaDrawType
+[function] UnbindGameplayBeatWithEntity
+[function] StartPlasmaScene
+[function] GetDBVariableInteger
+[function] StopMusicComponentSong
+[function] RemoveEntityFromContactList
+[function] ScriptUIObjectiveSuccess
+[function] ResetPlayerMaxLocomotionSpeedTypeOverride
+[function] ValidateOneObjective
+[function] ReinforcementIncrementWave
+[function] SendIsAlarmActivatedEvent
+[function] IsEntityLoaded
+[function] AddOrRemoveCustomPath
+[function] GoToMonitoredCLO
+[function] CameraPlayDisconnectedAnimation
+[function] CreateObjectiveCreator
+[function] DestroyWrappedGameplay
+[function] CreateDronePackageController
+[function] CreateDroneBankServerPackageController
+[function] GetNetworkVariableInteger
+[function] UnregisterObjectiveUpdatedScriptCallback
+[function] PlayerFailForwardController
+[function] SetTimeInStationOverride
+[function] GetEntityInPrefab
+[function] SetSpawningDelayOverride
+[function] CreateDroneRegressGameplay_v1
+[function] GetEntityBoneAngle
+[function] SetDisableOnlyTakedownOnPawn
+[function] InterpolateEntityPosition
+[function] CreateLocateGameplayController
+[function] CreateTimeGameplay
+[function] StopFloatingVehicleBhv
+[function] CAIAgentRandomActionManager_GetInstance
+[function] ForceStopCrouch
+[function] AssignNPCOverrideConfig
+[function] CreateNeutralizeGameplay_v2
+[function] CreateEscapeGameplay_v2
+[function] CreateReachGameplay_v6
+[function] CreateHackGameplay_v5
+[function] SetEntityAngle
+[function] FelonyOverrideBasicParams
+[function] CreateDeliveryGameplay_v9
+[function] SetDownloadGameplaySpeedCoef
+[function] SetEntityIsIntel
+[function] StartEmptyRoomIOP
+[function] CreateDownloadGameplay_v7
+[function] FelonyOverrideHeatParams
+[function] ActivateNetworkSurfing
+[function] StartAutonomousVehicleGotoBehavior
+[function] SetSafeDriving
+[function] GetGameStartOperativesList
+[function] GetEntityAngle
+[function] ResetWolfskinItemOnEntity
+[function] GetOperativeIDList_v3
+[function] EnableFastTravel
+[function] ForceInteriorOnTrain
+[function] EnableOpSwaps
+[function] GetPersistentInt
+[function] AbortMission_v2
+[function] SmartphoneAppSetNew
+[function] SetLocationState_V1
+[function] FindDroneEntityFromCLO
+[function] AddToCustomDrunkEffect
+[function] IsFullyProfiled
+[function] ResetCurrentSpawnPoint
+[function] StartFluidEffector
+[function] StartGroupBehaviorWithRoles
+[function] GetNetworkVariablePlayerId
+[function] SetNetworkVariablePlayerId
+[function] ActivateImmunity
+[function] RemoveProp
+[function] StopTimeLapse
+[function] GetRobotEntityFromRobotBox
+[function] IndicatorSetLocNameId
+[function] ForceHideTagIndicator
+[table] CDominoBoxInstance
+  [function] GetParentEntity
+  [function] GetParentOpId
+  [function] GetParentOpIdAndGameplayBeatIdAsAJSONString
+  [function] GetParentGameplayBeatId
+  [function] CreateBox
+  [function] GetParentMissionId
+[function] DisableHackingSelector
+[function] PlayPrioritySong
+[function] UnregisterPlayableOperativesCountRequest
+[function] StartInitialOperativeSwapScreen
+[function] ReinforcementReleaseLocation
+[function] GetNetworkVariableBool
+[function] GetRCEntityFromRCJumperDock
+[function] WaitForStandaloneLayerToLoadUnregister
+[function] ForceCompleteBareknuckleFight
+[function] GetNbrWheelWithContact
+[function] MissionAreaActivation
+[function] SetFollowSpeed
+[function] SetFlyingDroneCannotDeploy
+[function] SetCanCallDroneInHMAOverride
+[function] SetGraphicObjectIntensity
+[function] GetProgressionUpgradeLevel
+[table] package
+  [table] preload
+  [function] loadlib
+  [table] loaded
+  [table] loaders
+  [string] cpath
+  [string] config
+  [string] path
+  [function] seeall
+[function] IsInventoryWeaponInLoadout
+[function] CDominoSoundManager_GetInstance
+[function] IsPredefinedPremiumOperative
+[function] GetEnableLight
+[function] GetBaseHealth
+[table] CTerrain
+  [function] GetSector
+[function] HasMasterVariable
+[function] PlayDominoDialogControlFacial
+[function] ActivateCLO
+[function] GameStartSwitchToOperativeInPlace
+[function] GameStartRemoveOperative
+[function] RegisterPlayerAttention
+[function] AttachAnchor
+[function] GetLastDamageReason
+[function] SwitchLocalPlayerInventoryToNormal
+[function] RemoveHackingAvailabilityOverride
+[function] PushTokenPlayerName
+[function] SetTargetTagEntity
+[function] SetMissionAreaShapeType
+[function] FelonyStartChase
+[table] CDominoBoxResource
+  [function] RegisterGlobals
+  [function] LoadResource
+  [function] RegisterLibrary
+  [function] RegisterBox
+[function] SendDamageToEntity_v2
+[function] SetOperativeUnavailable
+[function] OpenDoor
+[function] SetIconVisible
+[function] LinkEntities
+[function] IsRelicFound
+[function] FelonyClearSearchParams
+[table] LuaLibEvents
+  [function] RegisterMessageListener
+  [function] RegisterSpawnListener
+  [function] RegisterGenericEvent
+  [function] RegisterEvent
+  [function] GroupSendRegisteredEvent
+  [function] UnregisterSpawnListener
+  [function] GroupRegisterEvent
+  [function] RegisterMissionEvent
+  [function] UnregisterMessageListener
+  [function] UnregisterGenericEvent
+  [function] UnregisterMissionEvent
+  [function] GroupUnregisterEvent
+  [function] UnregisterEvent
+[function] ForceLeverageNPC
+[function] SendActivateAlarmEvent
+[function] ShowTextSubtitleFunction
+[function] GetDistance3D
+[function] ReserveAndMoveToSeat
+[function] ReinforcementAddScriptedAgent_v2
+[function] EnableWorldSpawning
+[function] InventoryWheel_EnableDefaultActionMap
+[function] IsPlayerLocal
+[function] IsCraneRopeBroken
+[function] StartEntityHighlight
+[function] AddItem
+[function] EndMissionMusic
+[function] OpenMenuPage
+[function] SetVehicleTintedWindows
+[function] IsCLOValidForDomino
+[function] SetDebugAnnotationEntityShapeColorAlpha
+[function] SpawnAIVehicleAndPassengerOnRoad
+[function] ipairs
+[function] SetCameraMonitorPlayerBlurLockedByScript
+[function] UnAssignPatrolToAgent
+[function] ShowHUDTip
+[function] EndEnvironmentEvent
+[function] DisplayConfirmationPopup
+[function] PlayerActiveScriptMaskControl
+[function] LogConsole
+[function] GetItemId
+[function] GetPlayerVariableEntityId
+[function] ClearRewards
+[function] ForceStartCrouch
+[function] MediaSystemStopCurrentBroadcast
+[function] SelectReadyToDrawWeapon
+[function] UnderwaterEntityMonitorEnable
+[function] StopPhoneCommunication
+[function] IsSpawnerEnabled
+[function] SquadSetSearchOverrideParams
+[function] UnloadMissionLayer4
+[function] RequestHackingPortal
+[function] HasAccessUniformEquipped
+[function] SetPGTEnabled
+[function] ForceCranePlatformPosition
+[function] AbortMissionWithDbObj
+[function] PlayBinkVideoFileWithSubtitleV4
+[function] IsMoveableEntityMoving
+[function] SetCanRevive
+[function] SetProfilerlessTaggingEnabled
+[function] SetRespawnStrategyNearEntity2
+[function] ResetCurrentSpawnPoint2
+[function] CreateDownloadGameplayWithDB
+[function] ResetMaterialOverrideByIdx
+[function] FelonyEndScan
+[function] RegisterCharacterAbilityMonitorEvent
+[function] ResumeProcessingInputs
+[function] PreventWeaponPickup
+[function] CalculateDistanceViaRoad
+[function] ResetLocalPlayerPhoneMaterialOverrideByIdx
+[function] PostGameOver
+[function] GameOver
+[function] GetMasterVariableInteger
+[function] ReloadMediaSystemService
+[function] PushPlayerActionMap
+[function] CloseStationInPosition
+[function] SetGridShading
+[function] ExecuteReward_V3
+[function] ExecuteRewardList_V2
+[function] HackerspaceAssignOperatives
+[function] SetMapMarkerPopUpData
+[function] ReinforcementStartReinforcing_v2
+[function] SquadResetSearchOverrideParams
+[function] SetTimeOfDayHourAndMinute
+[function] TeleportPlayerInsideHMA
+[function] IsCurrentGen
+[function] FelonyClearHeatParams
+[function] RecruitmentIntelGetEntity
+[function] SetTimeScale
+[function] UnregisterPersonOfInterest
+[function] SetFaceMaskAllowed
+[function] WakeUpCLOMonitored
+[function] IsAISubcategory
+[function] BegingHumanProjectileThrowStateMonitoring
+[function] ChangeMaterialParameter
+[function] FelonyClearBehaviourParams
+[function] SetCurrentSpawnPointType
+[function] SetPawnImmuneToDeath
+[function] SendAICommand_Aim
+[function] EnableAIlogicUseHackableGameplay
+[function] RequestDominoAnimationState_V2
+[function] SendForceState
+[function] StartConvoy
+[function] RequestDominoAnimationState
+[function] StopPhoneCall
+[function] UnregisterOnShowObjectiveCompletedScriptCallback_v2
+[function] HideWarningMessage
+[function] UnspawnAllPedestriansInRadius
+[function] GetDriverID
+[function] ClearCurrentCinematicMode
+[function] GetRCUser
+[function] HasSecurityCameraDetectedPlayer
+[function] SpawnNPC
+[function] DisablePlayerBarks
+[function] SucceedMission_v2
+[function] ReloadWeaponPlayer
+[function] StopBenchmark
+[function] DrawTextToScreen
+[table] CAIAgentManager
+  [function] GetAIAgentsOfGroupFromLUA
+  [function] GetAIAgentsOfGroupFromLUA_v2
+  [function] GetAIDronesFromLUA
+[function] RemoveItem
+[function] MenuClosed
+[function] load
+[function] EnableVehicleRadioSystemDomino
+[function] LeaveMissionWithDbObj
+[function] SetCraneCanMove
+[function] PauseWhileLoading
+[function] ChangePlayerGkModelFromHumanConfigAndVoiceActor_v1
+[function] SetSquadRelationship
+[function] LoadMissionLayer3
+[function] GetStringID
+[function] SetCharacterAbilitiesEnabled
+[function] StopEntityNetHackHighlight
+[function] StartCameraAnimatedShake
+[function] GetClosestPositionOnRoadNetwork
+[function] EntityHasTagCategory
+[function] ResetCoverToCoverAllowedOverride
+[function] SetCoverAllowedOverride
+[function] UnloadHighResArea
+[function] CDialogManager_GetInstance
+[function] StartPhoneCall
+[function] ForceExitCover
+[function] ResetCrouchAllowedOverride
+[function] ResetCLO
+[function] IsPawnOnCranePlatform
+[function] UpdateProgressBarPausedState
+[function] RegisterCLOEntityToGameplayBeat
+[function] GetVehicleValuePercentage
+[function] IsMissionTracked
+[function] StopLocateGameplayController
+[function] GetEntityName
+[function] IsDetectionUnawareFull
+[function] TriggerComponentContactsCheckNow
+[function] CloseAllMenus
+[function] ScriptUIObjectiveHide
+[function] GetSequenceManager
+[function] FelonyGetSquadNameFromType
+[function] FelonyAddScriptedAgent
+[function] IsInventoryItemInWheel
+[function] MK2BossSetDownloadCompleted
+[function] SetGPS3DTarget
+[function] FailOneObjective
+[function] CollectibleGetItemCount
+[function] ReleaseDominoCameraContext
+[function] TeleportPlayerInsideHMA_v2
+[function] StopSoundMixingFromLua
+[function] TeleportToSpawnPoint_v3
+[function] StartPostFxOnPlayer
+[function] GetPlayerNameDebug
+[function] SmartphoneIsAppOpened
+[function] GetTeamPlayerFromIndex
+[function] IsAlive
+[function] WaitForQualities
+[function] StartBink
+[function] GetTeamFromIndex
+[function] GetDBVariableString
+[function] SetLRShadowHighPriorityNearDistance
+[function] RemovePlayerFromTeam
+[function] StopProximityMeter
+[function] DisableVehicleForPlayers
+[function] SwitchLocalPlayerInventory
+[function] RemoveCheckpointLoadingScreen
+[function] ChangePlayerGkModelFromHumanConfig_v1
+[function] PushDominoContext
+[function] ChangePlayerGkModelFromHumanConfig
+[function] BreakableEntity_NextState
+[function] MissionCheckpoint_v2
+[function] UsePausedMissionLayerLoading
+[function] HideMarker
+[function] StopConvoy
+[function] SetCharacterWheelEnabled
+[function] SetMasterVariableFloat
+[function] IsDead
+[function] GetPawnIdFromPlayerId
+[function] GetLocalCameraId
+[function] SendAICommand_ShootAt
+[function] IsSquadStopping
+[function] SetAIAgentState_v3
+[function] IsEntityValid
+[function] EnableSpawner
+[function] TryTriggerHack
+[function] GetVehicleIsDriveable
+[function] LoadHighResArea
+[function] HideMissionModuleIdLocalPlayer_v3
+[function] SetSquadAgentOverrideConfig
+[function] SendDectivateAlarmEvent
+[function] ReinforcementFixLocation
+[function] Op_GetDGSceneEntity
+[function] RequestUseSoftware
+[function] CreateObjectiveController
+[function] dofile
+[function] PushTokenFloat
+[function] CreateReachGameplay_v5
+[function] StartPhoneCallEmail
+[table] os
+  [function] exit
+  [function] setlocale
+  [function] date
+  [function] getenv
+  [function] difftime
+  [function] remove
+  [function] time
+  [function] clock
+  [function] tmpname
+  [function] rename
+  [function] execute
+[table] CDominoTimerManager
+  [function] RemoveTimer
+  [function] CreateTimer
+  [function] IsPaused
+  [function] Start
+  [function] GetTime
+  [function] Pause
+  [function] Resume
+[function] GetAllEnemies
+[function] GetMaximumNumPremiumOperativesAllowedInHackerspace
+[function] SetKeyIntelIdInvasion
+[function] GetTalkerType
+[function] SetProfilingEnabled
+[function] ChangeBroadcastChannelOnEntity
+[function] ShowInstallPackageGlobalProgressDialog
+[function] Op_GetDGSceneCLO
+[function] IsBroadcastBufferLoaded
+[function] AddRestrictedZone
+[function] PutToSleepDroneEntity
+[function] HideGadgetUIElement
+[function] ScriptUIMissionAbort_v2
+[function] SetMissionAreaMission
+[function] GetTimeOfDayMinute
+[function] MediaSystemStopBroadcast
+[function] ShowCredits_v1
+[function] EnableDebugAnnotationEntity
+[function] ToggleFeaturesForNarrative
+[function] SendAICommand_GotoPos
+[function] IsConversationInteractionAllowed
+[function] GetInvalidEntityId
+[function] SynchSoundAndBink
+[function] StopCameraLock
+[function] pcall
+[function] SetInteractionScriptState
+[function] SetCanUpdateMovementWithoutPhysics
+[function] IsInitialSpawnDone
+[function] SetVehicleAlarmHackable
+[function] VehicleForceFakeFollow
+[function] HideUserInCar
+[function] IsMoveableEntityPaused
+[function] StopHelicopterBhv
+[function] StopPrioritySong
+[function] SquadTryToCreateTargetedSearch_v3
+[function] GetMoveableEntityMovementDirection
+[function] LanesRestrictionsControl
+[function] RegisterAmmoCountBelowThresholdCallback
+[function] StartVehicleSpeedStats
+[table] io
+  [function] lines
+  [function] write
+  [function] close
+  [function] flush
+  [function] open
+  [function] output
+  [function] type
+  [function] read
+  [userdata] stderr
+  [userdata] stdin
+  [function] input
+  [userdata] stdout
+  [function] popen
+  [function] tmpfile
+[function] GetEntityPosition
+[function] GetCurrentVehicleEntityId
+[function] StartFollow
+[function] IsVehicleEmpty
+[function] CScriptCallbackSystem_GetInstance
+[function] ToggleARCloak
+[function] SetEngagementState
+[function] CAIAgentManager_GetInstance
+[function] CloseAllStations
+[function] CreateDroneDiamondPackageController
+[function] FelonySystemSetLocalUIOnlyHeatLevel
+[function] SmartphoneGetAppId
+[function] SetMaterialOverrideByIdx
+[function] SetPlayerInCinematic
+[function] RemoveSquadAgent
+[function] DisplayAudioFileShortcut
+[function] HideAllTrainActivities
+[function] SendAICommand_LookAt
+[function] GetMasterVariableFloat
+[function] SendAICommand_PlayAnim
+[function] SetOperatorManagerAutoMarkModeWithNpcName
+[function] WaitForStandaloneLayerToLoad
+[function] FelonyStartChaseObj
+[function] ReinforcementCheckState_v2
+[function] StopOverrideRandomizedWeather
+[function] SmartphoneAppSetAvailable
+[function] type
+[function] SetNetworkVariableInteger
+[function] CreateProtectGameplay_v3
+[function] SetIgnorePlayerSignal
+[function] RegisterCinemaZoneNotRemovableEntity
+[function] StartCameraLock
+[function] AddLocationListener
+[function] HideLivingCityInTrains
+[function] SetBagleyHackActive
+[function] StartCivilianLookAt
+[function] GetPawnIsPassenger
+[function] SetStayRCConnectedUnderwater
+[function] SetPatrolSpeed
+[function] StopNarrativeIntelDominoScript
+[function] SetDensityContextOverride

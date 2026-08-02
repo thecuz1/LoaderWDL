@@ -54,20 +54,28 @@ static const uint8_t mask_lua_settop[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0
 
 // Scan a wildcard pattern over the loaded engine module. Returns the absolute  address of the match, or 0.
 // Anchored on the first signature byte (always concrete in our signatures) via memchr so it's near-linear time.
-static uintptr_t ScanPattern(const uint8_t* sig, const uint8_t* mask, size_t len,
-                             uintptr_t base, size_t size) {
-    if (size < len) return 0;
+static uintptr_t ScanPattern(const uint8_t* sig, const uint8_t* mask, size_t len, uintptr_t base, size_t size) {
+    if (size < len) {
+        return 0;
+    }
     const uint8_t* mem = reinterpret_cast<const uint8_t*>(base);
     const uint8_t* end = mem + size - len;
     for (const uint8_t* p = mem; p < end;) {
         const uint8_t* a = reinterpret_cast<const uint8_t*>(memchr(p, sig[0], static_cast<size_t>(end - p)));
-        if (!a) break;
+        if (!a) {
+            break;
+        }
         p = a + 1;
         bool ok = true;
         for (size_t j = 0; j < len; ++j) {
-            if (mask[j] && a[j] != sig[j]) { ok = false; break; }
+            if (mask[j] && a[j] != sig[j]) {
+                ok = false;
+                break;
+            }
         }
-        if (ok) return base + static_cast<uintptr_t>(a - mem);
+        if (ok) {
+            return base + static_cast<uintptr_t>(a - mem);
+        }
     }
     return 0;
 }
@@ -86,41 +94,40 @@ void DetectBuild() {
 	} else {
     	g_engineModule = "DuniaDemo_clang_64_dx12.dll";
         #ifdef OFFSETS_156
-       	lual_loadbuffer_t_off = LUA_DX12_156_LOADBUFFER;
-       	lua_pcall_t_off       = LUA_DX12_156_PCALL;
-       	lua_tolstring_t_off   = LUA_DX12_156_TOLSTRING;
-       	lua_newstate_t_off    = LUA_DX12_156_NEWSTATE;
-       	lua_gettop_t_off      = LUA_DX12_156_GETTOP;
-       	lua_settop_t_off      = LUA_DX12_156_SETTOP;
+           	lual_loadbuffer_t_off = LUA_DX12_156_LOADBUFFER;
+           	lua_pcall_t_off       = LUA_DX12_156_PCALL;
+           	lua_tolstring_t_off   = LUA_DX12_156_TOLSTRING;
+           	lua_newstate_t_off    = LUA_DX12_156_NEWSTATE;
+           	lua_gettop_t_off      = LUA_DX12_156_GETTOP;
+           	lua_settop_t_off      = LUA_DX12_156_SETTOP;
         #else
-       	lual_loadbuffer_t_off = LUA_DX12_LOADBUFFER;
-       	lua_pcall_t_off       = LUA_DX12_PCALL;
-       	lua_tolstring_t_off   = LUA_DX12_TOLSTRING;
-       	lua_newstate_t_off    = LUA_DX12_NEWSTATE;
-       	lua_gettop_t_off      = LUA_DX12_GETTOP;
-       	lua_settop_t_off      = LUA_DX12_SETTOP;
+           	lual_loadbuffer_t_off = LUA_DX12_LOADBUFFER;
+           	lua_pcall_t_off       = LUA_DX12_PCALL;
+           	lua_tolstring_t_off   = LUA_DX12_TOLSTRING;
+           	lua_newstate_t_off    = LUA_DX12_NEWSTATE;
+           	lua_gettop_t_off      = LUA_DX12_GETTOP;
+           	lua_settop_t_off      = LUA_DX12_SETTOP;
         #endif
 	}
 
 	// AOB-scan the loaded module for the Lua C API functions.
 	HMODULE mod = GetModuleHandleA(g_engineModule);
-	if (!mod) return;
+	if (!mod) {
+	    return;
+	}
 	PIMAGE_DOS_HEADER dos = reinterpret_cast<PIMAGE_DOS_HEADER>(mod);
-	PIMAGE_NT_HEADERS nt = reinterpret_cast<PIMAGE_NT_HEADERS>(
-	    reinterpret_cast<BYTE*>(mod) + dos->e_lfanew);
+	PIMAGE_NT_HEADERS nt = reinterpret_cast<PIMAGE_NT_HEADERS>(reinterpret_cast<BYTE*>(mod) + dos->e_lfanew);
 	uintptr_t base = reinterpret_cast<uintptr_t>(mod);
 	size_t size = nt->OptionalHeader.SizeOfImage;
 
 	g_luaLoadbuffer = ScanPattern(sig_luaL_loadbuffer, mask_luaL_loadbuffer, sizeof(sig_luaL_loadbuffer), base, size);
-	g_luaPcall      = ScanPattern(sig_lua_pcall,      mask_lua_pcall,      sizeof(sig_lua_pcall),      base, size);
-	g_luaTolstring  = ScanPattern(sig_lua_tolstring,  mask_lua_tolstring,  sizeof(sig_lua_tolstring),  base, size);
-	g_luaGettop     = ScanPattern(sig_lua_gettop,     mask_lua_gettop,     sizeof(sig_lua_gettop),     base, size);
-	g_luaSettop     = ScanPattern(sig_lua_settop,     mask_lua_settop,     sizeof(sig_lua_settop),     base, size);
+	g_luaPcall = ScanPattern(sig_lua_pcall, mask_lua_pcall, sizeof(sig_lua_pcall), base, size);
+	g_luaTolstring = ScanPattern(sig_lua_tolstring, mask_lua_tolstring, sizeof(sig_lua_tolstring), base, size);
+	g_luaGettop = ScanPattern(sig_lua_gettop, mask_lua_gettop, sizeof(sig_lua_gettop), base, size);
+	g_luaSettop = ScanPattern(sig_lua_settop, mask_lua_settop, sizeof(sig_lua_settop), base, size);
 
-	int found = (g_luaLoadbuffer ? 1 : 0) + (g_luaPcall ? 1 : 0) + (g_luaTolstring ? 1 : 0) +
-	            (g_luaGettop ? 1 : 0) + (g_luaSettop ? 1 : 0);
-	Logger::LogMessage("[Main] Lua AOB scan: %d/5 patterns found, %d fallbacks\n",
-	                   found, 5 - found);
+	int found = (g_luaLoadbuffer ? 1 : 0) + (g_luaPcall ? 1 : 0) + (g_luaTolstring ? 1 : 0) + (g_luaGettop ? 1 : 0) + (g_luaSettop ? 1 : 0);
+	Logger::LogMessage("[Main] Lua AOB scan: %d/5 patterns found, %d fallbacks\n", found, 5 - found);
 }
 
 bool hasConsole = false;
@@ -246,8 +253,6 @@ int Main::Execute(lua_State* L, const char* scriptData) {
 		Logger::LogMessage("Execution error: %s\n", err);
 		lua_pop(L, 1);
 	}
-	// const int value = lua_gettop(L);
-	// Logger::LogMessage("Stack is size: %d\n", value);
 
 	return result;
 }
@@ -292,10 +297,6 @@ void Main::InstallHook() {
 	PBYTE load_buffer_func = (PBYTE)(g_luaLoadbuffer ? g_luaLoadbuffer : baseAddress + lual_loadbuffer_t_off);
 	PBYTE lua_pcall_func = (PBYTE)(g_luaPcall ? g_luaPcall : baseAddress + lua_pcall_t_off);
 
-	Logger::LogMessage("Base Address: %p\n", baseAddress);
-	Logger::LogMessage("Call Address (lual_loadbuffer): %p\n", load_buffer_func);
-	Logger::LogMessage("Call Address (lua_pcall): %p\n", lua_pcall_func);
-
 	if (MH_CreateHook(load_buffer_func, (LPVOID)&luaL_loadbuffer_t_trampoline, (LPVOID*)&luaL_loadbuffer_t_addr) != MH_OK) {
 		Logger::LogMessage("Failed to create hook! (lual_loadbuffer)\n");
 		return;
@@ -319,9 +320,6 @@ void Main::InstallHook() {
 	}
 
 	Logger::LogMessage("Hooks enabled!\n");
-	// print t_addr
-	Logger::LogMessage("Original Hook address (lual_loadbuffer): %p\n", luaL_loadbuffer_t_addr);
-	Logger::LogMessage("Original Hook address (lua_pcall): %p\n", luaL_pcall_t_addr);
 }
 
 void Main::StartThread() {

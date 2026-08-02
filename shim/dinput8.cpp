@@ -126,10 +126,10 @@ static DWORD WINAPI payload_thread(LPVOID param) {
 
     g_payload = LoadLibraryA(dllPath.c_str());
     if (g_payload != nullptr) {
-        log_msg("[dinput8] Payload loaded @ %p\n", g_payload);
+        log_msg("[dinput8] ScriptHook loaded @ %p\n", g_payload);
         return 0;
     } else {
-        log_msg("[dinput8] ERROR: no payload DLL found beside dinput8.dll\n");
+        log_msg("[dinput8] ERROR: scripthook.dll not found beside dinput8.dll\n");
     }
 
     DWORD err = GetLastError();
@@ -228,7 +228,7 @@ extern "C" HRESULT __stdcall DllCanUnloadNow(void) {
 extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv) {
     ensure_real();
     if (pDllGetClassObject == nullptr) {
-        return 0x80040111; /* CLASS_E_CLASSNOTAVAILABLE */
+        return 0x80040111; // CLASS_E_CLASSNOTAVAILABLE
     }
     return pDllGetClassObject(rclsid, riid, ppv);
 }

@@ -13,9 +13,8 @@ extern "C" {
 #define LUA_OK          0
 #define LUA_ERRSYNTAX   3
 
-// Lua C API offsets into the engine DLL, per build. Selected at runtime by
-// DetectBuild() from the loaded module name (dx11 vs dx12), so no per-build
-// compile flag is needed. OFFSETS_156 is a dx12 version override (1.5.6).
+// Lua C API offsets into the engine DLL, per build. Selected at runtime by DetectBuild() from the loaded module name (dx11 vs dx12), so no per-build compile flag is needed.
+// OFFSETS_156 is a dx12 version override (1.5.6).
 #define LUA_DX12_LOADBUFFER 0x6907330
 #define LUA_DX12_PCALL      0x690F590
 #define LUA_DX12_TOLSTRING  0x690D8F0
