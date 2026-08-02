@@ -95,6 +95,18 @@ LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         case WM_NCDESTROY:
             unhookAll();
             return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
+        case WM_SETCURSOR:
+            // The game's cursor loop goes idle while our menu is open, so the
+            // passive hkSetCursor hook never fires. Manage the OS cursor here
+            // directly: hide it while the menu is open (ImGui draws its own via
+            // io.MouseDrawCursor) and let the game handle it otherwise.
+            if (menuOpen) {
+                if (oSetCursor) {
+                    oSetCursor(nullptr);
+                }
+                return TRUE;
+            }
+            break;
     }
 
     // Let ImGui consume input first (updates io.MousePos, keys, scroll).

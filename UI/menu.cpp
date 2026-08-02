@@ -23,14 +23,17 @@ HRESULT hookAll() {
     // if (FAILED(HookWindow())) {
     //     return E_FAIL;
     // }
-    if (GetModuleHandleA("d3d11.dll")) {
+    if (GetModuleHandleA("d3d12.dll") && GetModuleHandleA("dxgi.dll")) {
+        if (FAILED(initD3D12Hooks())) {
+            return E_FAIL;
+        }
+    } else if (GetModuleHandleA("d3d11.dll")) {
         if (FAILED(initD3D11Hooks())) {
             return E_FAIL;
         }
     } else {
-        if (FAILED(initD3D12Hooks())) {
-            return E_FAIL;
-        }
+        Logger::LogMessage("[UI/menu] No D3D12 or D3D11 runtime loaded, mod menu cannot hook\n");
+        return E_FAIL;
     }
     activelyHooked = true;
     return S_OK;
@@ -38,10 +41,10 @@ HRESULT hookAll() {
 
 void unhookAll() {
     activelyHooked = false;
-    if (GetModuleHandleA("d3d11.dll")) {
-        UnhookD3D11();
-    } else {
+    if (GetModuleHandleA("d3d12.dll") && GetModuleHandleA("dxgi.dll")) {
         UnhookD3D12();
+    } else if (GetModuleHandleA("d3d11.dll")) {
+        UnhookD3D11();
     }
     // UnhookWindow();
 }
@@ -114,21 +117,12 @@ std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* 
 
 	for (const auto& node : nodes) {
 		ImGuiTreeNodeFlags node_flags = base_flags;
-		const bool is_selected = (*selection_mask & BIT(node.bitIndex)) != 0;
-		if (is_selected) {
-			node_flags |= ImGuiTreeNodeFlags_Selected;
-		}
 
 		if (!node.isDir) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 			ImGui::TreeNodeEx(node.name.c_str(), node_flags);
 			if (ImGui::IsItemClicked()) {
-				clicked = node.bitIndex;
-				any_clicked = true;
-			}
-			ImGui::SameLine();
-			if (ImGui::Button(("Run##" + std::to_string(node.bitIndex) + node.name).c_str())) {
 				if (!context_lua_state) {
 				    Logger::LogMessage("[UI/menu] Cannot run %s: context_lua_state not set (go in-game first)\n", node.name.c_str());
 				} else {
@@ -145,6 +139,10 @@ std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* 
 				}
 			}
 		} else {
+			const bool is_selected = (*selection_mask & BIT(node.bitIndex)) != 0;
+			if (is_selected) {
+				node_flags |= ImGuiTreeNodeFlags_Selected;
+			}
 			bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags);
 
 			if (ImGui::IsItemClicked()) {
@@ -246,9 +244,8 @@ void imguiInit() {
         ImGui::TextDisabled("(?)");
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip(
-                "Script selection:\n"
-                "  Click      - single-select\n"
-                "  CTRL+click - select/deselect multiple\n");
+                "Scripts:\n"
+                "  Click  - run the script\n");
         }
 
  		if (g_treeDirty) {

@@ -325,8 +325,8 @@ void Main::InstallHook() {
 }
 
 void Main::StartThread() {
-	DetectBuild();
 	Logger::Initialize("scripthook.log");
+	DetectBuild();
 	Logger::LogMessage("\n");
 	Logger::LogMessage("[Main] Engine module: %s (loadbuffer @ 0x%X)\n", g_engineModule, lual_loadbuffer_t_off);
 
