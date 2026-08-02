@@ -1,15 +1,16 @@
-#include <windows.h>
-#include <d3d11.h>
-#include <dxgi.h>
-#include <wrl/client.h>
-
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 #include "MinHook/MinHook.h"
+
 #include "Logger.h"
 #include "menu.h"
 #include "hookD3D11.h"
 #include "winProc.h"
+
+#include <windows.h>
+#include <wrl/client.h>
+#include <d3d11.h>
+#include <dxgi.h>
 
 using Microsoft::WRL::ComPtr;
 
@@ -147,8 +148,7 @@ HRESULT APIENTRY hookPresentD3D11(IDXGISwapChain* pSwapChain, UINT SyncInterval,
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        // Don't let ImGui set/hide the OS cursor - the game manages it during
-        // gameplay. We draw ImGui's own cursor via io.MouseDrawCursor instead.
+        // Don't let ImGui set/hide the OS cursor - the game manages it during gameplay. We draw ImGui's own cursor via io.MouseDrawCursor instead.
         io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init(desc.OutputWindow);

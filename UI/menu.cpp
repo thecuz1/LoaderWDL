@@ -6,7 +6,6 @@
 #include <iterator>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 #include "imgui.h"
 
@@ -20,9 +19,6 @@
 Main* mainInstance;
 
 HRESULT hookAll() {
-    // if (FAILED(HookWindow())) {
-    //     return E_FAIL;
-    // }
     if (GetModuleHandleA("d3d12.dll") && GetModuleHandleA("dxgi.dll")) {
         if (FAILED(initD3D12Hooks())) {
             return E_FAIL;
@@ -46,7 +42,6 @@ void unhookAll() {
     } else if (GetModuleHandleA("d3d11.dll")) {
         UnhookD3D11();
     }
-    // UnhookWindow();
 }
 
 DWORD MenuThread(Main* main) {
@@ -62,8 +57,12 @@ DWORD MenuThread(Main* main) {
 
     Logger::LogMessage("[UI/menu] Thread started\n");
     struct CleanupGuard {
-        ~CleanupGuard() { unhookAll(); Logger::LogMessage("[UI/menu] Shutting down thread\n"); }
-    } cleanup;
+        ~CleanupGuard() {
+            unhookAll();
+            Logger::LogMessage("[UI/menu] Shutting down thread\n");
+        }
+    }
+    cleanup;
 
     const BOOL failed = hookAll();
     if (failed) {
@@ -82,20 +81,17 @@ DWORD MenuThread(Main* main) {
     return 0;
 }
 
-#define BIT(x) (1 << x)
-
 struct ScriptNode {
     std::string name;
     std::string path;      // full path relative to the game CWD, used to open the file
     bool isDir;
-    uint32_t bitIndex;
     std::vector<ScriptNode> children;
 };
 
 static std::vector<ScriptNode> g_scriptTree;
 static bool g_treeDirty = true;
 
-void BuildScriptTree(std::vector<ScriptNode>& nodes, const std::filesystem::path& path, uint32_t& idx) {
+void BuildScriptTree(std::vector<ScriptNode>& nodes, const std::filesystem::path& path) {
     std::error_code ec;
     for (const auto& entry : std::filesystem::directory_iterator(path, ec)) {
         if (ec) break;
@@ -103,17 +99,13 @@ void BuildScriptTree(std::vector<ScriptNode>& nodes, const std::filesystem::path
         node.name = entry.path().filename().string();
         node.path = entry.path().string();
         node.isDir = entry.is_directory(ec);
-        if (node.isDir) BuildScriptTree(node.children, entry.path(), idx);
-        node.bitIndex = idx++;
+        if (node.isDir) BuildScriptTree(node.children, entry.path());
         nodes.push_back(std::move(node));
     }
 }
 
-std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* selection_mask) {
+void RenderTree(const std::vector<ScriptNode>& nodes) {
 	ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_SpanFullWidth;
-
-	bool any_clicked = false;
-	uint32_t clicked = 0;
 
 	for (const auto& node : nodes) {
 		ImGuiTreeNodeFlags node_flags = base_flags;
@@ -139,31 +131,14 @@ std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* 
 				}
 			}
 		} else {
-			const bool is_selected = (*selection_mask & BIT(node.bitIndex)) != 0;
-			if (is_selected) {
-				node_flags |= ImGuiTreeNodeFlags_Selected;
-			}
 			bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags);
 
-			if (ImGui::IsItemClicked()) {
-				clicked = node.bitIndex;
-				any_clicked = true;
-			}
-
 			if (node_open) {
-				auto clickState = RenderTree(node.children, selection_mask);
-
-				if (!any_clicked) {
-					any_clicked = clickState.first;
-					clicked = clickState.second;
-				}
-
+				RenderTree(node.children);
 				ImGui::TreePop();
 			}
 		}
 	}
-
-	return { any_clicked, clicked };
 }
 
 std::string directoryPath = "scripts";
@@ -240,36 +215,18 @@ void imguiInit() {
     }
    	if (ImGui::CollapsingHeader("Directory View"))	{
 
-        ImGui::SameLine();
-        ImGui::TextDisabled("(?)");
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip(
-                "Scripts:\n"
-                "  Click  - run the script\n");
-        }
+        ImGui::SetItemTooltip(
+            "Scripts:\n"
+            "  Click  - run the script\n");
 
- 		if (g_treeDirty) {
- 			uint32_t idx = 0;
+if (g_treeDirty) {
  			g_scriptTree.clear();
- 			BuildScriptTree(g_scriptTree, directoryPath, idx);
+ 			BuildScriptTree(g_scriptTree, directoryPath);
  			g_treeDirty = false;
  		}
 
-  		static int selection_mask = 0;
-
- 		auto clickState = RenderTree(g_scriptTree, &selection_mask);
-
-  		if (clickState.first) {
- 			// Update selection state
- 			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
- 			if (ImGui::GetIO().KeyCtrl) {
-				selection_mask ^= BIT(clickState.second);               // CTRL+click to toggle
- 			//} else if (!(selection_mask & (1 << clickState.second)))  // Depending on selection behavior you want, may want to preserve selection when clicking on item that is part of the selection
- 			} else {
-				selection_mask = BIT(clickState.second);                // Click to single-select
- 			}
-  		}
-   	}
+  		RenderTree(g_scriptTree);
+  	}
     ImGui::End();
     ImGui::PopStyleVar();
 }

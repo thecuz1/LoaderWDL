@@ -1,16 +1,18 @@
-#include <windows.h>
-#include <d3d12.h>
-#include <dxgi1_4.h>
-#include <vector>
-#include <wrl/client.h>
-
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
 #include "MinHook/MinHook.h"
+
 #include "Logger.h"
 #include "menu.h"
 #include "hookD3D12.h"
 #include "winProc.h"
+
+#include <windows.h>
+#include <wrl/client.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
+
+#include <vector>
 
 using Microsoft::WRL::ComPtr;
 
@@ -211,13 +213,10 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         }
 
         // ImGui setup
-        // IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        // Don't let ImGui set/hide the OS cursor - the game manages it during
-        // gameplay (it hides it for mouse-look). We draw ImGui's own cursor via
-        // io.MouseDrawCursor while the menu is open instead.
+        // Don't let ImGui set/hide the OS cursor - the game manages it during gameplay (it hides it for mouse-look). We draw ImGui's own cursor via io.MouseDrawCursor while the menu is open instead.
         io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init(desc.OutputWindow);
