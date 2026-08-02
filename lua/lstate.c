@@ -180,12 +180,12 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->gcdept = 0;
   for (i=0; i<NUM_TAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != 0) {
-    /* memory allocation error: free partial state */
-    close_state(L);
-    L = NULL;
+	/* memory allocation error: free partial state */
+	close_state(L);
+	L = NULL;
   }
   else
-    luai_userstateopen(L);
+	luai_userstateopen(L);
   return L;
 }
 
@@ -203,9 +203,9 @@ LUA_API void lua_close (lua_State *L) {
   luaC_separateudata(L, 1);  /* separate udata that have GC metamethods */
   L->errfunc = 0;  /* no error function during GC metamethods */
   do {  /* repeat until no more errors */
-    L->ci = L->base_ci;
-    L->base = L->top = L->ci->base;
-    L->nCcalls = L->baseCcalls = 0;
+	L->ci = L->base_ci;
+	L->base = L->top = L->ci->base;
+	L->nCcalls = L->baseCcalls = 0;
   } while (luaD_rawrunprotected(L, callallgcTM, NULL) != 0);
   lua_assert(G(L)->tmudata == NULL);
   luai_userstateclose(L);

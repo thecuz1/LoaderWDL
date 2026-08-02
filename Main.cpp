@@ -15,7 +15,7 @@
 #include <cstdint>
 
 extern "C" {
-    #include "lua.h"
+	#include "lua.h"
 }
 
 using namespace std;
@@ -55,29 +55,29 @@ static const uint8_t mask_lua_settop[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0
 // Scan a wildcard pattern over the loaded engine module. Returns the absolute  address of the match, or 0.
 // Anchored on the first signature byte (always concrete in our signatures) via memchr so it's near-linear time.
 static uintptr_t ScanPattern(const uint8_t* sig, const uint8_t* mask, size_t len, uintptr_t base, size_t size) {
-    if (size < len) {
-        return 0;
-    }
-    const uint8_t* mem = reinterpret_cast<const uint8_t*>(base);
-    const uint8_t* end = mem + size - len;
-    for (const uint8_t* p = mem; p < end;) {
-        const uint8_t* a = reinterpret_cast<const uint8_t*>(memchr(p, sig[0], static_cast<size_t>(end - p)));
-        if (!a) {
-            break;
-        }
-        p = a + 1;
-        bool ok = true;
-        for (size_t j = 0; j < len; ++j) {
-            if (mask[j] && a[j] != sig[j]) {
-                ok = false;
-                break;
-            }
-        }
-        if (ok) {
-            return base + static_cast<uintptr_t>(a - mem);
-        }
-    }
-    return 0;
+	if (size < len) {
+		return 0;
+	}
+	const uint8_t* mem = reinterpret_cast<const uint8_t*>(base);
+	const uint8_t* end = mem + size - len;
+	for (const uint8_t* p = mem; p < end;) {
+		const uint8_t* a = reinterpret_cast<const uint8_t*>(memchr(p, sig[0], static_cast<size_t>(end - p)));
+		if (!a) {
+			break;
+		}
+		p = a + 1;
+		bool ok = true;
+		for (size_t j = 0; j < len; ++j) {
+			if (mask[j] && a[j] != sig[j]) {
+				ok = false;
+				break;
+			}
+		}
+		if (ok) {
+			return base + static_cast<uintptr_t>(a - mem);
+		}
+	}
+	return 0;
 }
 
 // Pick the engine module + Lua offsets from which DLL the game actually loaded, then AOB-scan it for the Lua C API (version-independent).
@@ -92,22 +92,22 @@ void DetectBuild() {
 		lua_gettop_t_off      = LUA_DX11_GETTOP;
 		lua_settop_t_off      = LUA_DX11_SETTOP;
 	} else {
-    	g_engineModule = "DuniaDemo_clang_64_dx12.dll";
-        #ifdef OFFSETS_156
-           	lual_loadbuffer_t_off = LUA_DX12_156_LOADBUFFER;
-           	lua_pcall_t_off       = LUA_DX12_156_PCALL;
-           	lua_tolstring_t_off   = LUA_DX12_156_TOLSTRING;
-           	lua_newstate_t_off    = LUA_DX12_156_NEWSTATE;
-           	lua_gettop_t_off      = LUA_DX12_156_GETTOP;
-           	lua_settop_t_off      = LUA_DX12_156_SETTOP;
-        #else
-           	lual_loadbuffer_t_off = LUA_DX12_LOADBUFFER;
-           	lua_pcall_t_off       = LUA_DX12_PCALL;
-           	lua_tolstring_t_off   = LUA_DX12_TOLSTRING;
-           	lua_newstate_t_off    = LUA_DX12_NEWSTATE;
-           	lua_gettop_t_off      = LUA_DX12_GETTOP;
-           	lua_settop_t_off      = LUA_DX12_SETTOP;
-        #endif
+		g_engineModule = "DuniaDemo_clang_64_dx12.dll";
+		#ifdef OFFSETS_156
+		   	lual_loadbuffer_t_off = LUA_DX12_156_LOADBUFFER;
+		   	lua_pcall_t_off       = LUA_DX12_156_PCALL;
+		   	lua_tolstring_t_off   = LUA_DX12_156_TOLSTRING;
+		   	lua_newstate_t_off    = LUA_DX12_156_NEWSTATE;
+		   	lua_gettop_t_off      = LUA_DX12_156_GETTOP;
+		   	lua_settop_t_off      = LUA_DX12_156_SETTOP;
+		#else
+		   	lual_loadbuffer_t_off = LUA_DX12_LOADBUFFER;
+		   	lua_pcall_t_off       = LUA_DX12_PCALL;
+		   	lua_tolstring_t_off   = LUA_DX12_TOLSTRING;
+		   	lua_newstate_t_off    = LUA_DX12_NEWSTATE;
+		   	lua_gettop_t_off      = LUA_DX12_GETTOP;
+		   	lua_settop_t_off      = LUA_DX12_SETTOP;
+		#endif
 	}
 
 	// AOB-scan the loaded module for the Lua C API functions.
@@ -132,28 +132,28 @@ void DetectBuild() {
 
 bool hasConsole = false;
 DWORD Main::Entry(Main* main) { // static
-    HWND hGameWindow = NULL;
-    while (hGameWindow == NULL) {
-        hGameWindow = FindWindowA(NULL, "Watch Dogs Legion");
+	HWND hGameWindow = NULL;
+	while (hGameWindow == NULL) {
+		hGameWindow = FindWindowA(NULL, "Watch Dogs Legion");
 
-        if (hGameWindow == NULL) {
-            Sleep(500);
-        } else {
-            break;
-        }
-    }
-    Sleep(2000);
+		if (hGameWindow == NULL) {
+			Sleep(500);
+		} else {
+			break;
+		}
+	}
+	Sleep(2000);
 
 	MH_Initialize();
 	main->InstallHook();
 
 	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)MenuThread, main, 0, 0);
-    if (thread) {
-        CloseHandle(thread);
-    } else {
-        Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
-    }
-    return 0;
+	if (thread) {
+		CloseHandle(thread);
+	} else {
+		Logger::LogMessage("[Main] Failed to create MenuThread thread: %d\n", GetLastError());
+	}
+	return 0;
 }
 
 uintptr_t Main::GetGameBaseAddress() {
@@ -162,9 +162,9 @@ uintptr_t Main::GetGameBaseAddress() {
 
 int Main::luaL_pcall_t_trampoline(lua_State* L, int nargs, int nresults, int errfunc) {
    	if (L != NULL && context_lua_state == NULL) {
-        Logger::LogMessage("[Main] Captured lua_state from pcall!\n");
+		Logger::LogMessage("[Main] Captured lua_state from pcall!\n");
 		context_lua_state = L;
-    }
+	}
 
 	lua_pcall_t luaL_pcall_t_call = reinterpret_cast<lua_pcall_t>(luaL_pcall_t_addr);
 	return luaL_pcall_t_call(L, nargs, nresults, errfunc);
@@ -194,8 +194,7 @@ int Main::luaL_loadbuffer_t_trampoline(lua_State* lua_state, const char* buff, s
 		Logger::LogMessage("Script Content:\n");
 		Logger::LogMessage("------------------------\n");
 
-		// luaL_loadbuffer's buffer isn't null-terminated (length passed separately),
-		// so copy it into a std::string to safely use with %s
+		// luaL_loadbuffer's buffer isn't null-terminated (length passed separately), so copy it into a std::string to safely use with %s
 		std::string script_content(buff, sz);
 		Logger::LogMessage("%s\n", script_content.c_str());
 
@@ -240,8 +239,8 @@ int Main::Execute(lua_State* L, const char* scriptData) {
 	if (loadResult != LUA_OK) {
 	    const char* err = nullptr;
 		if (lua_isstring(L, -1)) {
-            err = lua_tolstring_t_call(L, -1, NULL);
-        }
+			err = lua_tolstring_t_call(L, -1, NULL);
+		}
 		Logger::LogMessage("Compilation error: %s\n", err ? err : "nil");
 		lua_pop(L, 1);
 		return LUA_ERRSYNTAX;
@@ -258,38 +257,38 @@ int Main::Execute(lua_State* L, const char* scriptData) {
 }
 
 void Main::ExecuteFile(lua_State* L, const std::filesystem::path& filepath) {
-    struct FileDeleter {
-        void operator()(FILE* f) const {
-            if (f) std::fclose(f);
-        }
-    };
+	struct FileDeleter {
+		void operator()(FILE* f) const {
+			if (f) std::fclose(f);
+		}
+	};
 
-    std::unique_ptr<FILE, FileDeleter> file(_wfopen(filepath.c_str(), L"rb"));
-    std::string narrowPath = filepath.string();
+	std::unique_ptr<FILE, FileDeleter> file(_wfopen(filepath.c_str(), L"rb"));
+	std::string narrowPath = filepath.string();
 
-    if (!file) {
-        Logger::LogMessage("Failed to open file: %s\n", narrowPath.c_str());
-        return;
-    }
+	if (!file) {
+		Logger::LogMessage("Failed to open file: %s\n", narrowPath.c_str());
+		return;
+	}
 
-    std::string scriptData;
-    std::fseek(file.get(), 0, SEEK_END);
-    long size = std::ftell(file.get());
-    std::rewind(file.get());
+	std::string scriptData;
+	std::fseek(file.get(), 0, SEEK_END);
+	long size = std::ftell(file.get());
+	std::rewind(file.get());
 
-    if (size < 0) {
-        Logger::LogMessage("Failed to get file size: %s\n", narrowPath.c_str());
-        return;
-    }
+	if (size < 0) {
+		Logger::LogMessage("Failed to get file size: %s\n", narrowPath.c_str());
+		return;
+	}
 
-    scriptData.resize(size);
-    size_t bytesRead = std::fread(scriptData.data(), 1, size, file.get());
+	scriptData.resize(size);
+	size_t bytesRead = std::fread(scriptData.data(), 1, size, file.get());
 
-    if (bytesRead == static_cast<size_t>(size)) {
-        Main::Execute(L, scriptData.c_str());
-    } else {
-        Logger::LogMessage("Failed to read file contents: %s\n", narrowPath.c_str());
-    }
+	if (bytesRead == static_cast<size_t>(size)) {
+		Main::Execute(L, scriptData.c_str());
+	} else {
+		Logger::LogMessage("Failed to read file contents: %s\n", narrowPath.c_str());
+	}
 }
 
 void Main::InstallHook() {
@@ -329,12 +328,12 @@ void Main::StartThread() {
 	Logger::LogMessage("[Main] Engine module: %s (loadbuffer @ 0x%X)\n", g_engineModule, lual_loadbuffer_t_off);
 
 	hasConsole = AllocConsole();
-    FILE* dummy;
-    freopen_s(&dummy, "CONOUT$", "wb", stdout);
+	FILE* dummy;
+	freopen_s(&dummy, "CONOUT$", "wb", stdout);
 
 	HANDLE thread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)Main::Entry, this, 0, 0);
-    if (thread) CloseHandle(thread);
-    else Logger::LogMessage("[Main] Failed to create main thread: %d\n", GetLastError());
+	if (thread) CloseHandle(thread);
+	else Logger::LogMessage("[Main] Failed to create main thread: %d\n", GetLastError());
 }
 
 void Main::Unload() {
