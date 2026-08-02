@@ -1,27 +1,32 @@
 #include "imgui.h"
 
 #include "Logger.h"
+#include "MinHook/MinHook.h"
 #include "menu.h"
 #include "winProc.h"
-#include "MinHook/MinHook.h"
 
 #include <windows.h>
 
 /* Window input code for the ImGui menu. Two jobs:
- * 1. Subclass the game's window procedure (HookWindow2/hkWndProc) so ImGui receives mouse/keyboard input and can swallow it while the menu is open.
- * 2. Neutralize the game's mouse-look cursor trapping (SetCursorPos/ClipCursor) while the menu is open so the cursor can move freely (hkSetCursorPos/hkClipCursor/HookCursor).
+ * 1. Subclass the game's window procedure (HookWindow2/hkWndProc) so ImGui receives mouse/keyboard
+ * input and can swallow it while the menu is open.
+ * 2. Neutralize the game's mouse-look cursor trapping (SetCursorPos/ClipCursor) while the menu is
+ * open so the cursor can move freely (hkSetCursorPos/hkClipCursor/HookCursor).
  */
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-WNDPROC       oWndProc = nullptr;
-HWND          gameHWND = nullptr;
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam,
+															 LPARAM lParam);
+WNDPROC oWndProc = nullptr;
+HWND gameHWND = nullptr;
 
 // Original user32.dll functions, filled in by HookCursor().
-static BOOL(WINAPI* oSetCursorPos)(int X, int Y) = nullptr;
-static BOOL(WINAPI* oClipCursor)(const RECT* lpRect) = nullptr;
-static HCURSOR(WINAPI* oSetCursor)(HCURSOR hCursor) = nullptr;
-static bool  gCursorHooked = false;
+static BOOL(WINAPI *oSetCursorPos)(int X, int Y) = nullptr;
+static BOOL(WINAPI *oClipCursor)(const RECT *lpRect) = nullptr;
+static HCURSOR(WINAPI *oSetCursor)(HCURSOR hCursor) = nullptr;
+static bool gCursorHooked = false;
 
-// Mouse-look games pin the cursor every frame: ClipCursor to a small center box and SetCursorPos to recenter. While the menu is open that traps ImGui's io.MousePos, so we swallow recentering and force an unclip.
+// Mouse-look games pin the cursor every frame: ClipCursor to a small center box and SetCursorPos to
+// recenter. While the menu is open that traps ImGui's io.MousePos, so we swallow recentering and
+// force an unclip.
 BOOL WINAPI hkSetCursorPos(int X, int Y) {
 	if (menuOpen) {
 		return TRUE; // pretend the recenter succeeded; don't move the cursor
@@ -29,7 +34,7 @@ BOOL WINAPI hkSetCursorPos(int X, int Y) {
 	return oSetCursorPos(X, Y);
 }
 
-BOOL WINAPI hkClipCursor(const RECT* lpRect) {
+BOOL WINAPI hkClipCursor(const RECT *lpRect) {
 	if (menuOpen) {
 		return oClipCursor(nullptr); // unclip instead of trapping in a box
 	}
@@ -44,35 +49,41 @@ HCURSOR WINAPI hkSetCursor(HCURSOR hCursor) {
 	return oSetCursor(hCursor);
 }
 
-// Install the two MinHook hooks on user32.dll's exports (already loaded, so GetProcAddress is safe - no LoadLibrary). Failure is logged, not fatal.
+// Install the two MinHook hooks on user32.dll's exports (already loaded, so GetProcAddress is safe
+// - no LoadLibrary). Failure is logged, not fatal.
 void HookCursor() {
 	if (gCursorHooked) {
 		return;
 	}
 
-	const LPVOID pSetCursorPos = reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandleA("user32.dll"), "SetCursorPos"));
-	const LPVOID pClipCursor = reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandleA("user32.dll"), "ClipCursor"));
-	const LPVOID pSetCursor = reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandleA("user32.dll"), "SetCursor"));
+	const LPVOID pSetCursorPos =
+		reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandleA("user32.dll"), "SetCursorPos"));
+	const LPVOID pClipCursor =
+		reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandleA("user32.dll"), "ClipCursor"));
+	const LPVOID pSetCursor =
+		reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandleA("user32.dll"), "SetCursor"));
 
 	MH_STATUS mh;
-	mh = MH_CreateHook(pSetCursorPos, (LPVOID)&hkSetCursorPos, (LPVOID*)&oSetCursorPos);
+	mh = MH_CreateHook(pSetCursorPos, (LPVOID)&hkSetCursorPos, (LPVOID *)&oSetCursorPos);
 	if (mh != MH_OK) {
-		Logger::LogMessage("[UI/winProc] MH_CreateHook SetCursorPos failed: %s\n", MH_StatusToString(mh));
+		Logger::LogMessage("[UI/winProc] MH_CreateHook SetCursorPos failed: %s\n",
+						   MH_StatusToString(mh));
 		return;
 	}
-	mh = MH_CreateHook(pClipCursor, (LPVOID)&hkClipCursor, (LPVOID*)&oClipCursor);
+	mh = MH_CreateHook(pClipCursor, (LPVOID)&hkClipCursor, (LPVOID *)&oClipCursor);
 	if (mh != MH_OK) {
-		Logger::LogMessage("[UI/winProc] MH_CreateHook ClipCursor failed: %s\n", MH_StatusToString(mh));
+		Logger::LogMessage("[UI/winProc] MH_CreateHook ClipCursor failed: %s\n",
+						   MH_StatusToString(mh));
 		return;
 	}
-	mh = MH_CreateHook(pSetCursor, (LPVOID)&hkSetCursor, (LPVOID*)&oSetCursor);
+	mh = MH_CreateHook(pSetCursor, (LPVOID)&hkSetCursor, (LPVOID *)&oSetCursor);
 	if (mh != MH_OK) {
-		Logger::LogMessage("[UI/winProc] MH_CreateHook SetCursor failed: %s\n", MH_StatusToString(mh));
+		Logger::LogMessage("[UI/winProc] MH_CreateHook SetCursor failed: %s\n",
+						   MH_StatusToString(mh));
 		return;
 	}
 
-	if (MH_EnableHook(pSetCursorPos) != MH_OK ||
-		MH_EnableHook(pClipCursor) != MH_OK ||
+	if (MH_EnableHook(pSetCursorPos) != MH_OK || MH_EnableHook(pClipCursor) != MH_OK ||
 		MH_EnableHook(pSetCursor) != MH_OK) {
 		Logger::LogMessage("[UI/winProc] MH_EnableHook cursor hooks failed\n");
 		return;
@@ -82,7 +93,8 @@ void HookCursor() {
 	Logger::LogMessage("[UI/winProc] Cursor release hooks installed\n");
 }
 
-// Routes messages to ImGui first, swallows them while ImGui wants capture, and forwards the rest to the game's original WNDPROC.
+// Routes messages to ImGui first, swallows them while ImGui wants capture, and forwards the rest to
+// the game's original WNDPROC.
 LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	if (!activelyHooked) {
 		return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
@@ -90,22 +102,23 @@ LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	// On window being destroyed unhook all
 	switch (uMsg) {
-		case WM_CLOSE:
-		case WM_DESTROY:
-		case WM_NCDESTROY:
-			unhookAll();
-			return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
-		case WM_SETCURSOR:
-			/* The game's cursor loop goes idle while our menu is open, so the passive hkSetCursor hook never fires.
-			 * Manage the OS cursor here directly: hide it while the menu is open (ImGui draws its own via io.MouseDrawCursor) and let the game handle it otherwise.
-			 */
-			if (menuOpen) {
-				if (oSetCursor) {
-					oSetCursor(nullptr);
-				}
-				return TRUE;
+	case WM_CLOSE:
+	case WM_DESTROY:
+	case WM_NCDESTROY:
+		unhookAll();
+		return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
+	case WM_SETCURSOR:
+		/* The game's cursor loop goes idle while our menu is open, so the passive hkSetCursor hook
+		 * never fires. Manage the OS cursor here directly: hide it while the menu is open (ImGui
+		 * draws its own via io.MouseDrawCursor) and let the game handle it otherwise.
+		 */
+		if (menuOpen) {
+			if (oSetCursor) {
+				oSetCursor(nullptr);
 			}
-			break;
+			return TRUE;
+		}
+		break;
 	}
 
 	// Let ImGui consume input first (updates io.MousePos, keys, scroll).
@@ -114,7 +127,7 @@ LRESULT CALLBACK hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	}
 
 	// Hold all inputs while imgui is active
-	ImGuiIO& io = ImGui::GetIO();
+	ImGuiIO &io = ImGui::GetIO();
 	if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
 		return true;
 	}
@@ -131,7 +144,6 @@ void UnhookWindow() {
 		oWndProc = nullptr;
 	}
 }
-
 
 // Replace the game window's WNDPROC with hkWndProc, saving the original.
 void HookWindow2(HWND hWindow) {

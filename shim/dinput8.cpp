@@ -7,28 +7,25 @@
 #include <cstring>
 #include <string>
 
-#define LIST_OF_PROXIES \
-	PROXY(DirectInput8Create, 0x80004005, \
-		(HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID *ppvOut), \
-		(hinst, dwVersion, riid, ppvOut), \
-		(HINSTANCE, DWORD, REFIID, LPVOID *)) \
-	PROXY(DllCanUnloadNow, 1, (void), (), (void)) \
-	PROXY(DllGetClassObject, 0x80040111, \
-		(REFCLSID rclsid, REFIID riid, LPVOID *ppv), \
-		(rclsid, riid, ppv), \
-		(REFCLSID, REFIID, LPVOID *)) \
-	PROXY(DllRegisterServer, 0x80004005, (void), (), (void)) \
+#define LIST_OF_PROXIES                                                                            \
+	PROXY(DirectInput8Create, 0x80004005,                                                          \
+		  (HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID * ppvOut),                        \
+		  (hinst, dwVersion, riid, ppvOut), (HINSTANCE, DWORD, REFIID, LPVOID *))                  \
+	PROXY(DllCanUnloadNow, 1, (void), (), (void))                                                  \
+	PROXY(DllGetClassObject, 0x80040111, (REFCLSID rclsid, REFIID riid, LPVOID * ppv),             \
+		  (rclsid, riid, ppv), (REFCLSID, REFIID, LPVOID *))                                       \
+	PROXY(DllRegisterServer, 0x80004005, (void), (), (void))                                       \
 	PROXY(DllUnregisterServer, 0x80004005, (void), (), (void))
 
-#define PROXY(name, ret, proto, call, type) \
-typedef HRESULT (__stdcall *name##Fn)type; \
-static name##Fn p##name;
+#define PROXY(name, ret, proto, call, type)                                                        \
+	typedef HRESULT(__stdcall *name##Fn) type;                                                     \
+	static name##Fn p##name;
 LIST_OF_PROXIES
 #undef PROXY
 
 static HMODULE g_realDinput8;
 static HMODULE g_payload;
-static FILE   *g_log;
+static FILE *g_log;
 
 static void log_msg(const char *fmt, ...) {
 	SYSTEMTIME st;
@@ -37,7 +34,8 @@ static void log_msg(const char *fmt, ...) {
 	va_list ap;
 
 	GetLocalTime(&st);
-	len = snprintf(buf, sizeof(buf), "[%02d:%02d:%02d.%03d] ", st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+	len = snprintf(buf, sizeof(buf), "[%02d:%02d:%02d.%03d] ", st.wHour, st.wMinute, st.wSecond,
+				   st.wMilliseconds);
 	if (len < 0 || len >= static_cast<int>(sizeof(buf))) {
 		return;
 	}
@@ -54,25 +52,28 @@ static void log_msg(const char *fmt, ...) {
 	fflush(stdout);
 }
 
-// WDL is built against the Universal CRT so its Lua `print` writes to UCRT stdout. Redirect UCRT's std streams to the console
+// WDL is built against the Universal CRT so its Lua `print` writes to UCRT stdout. Redirect UCRT's
+// std streams to the console
 static void redirect_game_crt() {
 	HMODULE ucrt = LoadLibraryA("ucrtbase.dll");
 	if (ucrt == nullptr) {
 		return;
 	}
 
-	typedef void* (__cdecl *AcrtIobFunc)(int);
-	typedef FILE* (__cdecl *FreopenFn)(const char *, const char *, FILE *);
+	typedef void *(__cdecl * AcrtIobFunc)(int);
+	typedef FILE *(__cdecl * FreopenFn)(const char *, const char *, FILE *);
 
-	AcrtIobFunc iob = reinterpret_cast<AcrtIobFunc>(reinterpret_cast<void*>(GetProcAddress(ucrt, "__acrt_iob_func")));
-	FreopenFn fre   = reinterpret_cast<FreopenFn>(reinterpret_cast<void*>(GetProcAddress(ucrt, "freopen")));
+	AcrtIobFunc iob = reinterpret_cast<AcrtIobFunc>(
+		reinterpret_cast<void *>(GetProcAddress(ucrt, "__acrt_iob_func")));
+	FreopenFn fre =
+		reinterpret_cast<FreopenFn>(reinterpret_cast<void *>(GetProcAddress(ucrt, "freopen")));
 	if (iob == nullptr || fre == nullptr) {
 		return;
 	}
 
 	fre("CONOUT$", "w", static_cast<FILE *>(iob(1))); // stdout
 	fre("CONOUT$", "w", static_cast<FILE *>(iob(2))); // stderr
-	fre("CONIN$",  "r", static_cast<FILE *>(iob(0))); // stdin
+	fre("CONIN$", "r", static_cast<FILE *>(iob(0)));  // stdin
 }
 
 // Load the real dinput8 from the system directory and resolve its exports.
@@ -94,10 +95,11 @@ static void ensure_real() {
 		return;
 	}
 
-	#define PROXY(name, ret, proto, call, type) \
-	p##name = reinterpret_cast<name##Fn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, #name)));
+#define PROXY(name, ret, proto, call, type)                                                        \
+	p##name = reinterpret_cast<name##Fn>(                                                          \
+		reinterpret_cast<void *>(GetProcAddress(g_realDinput8, #name)));
 	LIST_OF_PROXIES
-	#undef PROXY
+#undef PROXY
 }
 
 // Try to load a payload DLL from the shim's own directory.
@@ -142,9 +144,16 @@ static DWORD WINAPI payload_thread(LPVOID param) {
 	DWORD err = GetLastError();
 	const char *hint = "";
 	switch (err) {
-		case 5:   hint = "5 = access denied\n"; break;
-		case 126: hint = "126 = module or dependency missing (file absent or VC++ runtime?)\n"; break;
-		case 225: hint = "225 = blocked by Windows Defender / AV (add bin folder exclusion, restore quarantined DLL)\n"; break;
+	case 5:
+		hint = "5 = access denied\n";
+		break;
+	case 126:
+		hint = "126 = module or dependency missing (file absent or VC++ runtime?)\n";
+		break;
+	case 225:
+		hint = "225 = blocked by Windows Defender / AV (add bin folder exclusion, restore "
+			   "quarantined DLL)\n";
+		break;
 	}
 	if (hint[0] != '\0') {
 		log_msg("[dinput8] Load failed (GetLastError=%lu) %s\n", err, hint);
@@ -181,8 +190,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 			}
 			if (slash != nullptr) {
 				slash[1] = '\0';
-				strncat(path, "boot.log",
-						sizeof(path) - strlen(path) - 1);
+				strncat(path, "boot.log", sizeof(path) - strlen(path) - 1);
 			} else {
 				strncpy(path, "boot.log", sizeof(path) - 1);
 				path[sizeof(path) - 1] = '\0';
@@ -217,13 +225,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 	return TRUE;
 }
 
-#define PROXY(name, ret, proto, call, ...) \
-extern "C" __declspec(dllexport) HRESULT __stdcall name proto { \
-	ensure_real(); \
-	if (p##name == nullptr){ \
-		return ret; \
-	} \
-	return p##name call; \
-}
+#define PROXY(name, ret, proto, call, ...)                                                         \
+	extern "C" __declspec(dllexport) HRESULT __stdcall name proto {                                \
+		ensure_real();                                                                             \
+		if (p##name == nullptr) {                                                                  \
+			return ret;                                                                            \
+		}                                                                                          \
+		return p##name call;                                                                       \
+	}
 LIST_OF_PROXIES
 #undef PROXY

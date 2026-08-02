@@ -4,7 +4,7 @@
 
 #include <minwindef.h>
 
-DWORD MenuThread(Main* main);
+DWORD MenuThread(Main *main);
 void unhookAll();
 void imguiInit();
 

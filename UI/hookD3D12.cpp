@@ -1,78 +1,76 @@
+#include "MinHook/MinHook.h"
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_win32.h"
-#include "MinHook/MinHook.h"
 
 #include "Logger.h"
-#include "menu.h"
 #include "hookD3D12.h"
+#include "menu.h"
 #include "winProc.h"
 
-#include <windows.h>
-#include <wrl/client.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <windows.h>
+#include <wrl/client.h>
 
 #include <vector>
 
 using Microsoft::WRL::ComPtr;
 
-constexpr size_t kPresentIndex  = 8;             // Present
-constexpr size_t kResizeBuffersIndex = 13;       // ResizeBuffers
+constexpr size_t kPresentIndex = 8;				 // Present
+constexpr size_t kResizeBuffersIndex = 13;		 // ResizeBuffers
 constexpr size_t kExecuteCommandListsIndex = 10; // ExecuteCommandLists
 
-static HWND                       hDummyWindow = nullptr;
-static const wchar_t* dummyClassName = L"DummyWndClass";
+static HWND hDummyWindow = nullptr;
+static const wchar_t *dummyClassName = L"DummyWndClass";
 
-static ComPtr<IDXGISwapChain3>       pSwapChain = nullptr;
-static ComPtr<ID3D12Device>          pDevice = nullptr;
-static ComPtr<ID3D12CommandQueue>    pCommandQueue = nullptr;
+static ComPtr<IDXGISwapChain3> pSwapChain = nullptr;
+static ComPtr<ID3D12Device> pDevice = nullptr;
+static ComPtr<ID3D12CommandQueue> pCommandQueue = nullptr;
 
 struct FrameContext {
 	ComPtr<ID3D12CommandAllocator> allocator;
-	ComPtr<ID3D12Resource>         renderTarget;
-	D3D12_CPU_DESCRIPTOR_HANDLE    rtvHandle;
+	ComPtr<ID3D12Resource> renderTarget;
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle;
 };
 static std::vector<FrameContext> gFrameContexts;
 
-static ComPtr<ID3D12CommandQueue>        gCommandQueue = nullptr;
-static ComPtr<ID3D12DescriptorHeap>      gHeapRTV      = nullptr;
-static ComPtr<ID3D12DescriptorHeap>      gHeapSRV      = nullptr;
-static ComPtr<ID3D12GraphicsCommandList> gCommandList  = nullptr;
-static UINT                              gBufferCount  = 0;
+static ComPtr<ID3D12CommandQueue> gCommandQueue = nullptr;
+static ComPtr<ID3D12DescriptorHeap> gHeapRTV = nullptr;
+static ComPtr<ID3D12DescriptorHeap> gHeapSRV = nullptr;
+static ComPtr<ID3D12GraphicsCommandList> gCommandList = nullptr;
+static UINT gBufferCount = 0;
 
-#define HOOK(name, ret, ...) \
-typedef ret (APIENTRY* name##D3D12)(__VA_ARGS__); /* Function hook type */ \
-LPVOID      p##name##Target = nullptr;            /* Target function */ \
-static name##D3D12  o##name##D3D12 = nullptr;     /* Original function */
+#define HOOK(name, ret, ...)                                                                       \
+	typedef ret(APIENTRY *name##D3D12)(__VA_ARGS__); /* Function hook type */                      \
+	LPVOID p##name##Target = nullptr;				 /* Target function */                         \
+	static name##D3D12 o##name##D3D12 = nullptr;	 /* Original function */
 LIST_OF_D3D12HOOKS
 #undef HOOK
 
 static bool gInitialized = false;
-static bool gShutdown    = false;
+static bool gShutdown = false;
 
 static HRESULT createDummyObjects() {
-	WNDCLASSEXW wc = {
-		sizeof(WNDCLASSEXW),
-		CS_CLASSDC,
-		DefWindowProcW,
-		0, 0,
-		GetModuleHandleW(nullptr),
-		nullptr, nullptr, nullptr, nullptr,
-		dummyClassName,
-		nullptr
-	};
+	WNDCLASSEXW wc = {sizeof(WNDCLASSEXW),
+					  CS_CLASSDC,
+					  DefWindowProcW,
+					  0,
+					  0,
+					  GetModuleHandleW(nullptr),
+					  nullptr,
+					  nullptr,
+					  nullptr,
+					  nullptr,
+					  dummyClassName,
+					  nullptr};
 
 	if (!RegisterClassExW(&wc) && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) {
 		Logger::LogMessage("[UI/d3d12] RegisterClassExW failed: %u\n", GetLastError());
 		return E_FAIL;
 	}
 
-	hDummyWindow = CreateWindowExW(
-		0, dummyClassName, L"Dummy",
-		WS_OVERLAPPEDWINDOW,
-		0, 0, 1, 1,
-		nullptr, nullptr, wc.hInstance, nullptr
-	);
+	hDummyWindow = CreateWindowExW(0, dummyClassName, L"Dummy", WS_OVERLAPPEDWINDOW, 0, 0, 1, 1,
+								   nullptr, nullptr, wc.hInstance, nullptr);
 	if (!hDummyWindow) {
 		Logger::LogMessage("[UI/d3d12] CreateWindowExW failed: %u\n", GetLastError());
 		return E_FAIL;
@@ -110,13 +108,8 @@ static HRESULT createDummyObjects() {
 	scDesc.SampleDesc.Count = 1;
 
 	ComPtr<IDXGISwapChain1> swapChain1;
-	hr = factory->CreateSwapChainForHwnd(
-		pCommandQueue.Get(),
-		hDummyWindow,
-		&scDesc,
-		nullptr, nullptr,
-		&swapChain1
-	);
+	hr = factory->CreateSwapChainForHwnd(pCommandQueue.Get(), hDummyWindow, &scDesc, nullptr,
+										 nullptr, &swapChain1);
 	if (FAILED(hr)) {
 		Logger::LogMessage("[UI/d3d12] CreateSwapChainForHwnd failed: 0x%08X\n", hr);
 		return hr;
@@ -144,7 +137,7 @@ static void CleanupDummyObjects() {
 	pCommandQueue.Reset();
 }
 
-HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags) {
+HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UINT Flags) {
 	if (!activelyHooked) {
 		return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 	}
@@ -156,9 +149,9 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
 
 	if (!gInitialized) {
 		Logger::LogMessage("[UI/d3d12] Initializing ImGui on first Present.\n");
-		ID3D12Device* gDevice;
+		ID3D12Device *gDevice;
 
-		if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D12Device), (void**)&gDevice))) {
+		if (FAILED(pSwapChain->GetDevice(__uuidof(ID3D12Device), (void **)&gDevice))) {
 			Logger::LogMessage("[UI/d3d12] GetDevice: hr=0x%08X\n", E_FAIL);
 			return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 		}
@@ -192,31 +185,38 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
 		// Create command allocator for each frame
 		for (UINT i = 0; i < gBufferCount; ++i) {
 			if (FAILED(gDevice->CreateCommandAllocator(
-					D3D12_COMMAND_LIST_TYPE_DIRECT,
-					IID_PPV_ARGS(&gFrameContexts[i].allocator)))) {
+					D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&gFrameContexts[i].allocator)))) {
 				Logger::LogMessage("[UI/d3d12] CreateCommandAllocator: hr=0x%08X\n", E_FAIL);
 				return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 			}
 		}
 
-		const UINT rtvSize = gDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		const UINT rtvSize =
+			gDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = gHeapRTV->GetCPUDescriptorHandleForHeapStart();
 		for (UINT i = 0; i < gBufferCount; ++i) {
 			gFrameContexts[i].rtvHandle = rtvHandle;
 			pSwapChain->GetBuffer(i, IID_PPV_ARGS(&gFrameContexts[i].renderTarget));
-			gDevice->CreateRenderTargetView(gFrameContexts[i].renderTarget.Get(), nullptr, rtvHandle);
+			gDevice->CreateRenderTargetView(gFrameContexts[i].renderTarget.Get(), nullptr,
+											rtvHandle);
 			rtvHandle.ptr += rtvSize;
 		}
 
-		if (gDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, gFrameContexts[0].allocator.Get(), nullptr, IID_PPV_ARGS(&gCommandList)) != S_OK || gCommandList->Close() != S_OK) {
+		if (gDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+									   gFrameContexts[0].allocator.Get(), nullptr,
+									   IID_PPV_ARGS(&gCommandList)) != S_OK ||
+			gCommandList->Close() != S_OK) {
 			return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 		}
 
 		// ImGui setup
 		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGuiIO &io = ImGui::GetIO();
+		(void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		// Don't let ImGui set/hide the OS cursor - the game manages it during gameplay (it hides it for mouse-look). We draw ImGui's own cursor via io.MouseDrawCursor while the menu is open instead.
+		// Don't let ImGui set/hide the OS cursor - the game manages it during gameplay (it hides it
+		// for mouse-look). We draw ImGui's own cursor via io.MouseDrawCursor while the menu is open
+		// instead.
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 		ImGui::StyleColorsDark();
 		ImGui_ImplWin32_Init(desc.OutputWindow);
@@ -250,7 +250,7 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
 		imguiInit();
 
 		UINT frameIdx = pSwapChain->GetCurrentBackBufferIndex();
-		FrameContext& ctx = gFrameContexts[frameIdx];
+		FrameContext &ctx = gFrameContexts[frameIdx];
 
 		// Reset allocator and command list using frame-specific allocator
 		HRESULT hr = ctx.allocator->Reset();
@@ -275,7 +275,7 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
 		gCommandList->ResourceBarrier(1, &barrier);
 
 		gCommandList->OMSetRenderTargets(1, &ctx.rtvHandle, FALSE, nullptr);
-		ID3D12DescriptorHeap* rawHeap = gHeapSRV.Get();
+		ID3D12DescriptorHeap *rawHeap = gHeapSRV.Get();
 		gCommandList->SetDescriptorHeaps(1, &rawHeap);
 
 		ImGui::Render();
@@ -290,9 +290,8 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
 		// Execute
 		if (!gCommandQueue) {
 			Logger::LogMessage("[UI/d3d12] CommandQueue not set, skipping ExecuteCommandLists.\n");
-		}
-		else {
-			ID3D12CommandList* cmdList = gCommandList.Get();
+		} else {
+			ID3D12CommandList *cmdList = gCommandList.Get();
 			gCommandQueue->ExecuteCommandLists(1, &cmdList);
 		}
 	}
@@ -300,7 +299,8 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
 	return oPresentD3D12(pSwapChain, SyncInterval, Flags);
 }
 
-void APIENTRY hookExecuteCommandListsD3D12(ID3D12CommandQueue* queue, UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists) {
+void APIENTRY hookExecuteCommandListsD3D12(ID3D12CommandQueue *queue, UINT NumCommandLists,
+										   ID3D12CommandList *const *ppCommandLists) {
 	if (!gCommandQueue && queue->GetDesc().Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
 		gCommandQueue = queue;
 	}
@@ -322,8 +322,10 @@ void resetState() {
 	gHeapSRV = nullptr;
 }
 
-HRESULT APIENTRY hookResizeBuffersD3D12(IDXGISwapChain3* pSwapChain, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
-	Logger::LogMessage("[UI/d3d12] ResizeBuffers called: %ux%u Buffers=%u\n", Width, Height, BufferCount);
+HRESULT APIENTRY hookResizeBuffersD3D12(IDXGISwapChain3 *pSwapChain, UINT BufferCount, UINT Width,
+										UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags) {
+	Logger::LogMessage("[UI/d3d12] ResizeBuffers called: %ux%u Buffers=%u\n", Width, Height,
+					   BufferCount);
 
 	resetState();
 	return oResizeBuffersD3D12(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
@@ -342,8 +344,8 @@ HRESULT initD3D12Hooks() {
 	}
 	Logger::LogMessage("[UI/d3d12] Created dummy devices\n");
 
-	auto scVTable = *reinterpret_cast<void***>(pSwapChain.Get());
-	auto cqVTable = *reinterpret_cast<void***>(pCommandQueue.Get());
+	auto scVTable = *reinterpret_cast<void ***>(pSwapChain.Get());
+	auto cqVTable = *reinterpret_cast<void ***>(pCommandQueue.Get());
 
 	pPresentTarget = reinterpret_cast<LPVOID>(scVTable[kPresentIndex]);
 	pResizeBuffersTarget = reinterpret_cast<LPVOID>(scVTable[kResizeBuffersIndex]);
@@ -351,26 +353,25 @@ HRESULT initD3D12Hooks() {
 
 	MH_STATUS mh;
 
-	#define HOOK(name, ...) \
-		mh = MH_CreateHook( \
-			p##name##Target, \
-			reinterpret_cast<LPVOID>(hook##name##D3D12), \
-			reinterpret_cast<LPVOID*>(&o##name##D3D12) \
-		); \
-		if (mh != MH_OK) { \
-			Logger::LogMessage("[UI/d3d12] MH_CreateHook %s failed: %s\n", #name, MH_StatusToString(mh)); \
-			return E_FAIL; \
-		}
+#define HOOK(name, ...)                                                                            \
+	mh = MH_CreateHook(p##name##Target, reinterpret_cast<LPVOID>(hook##name##D3D12),               \
+					   reinterpret_cast<LPVOID *>(&o##name##D3D12));                               \
+	if (mh != MH_OK) {                                                                             \
+		Logger::LogMessage("[UI/d3d12] MH_CreateHook %s failed: %s\n", #name,                      \
+						   MH_StatusToString(mh));                                                 \
+		return E_FAIL;                                                                             \
+	}
 	LIST_OF_D3D12HOOKS
-	#undef HOOK
-	#define HOOK(name, ...) \
-		mh = MH_EnableHook(p##name##Target); \
-		if (mh != MH_OK) { \
-			Logger::LogMessage("[UI/d3d12] MH_EnableHook %s failed: %s\n", #name, MH_StatusToString(mh)); \
-			return E_FAIL; \
-		}
+#undef HOOK
+#define HOOK(name, ...)                                                                            \
+	mh = MH_EnableHook(p##name##Target);                                                           \
+	if (mh != MH_OK) {                                                                             \
+		Logger::LogMessage("[UI/d3d12] MH_EnableHook %s failed: %s\n", #name,                      \
+						   MH_StatusToString(mh));                                                 \
+		return E_FAIL;                                                                             \
+	}
 	LIST_OF_D3D12HOOKS
-	#undef HOOK
+#undef HOOK
 
 	Logger::LogMessage("[UI/d3d12] Finished hooking\n");
 	return S_OK;
@@ -379,14 +380,14 @@ HRESULT initD3D12Hooks() {
 void UnhookD3D12() {
 	Logger::LogMessage("[UI/d3d12] Releasing resources and hooks\n");
 
-	#define HOOK(name, ...) \
-	if (p##name##Target) { \
-		MH_DisableHook(p##name##Target); \
-		MH_RemoveHook(p##name##Target); \
-		p##name##Target = nullptr; \
+#define HOOK(name, ...)                                                                            \
+	if (p##name##Target) {                                                                         \
+		MH_DisableHook(p##name##Target);                                                           \
+		MH_RemoveHook(p##name##Target);                                                            \
+		p##name##Target = nullptr;                                                                 \
 	}
 	LIST_OF_D3D12HOOKS
-	#undef HOOK
+#undef HOOK
 
 	Sleep(100);
 
