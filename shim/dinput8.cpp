@@ -7,20 +7,28 @@
 #include <cstring>
 #include <string>
 
-typedef HRESULT (__stdcall *DirectInput8CreateFn)(HINSTANCE, DWORD, REFIID, LPVOID *);
-typedef HRESULT (__stdcall *DllCanUnloadNowFn)(void);
-typedef HRESULT (__stdcall *DllGetClassObjectFn)(REFCLSID, REFIID, LPVOID *);
-typedef HRESULT (__stdcall *DllRegisterFn)(void);
+#define LIST_OF_PROXIES \
+    PROXY(DirectInput8Create, 0x80004005, \
+        (HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID *ppvOut), \
+        (hinst, dwVersion, riid, ppvOut), \
+        (HINSTANCE, DWORD, REFIID, LPVOID *)) \
+    PROXY(DllCanUnloadNow, 1, (void), (), (void)) \
+    PROXY(DllGetClassObject, 0x80040111, \
+        (REFCLSID rclsid, REFIID riid, LPVOID *ppv), \
+        (rclsid, riid, ppv), \
+        (REFCLSID, REFIID, LPVOID *)) \
+    PROXY(DllRegisterServer, 0x80004005, (void), (), (void)) \
+    PROXY(DllUnregisterServer, 0x80004005, (void), (), (void))
+
+#define PROXY(name, ret, proto, call, type) \
+typedef HRESULT (__stdcall *name##Fn)type; \
+static name##Fn p##name;
+LIST_OF_PROXIES
+#undef PROXY
 
 static HMODULE g_realDinput8;
 static HMODULE g_payload;
 static FILE   *g_log;
-
-static DirectInput8CreateFn  pDirectInput8Create;
-static DllCanUnloadNowFn     pDllCanUnloadNow;
-static DllGetClassObjectFn   pDllGetClassObject;
-static DllRegisterFn         pDllRegisterServer;
-static DllRegisterFn         pDllUnregisterServer;
 
 static void log_msg(const char *fmt, ...) {
     SYSTEMTIME st;
@@ -86,11 +94,10 @@ static void ensure_real() {
         return;
     }
 
-    pDirectInput8Create  = reinterpret_cast<DirectInput8CreateFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DirectInput8Create")));
-    pDllCanUnloadNow     = reinterpret_cast<DllCanUnloadNowFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllCanUnloadNow")));
-    pDllGetClassObject   = reinterpret_cast<DllGetClassObjectFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllGetClassObject")));
-    pDllRegisterServer   = reinterpret_cast<DllRegisterFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllRegisterServer")));
-    pDllUnregisterServer = reinterpret_cast<DllRegisterFn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, "DllUnregisterServer")));
+    #define PROXY(name, ret, proto, call, type) \
+    p##name = reinterpret_cast<name##Fn>(reinterpret_cast<void*>(GetProcAddress(g_realDinput8, #name)));
+    LIST_OF_PROXIES
+    #undef PROXY
 }
 
 // Try to load a payload DLL from the shim's own directory.
@@ -209,42 +216,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     return TRUE;
 }
 
-extern "C" HRESULT __stdcall DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID *ppvOut) {
-    ensure_real();
-    if (pDirectInput8Create == nullptr){
-        return 0x80004005;
-    }
-    return pDirectInput8Create(hinst, dwVersion, riid, ppvOut);
+#define PROXY(name, ret, proto, call, ...) \
+extern "C" HRESULT __stdcall name proto { \
+    ensure_real(); \
+    if (p##name == nullptr){ \
+        return ret; \
+    } \
+    return p##name call; \
 }
-
-extern "C" HRESULT __stdcall DllCanUnloadNow(void) {
-    ensure_real();
-    if (pDllCanUnloadNow == nullptr) {
-        return 1;
-    }
-    return pDllCanUnloadNow();
-}
-
-extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv) {
-    ensure_real();
-    if (pDllGetClassObject == nullptr) {
-        return 0x80040111; // CLASS_E_CLASSNOTAVAILABLE
-    }
-    return pDllGetClassObject(rclsid, riid, ppv);
-}
-
-extern "C" HRESULT __stdcall DllRegisterServer(void) {
-    ensure_real();
-    if (pDllRegisterServer == nullptr) {
-        return 0x80004005;
-    }
-    return pDllRegisterServer();
-}
-
-extern "C" HRESULT __stdcall DllUnregisterServer(void) {
-    ensure_real();
-    if (pDllUnregisterServer == nullptr) {
-        return 0x80004005;
-    }
-    return pDllUnregisterServer();
-}
+LIST_OF_PROXIES
+#undef PROXY
