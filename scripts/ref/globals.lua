@@ -51,8 +51,8 @@
 [function] StartBareKnuckleArena
 [function] SetSecurityCamInitialTarget
 [table] CProximityManager
-  [function] RemoveProximityEntry
-  [function] AddLuaProximityEntry
+	[function] RemoveProximityEntry
+	[function] AddLuaProximityEntry
 [function] RegisterOnHideObjectiveCompletedScriptCallback_v2
 [function] EnableReinforcementCalls
 [function] GetVehicleReliabilityFactor
@@ -71,34 +71,34 @@
 [function] GetRuleSmithFloat
 [function] ResetKeyIntel
 [table] CScriptCallbackSystem
-  [function] RemoveMissionCallback
-  [function] RegisterMasterVariableCallback
-  [function] RegisterOnSpawnCallback
-  [function] UnregisterMessageListener
-  [function] RegisterNoEntityCallback
-  [function] BroadcastMessage
-  [function] RegisterCLOCallback
-  [function] RegisterMessageListener
-  [function] RemoveGroupBehaviorCallback
-  [function] RemoveNetworkVariableCallback
-  [function] RemoveCLOCallback
-  [function] RegisterTagCallback
-  [function] RemoveNoEntityCallback
-  [function] RegisterPlayerVariableCallback
-  [function] RegisterMissionNoEntityCallback
-  [function] RegisterMissionEventCallback
-  [function] RemoveTagCallback
-  [function] RegisterPlayerEventCallback
-  [function] RemoveCallbacks
-  [function] RemovePlayerEventCallback
-  [function] RemoveMasterVariableCallback
-  [function] RegisterNetworkVariableCallback
-  [function] RemoveCallback
-  [function] RegisterOnRemoveCallback
-  [function] RemovePlayerVariableCallback
-  [function] RegisterNonRepeatableConversationPlayedCallback
-  [function] RegisterEventCallback
-  [function] RegisterGroupBehaviorCallback
+	[function] RemoveMissionCallback
+	[function] RegisterMasterVariableCallback
+	[function] RegisterOnSpawnCallback
+	[function] UnregisterMessageListener
+	[function] RegisterNoEntityCallback
+	[function] BroadcastMessage
+	[function] RegisterCLOCallback
+	[function] RegisterMessageListener
+	[function] RemoveGroupBehaviorCallback
+	[function] RemoveNetworkVariableCallback
+	[function] RemoveCLOCallback
+	[function] RegisterTagCallback
+	[function] RemoveNoEntityCallback
+	[function] RegisterPlayerVariableCallback
+	[function] RegisterMissionNoEntityCallback
+	[function] RegisterMissionEventCallback
+	[function] RemoveTagCallback
+	[function] RegisterPlayerEventCallback
+	[function] RemoveCallbacks
+	[function] RemovePlayerEventCallback
+	[function] RemoveMasterVariableCallback
+	[function] RegisterNetworkVariableCallback
+	[function] RemoveCallback
+	[function] RegisterOnRemoveCallback
+	[function] RemovePlayerVariableCallback
+	[function] RegisterNonRepeatableConversationPlayedCallback
+	[function] RegisterEventCallback
+	[function] RegisterGroupBehaviorCallback
 [function] PushIntoFirstPerson
 [function] MK2BossSetCallReinforcementsRequested
 [function] ConnectMicrophoneToCamera
@@ -184,15 +184,15 @@
 [function] EnablePlayerBarks
 [function] GetProjectileItemId
 [table] table
-  [function] setn
-  [function] insert
-  [function] getn
-  [function] foreachi
-  [function] maxn
-  [function] foreach
-  [function] concat
-  [function] sort
-  [function] remove
+	[function] setn
+	[function] insert
+	[function] getn
+	[function] foreachi
+	[function] maxn
+	[function] foreach
+	[function] concat
+	[function] sort
+	[function] remove
 [function] IncrementAchievementStat
 [function] HasPlayerTag
 [function] ShowRaidLogMessage
@@ -211,42 +211,42 @@
 [function] loadfile
 [function] SetBlockAllShortcuts
 [table] Boxes
-  [table] $#12425540729730993724
-  [table] $#12601442446967351088
-  [table] $#12492354944908691870
-  [table] $#13587607335433288366
-  [table] $#11920298444469558227
-  [table] $#13373471956015405330
-  [table] $#12668561872033521766
-  [table] $#12875056227079994453
-  [table] $#12820967502072279329
-  [table] $#13387533394551721714
-  [table] $#11903852119638105234
-  [table] $#12661365196756156535
-  [table] $#11688501303088530754
-  [table] $#12468525942712112476
-  [table] $#12901585626212579984
-  [table] $#12909453285893757745
-  [table] $#12838221520295615652
-  [table] $#12767985863398295097
-  [table] $#11827658394850135725
-  [table] $#13088217840219537028
-  [table] $#11774311920632554910
-  [table] $#13767514982202876108
-  [table] $#11837308880690823484
-  [table] $#12027381437111121488
-  [table] $#11945319605589501471
-  [table] $#12639335088566432681
-  [table] $#13010696795444806591
-  [table] $#13368780475557464521
-  [table] $#13145353614693073554
-  [table] $#12032768204075208455
-  [table] $#12200083980145434612
-  [table] $#12205219563579562452
-  [table] $#11846962925606128052
-  [table] $#12496490172245748589
-  [table] $#12070598768694393511
-  [table] $#11990583568457865907
+	[table] $#12425540729730993724
+	[table] $#12601442446967351088
+	[table] $#12492354944908691870
+	[table] $#13587607335433288366
+	[table] $#11920298444469558227
+	[table] $#13373471956015405330
+	[table] $#12668561872033521766
+	[table] $#12875056227079994453
+	[table] $#12820967502072279329
+	[table] $#13387533394551721714
+	[table] $#11903852119638105234
+	[table] $#12661365196756156535
+	[table] $#11688501303088530754
+	[table] $#12468525942712112476
+	[table] $#12901585626212579984
+	[table] $#12909453285893757745
+	[table] $#12838221520295615652
+	[table] $#12767985863398295097
+	[table] $#11827658394850135725
+	[table] $#13088217840219537028
+	[table] $#11774311920632554910
+	[table] $#13767514982202876108
+	[table] $#11837308880690823484
+	[table] $#12027381437111121488
+	[table] $#11945319605589501471
+	[table] $#12639335088566432681
+	[table] $#13010696795444806591
+	[table] $#13368780475557464521
+	[table] $#13145353614693073554
+	[table] $#12032768204075208455
+	[table] $#12200083980145434612
+	[table] $#12205219563579562452
+	[table] $#11846962925606128052
+	[table] $#12496490172245748589
+	[table] $#12070598768694393511
+	[table] $#11990583568457865907
 [function] SmartphoneIsAppInstalled
 [function] RegisterObjectiveUpdatedScriptCallback
 [function] RegisterOnShowObjectiveCompletedScriptCallback_v2
@@ -268,31 +268,31 @@
 [function] RetrieveHackableCiviliansAround
 [function] ExecuteConsoleCommand
 [table] CBuddyAIManager
-  [function] AddMonitorOnBuddy
-  [function] RequestIdle
-  [function] RemoveMonitorFromBuddy
-  [function] RequestFollow
-  [function] GoToMonitoredCLO
-  [function] UpdateBuddyAISettings
-  [function] RequestPatrol
+	[function] AddMonitorOnBuddy
+	[function] RequestIdle
+	[function] RemoveMonitorFromBuddy
+	[function] RequestFollow
+	[function] GoToMonitoredCLO
+	[function] UpdateBuddyAISettings
+	[function] RequestPatrol
 [function] CollectibleGetCurrentAmount
 [function] DisableDebugAnnotationEntity
 [function] UnregisterObjectiveCompletedScriptCallback_v2
 [function] HasMediaSystemChannelLoopedOnce
 [function] AddOrRemoveRacePath
 [table] Game
-  [function] RTRegen
-  [function] SetMaxFrameRate
-  [function] DeActivateLog
-  [function] RTGenesis
-  [function] RTDefoliant
-  [function] ActivateLog
-  [function] AnimStartRecording
-  [function] GetLocalPlayerId
-  [function] RTSetWindForce
-  [function] Exec
-  [function] RunBatch
-  [userdata] __nativedata
+	[function] RTRegen
+	[function] SetMaxFrameRate
+	[function] DeActivateLog
+	[function] RTGenesis
+	[function] RTDefoliant
+	[function] ActivateLog
+	[function] AnimStartRecording
+	[function] GetLocalPlayerId
+	[function] RTSetWindForce
+	[function] Exec
+	[function] RunBatch
+	[userdata] __nativedata
 [function] GetDirectlyLinkedEntities
 [function] VehicleRestrictedZone
 [function] ForceVehicleStop
@@ -339,20 +339,20 @@
 [function] ChangeCameraControlledNavigationSettings
 [function] UnregisterReinforcementCaller
 [table] debug
-  [function] getupvalue
-  [function] debug
-  [function] sethook
-  [function] getmetatable
-  [function] gethook
-  [function] setmetatable
-  [function] setlocal
-  [function] traceback
-  [function] setfenv
-  [function] getinfo
-  [function] setupvalue
-  [function] getlocal
-  [function] getregistry
-  [function] getfenv
+	[function] getupvalue
+	[function] debug
+	[function] sethook
+	[function] getmetatable
+	[function] gethook
+	[function] setmetatable
+	[function] setlocal
+	[function] traceback
+	[function] setfenv
+	[function] getinfo
+	[function] setupvalue
+	[function] getlocal
+	[function] getregistry
+	[function] getfenv
 [function] RegisterPersonOfInterest
 [function] DeactivateCLOForever
 [function] MediaSystemStartBroadcast
@@ -446,8 +446,8 @@
 [function] ShowWarningMessage
 [function] ShowWarningMessageV2
 [table] CAIAgentRandomActionManager
-  [function] AddLuaStateLevelCheckEntry
-  [function] RemovedLuaStateLevelCheckEntry
+	[function] AddLuaStateLevelCheckEntry
+	[function] RemovedLuaStateLevelCheckEntry
 [function] SetCurrentUIMissionsAppVillainViewData
 [function] rawequal
 [function] GetNetworkSurfingState
@@ -489,12 +489,12 @@
 [function] ApplyLoadedBufferOnChannels
 [function] CreateSquad
 [table] coroutine
-  [function] resume
-  [function] yield
-  [function] status
-  [function] wrap
-  [function] create
-  [function] running
+	[function] resume
+	[function] yield
+	[function] status
+	[function] wrap
+	[function] create
+	[function] running
 [function] FelonyAddVehicleExclusionZone
 [function] HideCameraClippedEntity
 [function] ForceUserOutOfCamera
@@ -503,21 +503,21 @@
 [function] BindGameplayBeatWithEntity
 [function] EnableMissionSoftQuit
 [table] string
-  [function] sub
-  [function] upper
-  [function] len
-  [function] gfind
-  [function] rep
-  [function] find
-  [function] match
-  [function] char
-  [function] dump
-  [function] gmatch
-  [function] reverse
-  [function] byte
-  [function] format
-  [function] gsub
-  [function] lower
+	[function] sub
+	[function] upper
+	[function] len
+	[function] gfind
+	[function] rep
+	[function] find
+	[function] match
+	[function] char
+	[function] dump
+	[function] gmatch
+	[function] reverse
+	[function] byte
+	[function] format
+	[function] gsub
+	[function] lower
 [function] SetInVehicleCamera
 [function] StartPhoneCallId
 [function] SetCoverToCoverAllowedOverride
@@ -529,12 +529,12 @@
 [function] UnregisterCharacterAbilityMonitorEvent
 [function] UnBindIconEntities
 [table] CDominoSoundManager
-  [function] PlaySound_v2
-  [function] SetEnableAmbiance
-  [function] PlayDialogWithSubtitle
-  [function] PlayDialogWithSubtitle_v2
-  [function] PlayDialogWithSubtitle_v3
-  [function] PlaySound
+	[function] PlaySound_v2
+	[function] SetEnableAmbiance
+	[function] PlayDialogWithSubtitle
+	[function] PlayDialogWithSubtitle_v2
+	[function] PlayDialogWithSubtitle_v3
+	[function] PlaySound
 [function] GetToyCarId
 [function] GetDBVariableBool
 [function] IsInteractionUserRcVehicle
@@ -552,13 +552,13 @@
 [function] GetItemCountAtWheelPos
 [function] PopPlayerActionMap
 [table] CGameplayConversationManager
-  [function] StopConvoFromLUA
-  [function] ResumeConvoFromLUA
-  [function] PlayConvoFromLUA
-  [function] StopInteraction
-  [function] StartInteractionFromLUA
-  [function] PauseConvoFromLUA
-  [function] PlayConvoOnEntityListFromLUA
+	[function] StopConvoFromLUA
+	[function] ResumeConvoFromLUA
+	[function] PlayConvoFromLUA
+	[function] StopInteraction
+	[function] StartInteractionFromLUA
+	[function] PauseConvoFromLUA
+	[function] PlayConvoOnEntityListFromLUA
 [function] StartPlasmaPhoneCommunication_EvenInBareknuckle
 [function] SetEntityPosition
 [function] IsDetectionAlertFull
@@ -583,8 +583,8 @@
 [function] SetMissionAreaObjectiveExitingArea
 [function] RemoveMissionWaypoint
 [table] CEnvironmentManager
-  [function] ResetVisibleGIGroup
-  [function] SetVisibleGIGroupBit
+	[function] ResetVisibleGIGroup
+	[function] SetVisibleGIGroupBit
 [function] PushEnvironmentWeatherOverride
 [function] StartPlasmaPhoneCommunicationV2
 [function] UpdateConvoy
@@ -598,7 +598,7 @@
 [function] ReinforcementStopReinforcing_v5
 [function] StartPhoneCallChat
 [table] CDialogManager
-  [function] SetMinimumPlayablePriority
+	[function] SetMinimumPlayablePriority
 [function] CreateDownloadGameplayWithDB_v1
 [function] StopSquad
 [function] DisableSpecialBroadcastSubtitles
@@ -615,17 +615,17 @@
 [function] ReinforcementRepeatWave
 [function] SetHandsInPocketsAllowed
 [table] LuaLibCore
-  [function] ThrowError
-  [function] IsPlugged
-  [function] AssertNotNil
-  [function] ShowErrorMessage
-  [function] VerifyDataInputEntity
-  [function] IsCloUsable
-  [function] VerifyDataInputEntityList
-  [function] GetProjectName
-  [function] IsEntityUsable
-  [function] GetCurrentBoxName
-  [function] DataError
+	[function] ThrowError
+	[function] IsPlugged
+	[function] AssertNotNil
+	[function] ShowErrorMessage
+	[function] VerifyDataInputEntity
+	[function] IsCloUsable
+	[function] VerifyDataInputEntityList
+	[function] GetProjectName
+	[function] IsEntityUsable
+	[function] GetCurrentBoxName
+	[function] DataError
 [function] error
 [function] HideEntity
 [function] GetLastHitLocation
@@ -649,8 +649,8 @@
 [function] StopMADScene
 [function] FelonyMuteEntities
 [table] CDominoConsoleCommandManager
-  [function] RegisterConsoleCommand
-  [function] UnregisterConsoleCommand
+	[function] RegisterConsoleCommand
+	[function] UnregisterConsoleCommand
 [function] TeleportPlayerOutsideHMA
 [function] FelonyOverrideSearchParams
 [function] StartFleeBehavior
@@ -676,44 +676,44 @@
 [function] SquadTryToCreateUntargetedSearch_v2
 [function] PutPlayerInVehicle
 [table] CDominoDelayManager
-  [function] GetDelay
-  [function] RemoveDelay
-  [function] SetDelay
-  [function] CreateDelay
-  [function] SendCommand
+	[function] GetDelay
+	[function] RemoveDelay
+	[function] SetDelay
+	[function] CreateDelay
+	[function] SendCommand
 [function] ReinforcementAdoptScriptedAgents
 [table] math
-  [function] log
-  [function] max
-  [function] acos
-  [number] huge
-  [function] ldexp
-  [number] pi
-  [function] cos
-  [function] tanh
-  [function] pow
-  [function] deg
-  [function] tan
-  [function] cosh
-  [function] sinh
-  [function] random
-  [function] randomseed
-  [function] frexp
-  [function] ceil
-  [function] floor
-  [function] rad
-  [function] abs
-  [function] sqrt
-  [function] modf
-  [function] asin
-  [function] min
-  [function] mod
-  [function] fmod
-  [function] log10
-  [function] atan2
-  [function] exp
-  [function] sin
-  [function] atan
+	[function] log
+	[function] max
+	[function] acos
+	[number] huge
+	[function] ldexp
+	[number] pi
+	[function] cos
+	[function] tanh
+	[function] pow
+	[function] deg
+	[function] tan
+	[function] cosh
+	[function] sinh
+	[function] random
+	[function] randomseed
+	[function] frexp
+	[function] ceil
+	[function] floor
+	[function] rad
+	[function] abs
+	[function] sqrt
+	[function] modf
+	[function] asin
+	[function] min
+	[function] mod
+	[function] fmod
+	[function] log10
+	[function] atan2
+	[function] exp
+	[function] sin
+	[function] atan
 [function] StopFluidEffector
 [function] GetPawnHealthPercentage
 [function] SendAICmdSetCombat
@@ -755,21 +755,21 @@
 [function] TestDbObjectEngineFunction
 [function] SetPlayerVariablePlayerId
 [table] CDominoManager
-  [function] TraceConnection
-  [function] SendCommandEventToEntity
-  [function] RemoveDominoEntity
-  [function] QueueCommandEventToEntity
-  [function] IsScriptAutorunEnabled
-  [function] SendCommandEventToEntity2
-  [function] UnregisterEntityListForGameplayReadyCallback
-  [function] TraceError
-  [function] QueueCommandEventToEntity2
-  [function] SpawnDominoEntity
-  [function] UnregisterDominoInputListenerSignal
-  [function] RegisterEntityListForGameplayReadyCallback
-  [function] SendRegisteredEventToEntity
-  [function] RegisterDominoInputListenerSignal
-  [function] RemoveCommandEventToEntity
+	[function] TraceConnection
+	[function] SendCommandEventToEntity
+	[function] RemoveDominoEntity
+	[function] QueueCommandEventToEntity
+	[function] IsScriptAutorunEnabled
+	[function] SendCommandEventToEntity2
+	[function] UnregisterEntityListForGameplayReadyCallback
+	[function] TraceError
+	[function] QueueCommandEventToEntity2
+	[function] SpawnDominoEntity
+	[function] UnregisterDominoInputListenerSignal
+	[function] RegisterEntityListForGameplayReadyCallback
+	[function] SendRegisteredEventToEntity
+	[function] RegisterDominoInputListenerSignal
+	[function] RemoveCommandEventToEntity
 [function] SetPatrolSpeed_v2
 [function] GetAICommand_InvalidID
 [function] ChangePlayerGkModelFromHumanConfigAndVoiceActor
@@ -878,12 +878,12 @@
 [string] name
 [function] ResetDrunk
 [table] LuaLibStateless
-  [function] Clone
+	[function] Clone
 [function] AssignGlobalDynamicActor
 [function] FelonyRemoveVehicleExclusionZone
 [table] CLivingCityManager
-  [function] AddLuaCLOGroupMonitor
-  [function] RemoveLuaCLOGroupMonitor
+	[function] AddLuaCLOGroupMonitor
+	[function] RemoveLuaCLOGroupMonitor
 [string] _VERSION
 [function] IsNarrativePlayingInTheQueue
 [function] CDominoConsoleCommandManager_GetInstance
@@ -909,26 +909,26 @@
 [function] ShutdownVehicleEngine
 [function] rawset
 [table] Mission
-  [function] Event__SaveGame
-  [function] Event__Game_PlayBinkVideo
-  [function] Event__Debug_DrawText
-  [function] Event__SetTransitionToLowContrast
-  [function] Event__Game_PauseSequence
-  [function] Event__SetWaterLevel
-  [function] Event__SwitchCinematicCamera
-  [function] Event__Debug_LogToConsole
-  [function] Event__Game_SendSimpleEvent
-  [function] Event__SetTimeOfDay
-  [function] Event__Debug_Warning
-  [function] Event__SwitchToFirstPersonCamera
-  [function] Event__Game_ResumeSequence
-  [function] Event__Game_PlaySequence
-  [function] Event__MissionSetState
-  [function] Event__Game_StopSequence
+	[function] Event__SaveGame
+	[function] Event__Game_PlayBinkVideo
+	[function] Event__Debug_DrawText
+	[function] Event__SetTransitionToLowContrast
+	[function] Event__Game_PauseSequence
+	[function] Event__SetWaterLevel
+	[function] Event__SwitchCinematicCamera
+	[function] Event__Debug_LogToConsole
+	[function] Event__Game_SendSimpleEvent
+	[function] Event__SetTimeOfDay
+	[function] Event__Debug_Warning
+	[function] Event__SwitchToFirstPersonCamera
+	[function] Event__Game_ResumeSequence
+	[function] Event__Game_PlaySequence
+	[function] Event__MissionSetState
+	[function] Event__Game_StopSequence
 [function] ResetVRPuzzle
 [function] FelonySetHeat
 [table] CDominoWaterLevelManager
-  [function] SetWaterLevel
+	[function] SetWaterLevel
 [function] TriggerChatLine
 [function] CTerrain_GetInstance
 [function] UnRegisterOpPersonToCLO
@@ -994,25 +994,25 @@
 [function] AddCensusActorListener
 [function] UnloadLMALayer
 [table] CSequenceManager
-  [function] DominoSkipSequence
-  [function] ClearDominoEntityPool
-  [function] DominoStartSequence
-  [function] StartMetaSequence
-  [function] DominoModifySequenceEntry
-  [function] DominoResumeSequence
-  [function] GetSequenceDominoName
-  [function] DominoGetEntityAtAnchor
-  [function] AddDominoEntity
-  [function] DominoGetSequenceSyncPointName
-  [function] DominoStartSequenceFromBeginningWithMetaId
-  [function] DominoLoopSequence
-  [function] DominoPauseSequence
-  [function] DominoStopSequence
-  [function] DominoStartSequenceWithMetaId
-  [function] DominoStartAtSyncPointWithMetaId
-  [function] DominoStartSequenceFromBeginning
-  [function] DominoStartAtSyncPoint
-  [function] StopMetaSequence
+	[function] DominoSkipSequence
+	[function] ClearDominoEntityPool
+	[function] DominoStartSequence
+	[function] StartMetaSequence
+	[function] DominoModifySequenceEntry
+	[function] DominoResumeSequence
+	[function] GetSequenceDominoName
+	[function] DominoGetEntityAtAnchor
+	[function] AddDominoEntity
+	[function] DominoGetSequenceSyncPointName
+	[function] DominoStartSequenceFromBeginningWithMetaId
+	[function] DominoLoopSequence
+	[function] DominoPauseSequence
+	[function] DominoStopSequence
+	[function] DominoStartSequenceWithMetaId
+	[function] DominoStartAtSyncPointWithMetaId
+	[function] DominoStartSequenceFromBeginning
+	[function] DominoStartAtSyncPoint
+	[function] StopMetaSequence
 [function] RemoveGameplayBeatLoadingScreen
 [function] GetDroneRegressSpeed
 [function] GetCurrentHealth
@@ -1146,12 +1146,12 @@
 [function] IndicatorSetLocNameId
 [function] ForceHideTagIndicator
 [table] CDominoBoxInstance
-  [function] GetParentEntity
-  [function] GetParentOpId
-  [function] GetParentOpIdAndGameplayBeatIdAsAJSONString
-  [function] GetParentGameplayBeatId
-  [function] CreateBox
-  [function] GetParentMissionId
+	[function] GetParentEntity
+	[function] GetParentOpId
+	[function] GetParentOpIdAndGameplayBeatIdAsAJSONString
+	[function] GetParentGameplayBeatId
+	[function] CreateBox
+	[function] GetParentMissionId
 [function] DisableHackingSelector
 [function] PlayPrioritySong
 [function] UnregisterPlayableOperativesCountRequest
@@ -1169,21 +1169,21 @@
 [function] SetGraphicObjectIntensity
 [function] GetProgressionUpgradeLevel
 [table] package
-  [table] preload
-  [function] loadlib
-  [table] loaded
-  [table] loaders
-  [string] cpath
-  [string] config
-  [string] path
-  [function] seeall
+	[table] preload
+	[function] loadlib
+	[table] loaded
+	[table] loaders
+	[string] cpath
+	[string] config
+	[string] path
+	[function] seeall
 [function] IsInventoryWeaponInLoadout
 [function] CDominoSoundManager_GetInstance
 [function] IsPredefinedPremiumOperative
 [function] GetEnableLight
 [function] GetBaseHealth
 [table] CTerrain
-  [function] GetSector
+	[function] GetSector
 [function] HasMasterVariable
 [function] PlayDominoDialogControlFacial
 [function] ActivateCLO
@@ -1199,10 +1199,10 @@
 [function] SetMissionAreaShapeType
 [function] FelonyStartChase
 [table] CDominoBoxResource
-  [function] RegisterGlobals
-  [function] LoadResource
-  [function] RegisterLibrary
-  [function] RegisterBox
+	[function] RegisterGlobals
+	[function] LoadResource
+	[function] RegisterLibrary
+	[function] RegisterBox
 [function] SendDamageToEntity_v2
 [function] SetOperativeUnavailable
 [function] OpenDoor
@@ -1211,19 +1211,19 @@
 [function] IsRelicFound
 [function] FelonyClearSearchParams
 [table] LuaLibEvents
-  [function] RegisterMessageListener
-  [function] RegisterSpawnListener
-  [function] RegisterGenericEvent
-  [function] RegisterEvent
-  [function] GroupSendRegisteredEvent
-  [function] UnregisterSpawnListener
-  [function] GroupRegisterEvent
-  [function] RegisterMissionEvent
-  [function] UnregisterMessageListener
-  [function] UnregisterGenericEvent
-  [function] UnregisterMissionEvent
-  [function] GroupUnregisterEvent
-  [function] UnregisterEvent
+	[function] RegisterMessageListener
+	[function] RegisterSpawnListener
+	[function] RegisterGenericEvent
+	[function] RegisterEvent
+	[function] GroupSendRegisteredEvent
+	[function] UnregisterSpawnListener
+	[function] GroupRegisterEvent
+	[function] RegisterMissionEvent
+	[function] UnregisterMessageListener
+	[function] UnregisterGenericEvent
+	[function] UnregisterMissionEvent
+	[function] GroupUnregisterEvent
+	[function] UnregisterEvent
 [function] ForceLeverageNPC
 [function] SendActivateAlarmEvent
 [function] ShowTextSubtitleFunction
@@ -1329,9 +1329,9 @@
 [function] StopBenchmark
 [function] DrawTextToScreen
 [table] CAIAgentManager
-  [function] GetAIAgentsOfGroupFromLUA
-  [function] GetAIAgentsOfGroupFromLUA_v2
-  [function] GetAIDronesFromLUA
+	[function] GetAIAgentsOfGroupFromLUA
+	[function] GetAIAgentsOfGroupFromLUA_v2
+	[function] GetAIDronesFromLUA
 [function] RemoveItem
 [function] MenuClosed
 [function] load
@@ -1427,25 +1427,25 @@
 [function] CreateReachGameplay_v5
 [function] StartPhoneCallEmail
 [table] os
-  [function] exit
-  [function] setlocale
-  [function] date
-  [function] getenv
-  [function] difftime
-  [function] remove
-  [function] time
-  [function] clock
-  [function] tmpname
-  [function] rename
-  [function] execute
+	[function] exit
+	[function] setlocale
+	[function] date
+	[function] getenv
+	[function] difftime
+	[function] remove
+	[function] time
+	[function] clock
+	[function] tmpname
+	[function] rename
+	[function] execute
 [table] CDominoTimerManager
-  [function] RemoveTimer
-  [function] CreateTimer
-  [function] IsPaused
-  [function] Start
-  [function] GetTime
-  [function] Pause
-  [function] Resume
+	[function] RemoveTimer
+	[function] CreateTimer
+	[function] IsPaused
+	[function] Start
+	[function] GetTime
+	[function] Pause
+	[function] Resume
 [function] GetAllEnemies
 [function] GetMaximumNumPremiumOperativesAllowedInHackerspace
 [function] SetKeyIntelIdInvasion
@@ -1486,20 +1486,20 @@
 [function] RegisterAmmoCountBelowThresholdCallback
 [function] StartVehicleSpeedStats
 [table] io
-  [function] lines
-  [function] write
-  [function] close
-  [function] flush
-  [function] open
-  [function] output
-  [function] type
-  [function] read
-  [userdata] stderr
-  [userdata] stdin
-  [function] input
-  [userdata] stdout
-  [function] popen
-  [function] tmpfile
+	[function] lines
+	[function] write
+	[function] close
+	[function] flush
+	[function] open
+	[function] output
+	[function] type
+	[function] read
+	[userdata] stderr
+	[userdata] stdin
+	[function] input
+	[userdata] stdout
+	[function] popen
+	[function] tmpfile
 [function] GetEntityPosition
 [function] GetCurrentVehicleEntityId
 [function] StartFollow
