@@ -9,3 +9,4 @@ void unhookAll();
 void imguiInit();
 
 inline BOOL activelyHooked = false;
+inline BOOL menuOpen = false;

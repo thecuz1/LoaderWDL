@@ -14,6 +14,7 @@
 #include "Logger.h"
 #include "Main.h"
 #include "hookD3D12.h"
+#include "winProc.h"
 
 Main* mainInstance;
 
@@ -55,6 +56,8 @@ DWORD MenuThread(Main* main) {
     if (failed) {
         return 0;
     }
+
+    HookCursor();
 
     while (true) {
         Sleep(500);
@@ -154,7 +157,11 @@ void imguiInit() {
     // F1: tap to toggle
     if (GetAsyncKeyState(VK_F1) & 0x0001) {
         menu_open = !menu_open;
+        menuOpen = menu_open;
         Logger::LogMessage(menu_open ? "[F1] Opening menu...\n" : "[F1] Closing menu...\n");
+        if (menu_open) {
+            ClipCursor(nullptr);
+        }
     }
 
     if (!menu_open) {
@@ -208,6 +215,17 @@ void imguiInit() {
         }
     }
    	if (ImGui::CollapsingHeader("Directory View"))	{
+
+        ImGui::SameLine();
+        ImGui::TextDisabled("(?)");
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip(
+                "Script selection:\n"
+                "  Click      - single-select\n"
+                "  CTRL+click - toggle selection\n\n"
+                "Selection is applied after the tree is drawn\n"
+                "(outside the render loop) to avoid flicker.");
+        }
 
  		if (g_treeDirty) {
  			uint32_t idx = 0;
