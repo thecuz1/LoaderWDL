@@ -7,15 +7,8 @@ repos:
       types_or: [c++, c, lua, yaml]
     - id: fix-byte-order-marker
       types_or: [c++, c, lua, yaml]
-  - repo: https://github.com/Selene0623/pre-commit-hooks-indents
-    rev: v0.0.2
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 'v22.1.8'
     hooks:
-    - id: indents-to-tabs
-      args: ["--spaces=4"]
+    - id: clang-format
       types_or: [c++, c]
-    - id: indents-to-tabs
-      args: ["--spaces=2"]
-      types_or: [lua]
-    - id: indents-to-spaces
-      args: ["--spaces=2"]
-      types_or: [yaml]
