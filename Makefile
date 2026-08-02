@@ -8,7 +8,7 @@ CCFLAGS  += -Wall -Wextra -std=c23 -ffunction-sections -fdata-sections
 INCLUDES += -I. -Ilua -Iimgui -Iimgui/backends -IUI
 
 LDFLAGS  += -shared -static -s -Wl,--gc-sections,--exclude-all-symbols
-LDLIBS   += -ld3d12 -ld3dcompiler -ldxgi -ldwmapi -lgdi32
+LDLIBS   += -ld3d11 -ld3d12 -ld3dcompiler -ldxgi -ldwmapi -lgdi32
 
 ifneq ("$(OFFSETS_156)", "")
     CXXFLAGS += -DOFFSETS_156

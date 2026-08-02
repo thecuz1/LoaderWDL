@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "Logger.h"
 #include "Main.h"
+#include "hookD3D11.h"
 #include "hookD3D12.h"
 #include "winProc.h"
 
@@ -22,8 +23,14 @@ HRESULT hookAll() {
     // if (FAILED(HookWindow())) {
     //     return E_FAIL;
     // }
-    if (FAILED(initD3D12Hooks())) {
-        return E_FAIL;
+    if (GetModuleHandleA("d3d11.dll")) {
+        if (FAILED(initD3D11Hooks())) {
+            return E_FAIL;
+        }
+    } else {
+        if (FAILED(initD3D12Hooks())) {
+            return E_FAIL;
+        }
     }
     activelyHooked = true;
     return S_OK;
@@ -31,7 +38,11 @@ HRESULT hookAll() {
 
 void unhookAll() {
     activelyHooked = false;
-    UnhookD3D12();
+    if (GetModuleHandleA("d3d11.dll")) {
+        UnhookD3D11();
+    } else {
+        UnhookD3D12();
+    }
     // UnhookWindow();
 }
 
@@ -40,8 +51,7 @@ DWORD MenuThread(Main* main) {
     if (GetModuleHandleA("d3d12.dll") && GetModuleHandleA("dxgi.dll")) {
         Logger::LogMessage("[UI/menu] DirectX 12 detected\n");
     } else if (GetModuleHandleA("d3d11.dll")) {
-        Logger::LogMessage("[UI/menu] Mod menu doesn't support DirectX 11, shutting down\n");
-        return 0;
+        Logger::LogMessage("[UI/menu] DirectX 11 detected\n");
     } else {
         Logger::LogMessage("[UI/menu] Unknown graphics library, mod menu shutting down\n");
         return 0;
@@ -73,6 +83,7 @@ DWORD MenuThread(Main* main) {
 
 struct ScriptNode {
     std::string name;
+    std::string path;      // full path relative to the game CWD, used to open the file
     bool isDir;
     uint32_t bitIndex;
     std::vector<ScriptNode> children;
@@ -87,6 +98,7 @@ void BuildScriptTree(std::vector<ScriptNode>& nodes, const std::filesystem::path
         if (ec) break;
         ScriptNode node;
         node.name = entry.path().filename().string();
+        node.path = entry.path().string();
         node.isDir = entry.is_directory(ec);
         if (node.isDir) BuildScriptTree(node.children, entry.path(), idx);
         node.bitIndex = idx++;
@@ -110,28 +122,36 @@ std::pair<bool, uint32_t> RenderTree(const std::vector<ScriptNode>& nodes, int* 
 		if (!node.isDir) {
 			node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-			if (ImGui::Button(("Run##" + std::to_string(node.bitIndex) + node.name).c_str())) {
-				std::ifstream scriptFile(node.name);
-				if (!scriptFile.is_open()) {
-				    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", node.name.c_str());
-				} else {
-				    Logger::LogMessage("[UI/menu] Opening script file: %s\n", node.name.c_str());
-				}
-				Logger::LogMessage("[UI/menu] Running script...\n");
-				std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), (std::istreambuf_iterator<char>()));
-				scriptFile.close();
-				mainInstance->Execute(context_lua_state, scriptContent.c_str());
+			ImGui::TreeNodeEx(node.name.c_str(), node_flags);
+			if (ImGui::IsItemClicked()) {
+				clicked = node.bitIndex;
+				any_clicked = true;
 			}
-		}
+			ImGui::SameLine();
+			if (ImGui::Button(("Run##" + std::to_string(node.bitIndex) + node.name).c_str())) {
+				if (!context_lua_state) {
+				    Logger::LogMessage("[UI/menu] Cannot run %s: context_lua_state not set (go in-game first)\n", node.name.c_str());
+				} else {
+					std::ifstream scriptFile(node.path);
+					if (!scriptFile.is_open()) {
+					    Logger::LogMessage("[UI/menu] Error opening script file: %s\n", node.name.c_str());
+					} else {
+					    Logger::LogMessage("[UI/menu] Opening script file: %s\n", node.name.c_str());
+						std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), (std::istreambuf_iterator<char>()));
+						scriptFile.close();
+						Logger::LogMessage("[UI/menu] Running script...\n");
+						mainInstance->Execute(context_lua_state, scriptContent.c_str());
+					}
+				}
+			}
+		} else {
+			bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags);
 
-		bool node_open = ImGui::TreeNodeEx(node.name.c_str(), node_flags);
+			if (ImGui::IsItemClicked()) {
+				clicked = node.bitIndex;
+				any_clicked = true;
+			}
 
-		if (ImGui::IsItemClicked()) {
-			clicked = node.bitIndex;
-			any_clicked = true;
-		}
-
-		if (node.isDir) {
 			if (node_open) {
 				auto clickState = RenderTree(node.children, selection_mask);
 
@@ -198,6 +218,14 @@ void imguiInit() {
     ImGui::SetNextWindowSize(ImVec2(450, 600), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(25, 25), ImGuiCond_FirstUseEver);
     ImGui::Begin("ScriptHook", &isOpen, flags);
+    // X button clicked: close the whole menu (not just the window) so it
+    // doesn't just re-open next frame.
+    if (!isOpen) {
+        menu_open = false;
+        menuOpen = false;
+        ImGui::GetIO().MouseDrawCursor = false;
+        Logger::LogMessage("[UI/menu] Menu closed via X\n");
+    }
     if (ImGui::CollapsingHeader("Run View")) {
         if (ImGui::TreeNode("Terminal")) {
             ImGui::InputTextMultiline(nullptr, script, sizeof(script));
@@ -220,9 +248,7 @@ void imguiInit() {
             ImGui::SetTooltip(
                 "Script selection:\n"
                 "  Click      - single-select\n"
-                "  CTRL+click - toggle selection\n\n"
-                "Selection is applied after the tree is drawn\n"
-                "(outside the render loop) to avoid flicker.");
+                "  CTRL+click - select/deselect multiple\n");
         }
 
  		if (g_treeDirty) {
