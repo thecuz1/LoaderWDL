@@ -104,13 +104,16 @@ static DWORD WINAPI payload_thread(LPVOID param) {
     DWORD len, i;
 
     len = GetModuleFileNameA(hmod, path, MAX_PATH);
-    if (len == 0)
+    if (len == 0) {
         return 1;
+    }
 
     for (i = len; i > 0; i--) {
-        if (path[i - 1] == '\\' || path[i - 1] == '/')
+        if (path[i - 1] == '\\' || path[i - 1] == '/') {
             break;
+        }
     }
+
     if (i > 0) {
         path[i] = '\0';
     }
@@ -209,22 +212,25 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
 extern "C" HRESULT __stdcall DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riid, LPVOID *ppvOut) {
     ensure_real();
-    if (pDirectInput8Create == nullptr)
+    if (pDirectInput8Create == nullptr){
         return 0x80004005;
+    }
     return pDirectInput8Create(hinst, dwVersion, riid, ppvOut);
 }
 
 extern "C" HRESULT __stdcall DllCanUnloadNow(void) {
     ensure_real();
-    if (pDllCanUnloadNow == nullptr)
+    if (pDllCanUnloadNow == nullptr) {
         return 1;
+    }
     return pDllCanUnloadNow();
 }
 
 extern "C" HRESULT __stdcall DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv) {
     ensure_real();
-    if (pDllGetClassObject == nullptr)
+    if (pDllGetClassObject == nullptr) {
         return 0x80040111; /* CLASS_E_CLASSNOTAVAILABLE */
+    }
     return pDllGetClassObject(rclsid, riid, ppv);
 }
 
