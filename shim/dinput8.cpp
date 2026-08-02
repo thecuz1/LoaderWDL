@@ -5,7 +5,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <filesystem>
+#include <string>
 
 typedef HRESULT (__stdcall *DirectInput8CreateFn)(HINSTANCE, DWORD, REFIID, LPVOID *);
 typedef HRESULT (__stdcall *DllCanUnloadNowFn)(void);
@@ -21,10 +21,6 @@ static DllCanUnloadNowFn     pDllCanUnloadNow;
 static DllGetClassObjectFn   pDllGetClassObject;
 static DllRegisterFn         pDllRegisterServer;
 static DllRegisterFn         pDllUnregisterServer;
-
-static const char *g_payloads[] = {
-    "scripthook.dll"
-};
 
 static void log_msg(const char *fmt, ...) {
     SYSTEMTIME st;
@@ -100,7 +96,7 @@ static void ensure_real() {
 // Try to load a payload DLL from the shim's own directory.
 static DWORD WINAPI payload_thread(LPVOID param) {
     HMODULE hmod = static_cast<HMODULE>(param);
-    CHAR path[MAX_PATH], full[MAX_PATH];
+    CHAR path[MAX_PATH];
     DWORD len, i;
 
     len = GetModuleFileNameA(hmod, path, MAX_PATH);
@@ -118,33 +114,36 @@ static DWORD WINAPI payload_thread(LPVOID param) {
         path[i] = '\0';
     }
 
-    for (i = 0; i < ARRAYSIZE(g_payloads); i++) {
-        _snprintf(full, sizeof(full), "%s%s", path, g_payloads[i]);
-        full[sizeof(full) - 1] = '\0';
+    GetModuleFileNameA(nullptr, path, MAX_PATH);
 
-        log_msg("[dinput8] Loading payload: %s\n", full);
-        std::filesystem::path scripthook = std::filesystem::relative("scripthook.dll");
-        g_payload = LoadLibraryW(scripthook.c_str());
-        if (g_payload != nullptr) {
-            log_msg("[dinput8] Payload loaded @ %p\n", g_payload);
-            return 0;
-        }
-
-        DWORD err = GetLastError();
-        const char *hint = "";
-        switch (err) {
-            case 5:   hint = "5 = access denied"; break;
-            case 126: hint = "126 = module or dependency missing (file absent or VC++ runtime?)"; break;
-            case 225: hint = "225 = blocked by Windows Defender / AV (add bin folder exclusion, restore quarantined DLL)"; break;
-        }
-        if (hint[0] != '\0') {
-            log_msg("[dinput8] Load failed (GetLastError=%lu) %s\n", err, hint);
-        } else {
-            log_msg("[dinput8] Load failed (GetLastError=%lu)\n", err);
-        }
+    std::string dir(path);
+    size_t last_slash = dir.find_last_of("\\/");
+    if (std::string::npos != last_slash) {
+        dir = dir.substr(0, last_slash + 1);
     }
 
-    log_msg("[dinput8] ERROR: no payload DLL found beside dinput8.dll\n");
+    std::string dllPath = dir + "scripthook.dll";
+
+    g_payload = LoadLibraryA(dllPath.c_str());
+    if (g_payload != nullptr) {
+        log_msg("[dinput8] Payload loaded @ %p\n", g_payload);
+        return 0;
+    } else {
+        log_msg("[dinput8] ERROR: no payload DLL found beside dinput8.dll\n");
+    }
+
+    DWORD err = GetLastError();
+    const char *hint = "";
+    switch (err) {
+        case 5:   hint = "5 = access denied\n"; break;
+        case 126: hint = "126 = module or dependency missing (file absent or VC++ runtime?)\n"; break;
+        case 225: hint = "225 = blocked by Windows Defender / AV (add bin folder exclusion, restore quarantined DLL)\n"; break;
+    }
+    if (hint[0] != '\0') {
+        log_msg("[dinput8] Load failed (GetLastError=%lu) %s\n", err, hint);
+    } else {
+        log_msg("[dinput8] Load failed (GetLastError=%lu)\n", err);
+    }
     return 2;
 }
 

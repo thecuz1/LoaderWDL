@@ -2,12 +2,12 @@
 AR        = x86_64-w64-mingw32-ar
 CXX       = x86_64-w64-mingw32-g++
 CC        = x86_64-w64-mingw32-gcc
-CXXFLAGS += -Wall -Wextra -std=c++20 -ffunction-sections -fdata-sections
-CCFLAGS  += -Wall -Wextra -std=c20 -ffunction-sections -fdata-sections
+CXXFLAGS += -Wall -Wextra -std=c++23 -ffunction-sections -fdata-sections
+CCFLAGS  += -Wall -Wextra -std=c23 -ffunction-sections -fdata-sections
 
 INCLUDES += -I. -Ilua -Iimgui -Iimgui/backends -IUI
 
-LDFLAGS  += -shared -s -Wl,--gc-sections,--exclude-all-symbols
+LDFLAGS  += -shared -static -s -Wl,--gc-sections,--exclude-all-symbols
 LDLIBS   += -ld3d12 -ld3dcompiler -ldxgi -ldwmapi -lgdi32
 
 ifneq ("$(OFFSETS_156)", "")
@@ -48,9 +48,9 @@ LIB_OBJS  = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(filter %.cpp, $(LIB_SRCS))) \
             $(patsubst %.c, $(BUILD_DIR)/%.o, $(filter %.c, $(LIB_SRCS)))
 
 # Special flags
-$(LIB_OBJS):  CXXFLAGS := -std=c++17 -Os -ffunction-sections -fdata-sections
-$(LIB_OBJS):  CCFLAGS  := -std=c17 -Os -ffunction-sections -fdata-sections
-$(SHIM):      LDFLAGS  := -shared -s -Wl,--gc-sections
+$(LIB_OBJS):  CXXFLAGS := -std=c++23 -Os -ffunction-sections -fdata-sections
+$(LIB_OBJS):  CCFLAGS  := -std=c23 -Os -ffunction-sections -fdata-sections
+$(SHIM):      LDFLAGS  := -shared -static -s -Wl,--gc-sections
 
 # Default rule
 all: $(TARGET)

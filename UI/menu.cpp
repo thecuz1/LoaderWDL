@@ -195,11 +195,14 @@ void imguiInit() {
     ImGui::Begin("ScriptHook", &isOpen, flags);
     if (ImGui::CollapsingHeader("Run View")) {
         if (ImGui::TreeNode("Terminal")) {
-            ImGui::InputTextMultiline("<", script, sizeof(script));
+            ImGui::InputTextMultiline(nullptr, script, sizeof(script));
             if (ImGui::Button("Run")) {
-                mainInstance->Execute(context_lua_state, script);
-                Logger::LogMessage("[Lua] running script...\n}");
-
+                if (!context_lua_state) {
+                    Logger::LogMessage("[Lua] ERROR: context_lua_state not set! Are you in the main menu?\n");
+                } else {
+                    mainInstance->Execute(context_lua_state, script);
+                    Logger::LogMessage("[Lua] running script...\n");
+                }
             }
             ImGui::TreePop();
         }

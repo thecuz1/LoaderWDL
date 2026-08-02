@@ -3,6 +3,7 @@ compile_commands.json
 Makefile-local.mk
 AGENTS.md
 tools
+log
 
 ##### Windows
 # Windows thumbnail cache files
