@@ -158,6 +158,7 @@ void imguiInit() {
     if (GetAsyncKeyState(VK_F1) & 0x0001) {
         menu_open = !menu_open;
         menuOpen = menu_open;
+        ImGui::GetIO().MouseDrawCursor = menu_open;
         Logger::LogMessage(menu_open ? "[F1] Opening menu...\n" : "[F1] Closing menu...\n");
         if (menu_open) {
             ClipCursor(nullptr);
@@ -173,9 +174,6 @@ void imguiInit() {
         g_treeDirty = true;
         Logger::LogMessage("[F2] Refreshing script list...\n");
     }
-
-    ImGuiIO& io = ImGui::GetIO();
-    io.MouseDrawCursor = true;
 
     // Style setup (one-time)
     static bool styled = false;

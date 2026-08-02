@@ -215,6 +215,10 @@ HRESULT APIENTRY hookPresentD3D12(IDXGISwapChain3* pSwapChain, UINT SyncInterval
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        // Don't let ImGui set/hide the OS cursor - the game manages it during
+        // gameplay (it hides it for mouse-look). We draw ImGui's own cursor via
+        // io.MouseDrawCursor while the menu is open instead.
+        io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
         ImGui::StyleColorsDark();
         ImGui_ImplWin32_Init(desc.OutputWindow);
 
